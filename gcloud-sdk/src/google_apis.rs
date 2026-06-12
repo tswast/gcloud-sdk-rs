@@ -405,9 +405,6 @@ pub mod google {
                 feature = "google-cloud-redis-v1beta1",
                 feature = "google-cloud-resourcemanager-v2",
                 feature = "google-cloud-resourcemanager-v3",
-                feature = "google-cloud-retail-v2",
-                feature = "google-cloud-retail-v2alpha",
-                feature = "google-cloud-retail-v2beta",
                 feature = "google-cloud-run-v2",
                 feature = "google-cloud-runtimeconfig-v1beta1",
                 feature = "google-cloud-saasplatform-saasservicemgmt-logging-v1",
@@ -2457,24 +2454,6 @@ pub mod google {
                 include_proto!("google.cloud.resourcemanager.v3");
             }
         }
-        pub mod retail {
-            pub mod logging {
-                #[cfg(any(feature = "google-cloud-retail-logging"))]
-                include_proto!("google.cloud.retail.logging");
-            }
-            pub mod v2 {
-                #[cfg(any(feature = "google-cloud-retail-v2"))]
-                include_proto!("google.cloud.retail.v2");
-            }
-            pub mod v2alpha {
-                #[cfg(any(feature = "google-cloud-retail-v2alpha"))]
-                include_proto!("google.cloud.retail.v2alpha");
-            }
-            pub mod v2beta {
-                #[cfg(any(feature = "google-cloud-retail-v2beta"))]
-                include_proto!("google.cloud.retail.v2beta");
-            }
-        }
         pub mod run {
             pub mod v2 {
                 #[cfg(any(feature = "google-cloud-run-v2"))]
@@ -3566,9 +3545,6 @@ pub mod google {
                 feature = "google-cloud-redis-v1beta1",
                 feature = "google-cloud-resourcemanager-v2",
                 feature = "google-cloud-resourcemanager-v3",
-                feature = "google-cloud-retail-v2",
-                feature = "google-cloud-retail-v2alpha",
-                feature = "google-cloud-retail-v2beta",
                 feature = "google-cloud-run-v2",
                 feature = "google-cloud-runtimeconfig-v1beta1",
                 feature = "google-cloud-securesourcemanager-v1",
@@ -3952,9 +3928,6 @@ pub mod google {
                 feature = "google-cloud-redis-v1beta1",
                 feature = "google-cloud-resourcemanager-v2",
                 feature = "google-cloud-resourcemanager-v3",
-                feature = "google-cloud-retail-v2",
-                feature = "google-cloud-retail-v2alpha",
-                feature = "google-cloud-retail-v2beta",
                 feature = "google-cloud-run-v2",
                 feature = "google-cloud-secretmanager-v1",
                 feature = "google-cloud-secretmanager-v1beta2",
@@ -4246,10 +4219,6 @@ pub mod google {
                 feature = "google-cloud-redis-v1beta1",
                 feature = "google-cloud-resourcemanager-v2",
                 feature = "google-cloud-resourcemanager-v3",
-                feature = "google-cloud-retail-logging",
-                feature = "google-cloud-retail-v2",
-                feature = "google-cloud-retail-v2alpha",
-                feature = "google-cloud-retail-v2beta",
                 feature = "google-cloud-run-v2",
                 feature = "google-cloud-runtimeconfig-v1beta1",
                 feature = "google-cloud-saasplatform-saasservicemgmt-logging-v1",
