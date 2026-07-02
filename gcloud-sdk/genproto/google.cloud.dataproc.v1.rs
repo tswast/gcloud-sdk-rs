@@ -2848,9 +2848,18 @@ pub struct GceClusterConfig {
     #[prost(message, optional, tag = "14")]
     pub shielded_instance_config: ::core::option::Option<ShieldedInstanceConfig>,
     /// Optional. Confidential Instance Config for clusters using [Confidential
-    /// VMs](<https://cloud.google.com/compute/confidential-vm/docs>).
+    /// VMs](<https://cloud.google.com/confidential-computing/confidential-vm/docs>).
     #[prost(message, optional, tag = "15")]
     pub confidential_instance_config: ::core::option::Option<ConfidentialInstanceConfig>,
+    /// Optional. \[Resource manager tags\]
+    /// (<https://cloud.google.com/resource-manager/docs/tags/tags-creating-and-managing>)
+    /// to add to all instances (see \[Use secure tags\]
+    /// (<https://cloud.google.com/dataproc/docs/guides/use-secure-tags>)).
+    #[prost(map = "string, string", tag = "16")]
+    pub resource_manager_tags: ::std::collections::HashMap<
+        ::prost::alloc::string::String,
+        ::prost::alloc::string::String,
+    >,
 }
 /// Nested message and enum types in `GceClusterConfig`.
 pub mod gce_cluster_config {
@@ -2945,13 +2954,75 @@ pub struct ShieldedInstanceConfig {
     pub enable_integrity_monitoring: ::core::option::Option<bool>,
 }
 /// Confidential Instance Config for clusters using [Confidential
-/// VMs](<https://cloud.google.com/compute/confidential-vm/docs>)
+/// VMs](<https://cloud.google.com/confidential-computing/confidential-vm/docs>)
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct ConfidentialInstanceConfig {
-    /// Optional. Defines whether the instance should have confidential compute
-    /// enabled.
+    /// Optional. Deprecated: Use 'confidential_instance_type' instead.
+    /// Defines whether the instance should have confidential compute enabled.
+    #[deprecated]
     #[prost(bool, tag = "1")]
     pub enable_confidential_compute: bool,
+    /// Optional. Defines the type of Confidential Compute technology to use.
+    #[prost(
+        enumeration = "confidential_instance_config::ConfidentialInstanceType",
+        tag = "2"
+    )]
+    pub confidential_instance_type: i32,
+}
+/// Nested message and enum types in `ConfidentialInstanceConfig`.
+pub mod confidential_instance_config {
+    /// The type of Confidential Compute technology as per [Confidential Computing
+    /// types](<https://cloud.google.com/confidential-computing/confidential-vm/docs/create-a-confidential-vm-instance#create-instance>).
+    /// New values may be added in the future.
+    #[derive(
+        Clone,
+        Copy,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash,
+        PartialOrd,
+        Ord,
+        ::prost::Enumeration
+    )]
+    #[repr(i32)]
+    pub enum ConfidentialInstanceType {
+        /// Confidential Instance Type is not specified.
+        Unspecified = 0,
+        /// [AMD Secure Encrypted
+        /// Virtualization](<https://cloud.google.com/confidential-computing/confidential-vm/docs/confidential-vm-overview#amd_sev>)
+        Sev = 1,
+        /// [AMD Secure Encrypted Virtualization-Secure Nested
+        /// Paging](<https://cloud.google.com/confidential-computing/confidential-vm/docs/confidential-vm-overview#amd_sev-snp>)
+        SevSnp = 2,
+        /// [Intel Trust Domain
+        /// Extensions](<https://cloud.google.com/confidential-computing/confidential-vm/docs/confidential-vm-overview#intel_tdx>)
+        Tdx = 3,
+    }
+    impl ConfidentialInstanceType {
+        /// String value of the enum field names used in the ProtoBuf definition.
+        ///
+        /// The values are not transformed in any way and thus are considered stable
+        /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+        pub fn as_str_name(&self) -> &'static str {
+            match self {
+                Self::Unspecified => "CONFIDENTIAL_INSTANCE_TYPE_UNSPECIFIED",
+                Self::Sev => "SEV",
+                Self::SevSnp => "SEV_SNP",
+                Self::Tdx => "TDX",
+            }
+        }
+        /// Creates an enum from field names used in the ProtoBuf definition.
+        pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+            match value {
+                "CONFIDENTIAL_INSTANCE_TYPE_UNSPECIFIED" => Some(Self::Unspecified),
+                "SEV" => Some(Self::Sev),
+                "SEV_SNP" => Some(Self::SevSnp),
+                "TDX" => Some(Self::Tdx),
+                _ => None,
+            }
+        }
+    }
 }
 /// The config settings for Compute Engine resources in
 /// an instance group, such as a master or worker group.
