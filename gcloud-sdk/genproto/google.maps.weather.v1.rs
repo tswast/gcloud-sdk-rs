@@ -25,6 +25,9 @@ pub struct SunEvents {
 /// Represents the events related to the moon (e.g. moonrise, moonset).
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct MoonEvents {
+    /// The moon phase (a.k.a. lunar phase).
+    #[prost(enumeration = "MoonPhase", tag = "3")]
+    pub moon_phase: i32,
     /// The time when the upper limb of the moon appears above the horizon
     /// (see <https://en.wikipedia.org/wiki/Moonrise_and_moonset>).
     ///
@@ -47,9 +50,6 @@ pub struct MoonEvents {
     /// order.
     #[prost(message, repeated, tag = "5")]
     pub moonset_times: ::prost::alloc::vec::Vec<::prost_types::Timestamp>,
-    /// The moon phase (a.k.a. lunar phase).
-    #[prost(enumeration = "MoonPhase", tag = "3")]
-    pub moon_phase: i32,
 }
 /// Marks the moon phase (a.k.a. lunar phase).
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
@@ -283,6 +283,8 @@ pub enum PrecipitationType {
     Sleet = 6,
     /// Freezing rain precipitation.
     FreezingRain = 7,
+    /// Hail precipitation.
+    Hail = 9,
 }
 impl PrecipitationType {
     /// String value of the enum field names used in the ProtoBuf definition.
@@ -300,6 +302,7 @@ impl PrecipitationType {
             Self::RainAndSnow => "RAIN_AND_SNOW",
             Self::Sleet => "SLEET",
             Self::FreezingRain => "FREEZING_RAIN",
+            Self::Hail => "PRECIPITATION_TYPE_HAIL",
         }
     }
     /// Creates an enum from field names used in the ProtoBuf definition.
@@ -314,6 +317,7 @@ impl PrecipitationType {
             "RAIN_AND_SNOW" => Some(Self::RainAndSnow),
             "SLEET" => Some(Self::Sleet),
             "FREEZING_RAIN" => Some(Self::FreezingRain),
+            "PRECIPITATION_TYPE_HAIL" => Some(Self::Hail),
             _ => None,
         }
     }
@@ -779,15 +783,15 @@ pub struct ForecastDay {
     /// The minimum (low) feels-like temperature throughout the day.
     #[prost(message, optional, tag = "8")]
     pub feels_like_min_temperature: ::core::option::Option<Temperature>,
-    /// The maximum heat index temperature throughout the day.
-    #[prost(message, optional, tag = "11")]
-    pub max_heat_index: ::core::option::Option<Temperature>,
     /// The events related to the sun (e.g. sunrise, sunset).
     #[prost(message, optional, tag = "9")]
     pub sun_events: ::core::option::Option<SunEvents>,
     /// The events related to the moon (e.g. moonrise, moonset).
     #[prost(message, optional, tag = "10")]
     pub moon_events: ::core::option::Option<MoonEvents>,
+    /// The maximum heat index temperature throughout the day.
+    #[prost(message, optional, tag = "11")]
+    pub max_heat_index: ::core::option::Option<Temperature>,
 }
 /// Represents a forecast record for a part of the day.
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -1036,6 +1040,7 @@ pub mod precipitation_segment {
         }
     }
     /// Precipitation intensity of the segment.
+    /// (-- Next available tag: 8 --)
     #[derive(
         Clone,
         Copy,
@@ -1059,6 +1064,12 @@ pub mod precipitation_segment {
         Moderate = 3,
         /// Heavy precipitation intensity.
         Heavy = 4,
+        /// Mid-light precipitation intensity.
+        MidLight = 5,
+        /// Mid-moderate precipitation intensity.
+        MidModerate = 6,
+        /// Mid-heavy precipitation intensity.
+        MidHeavy = 7,
     }
     impl PrecipitationIntensity {
         /// String value of the enum field names used in the ProtoBuf definition.
@@ -1072,6 +1083,9 @@ pub mod precipitation_segment {
                 Self::Light => "LIGHT",
                 Self::Moderate => "MODERATE",
                 Self::Heavy => "HEAVY",
+                Self::MidLight => "MID_LIGHT",
+                Self::MidModerate => "MID_MODERATE",
+                Self::MidHeavy => "MID_HEAVY",
             }
         }
         /// Creates an enum from field names used in the ProtoBuf definition.
@@ -1082,6 +1096,9 @@ pub mod precipitation_segment {
                 "LIGHT" => Some(Self::Light),
                 "MODERATE" => Some(Self::Moderate),
                 "HEAVY" => Some(Self::Heavy),
+                "MID_LIGHT" => Some(Self::MidLight),
+                "MID_MODERATE" => Some(Self::MidModerate),
+                "MID_HEAVY" => Some(Self::MidHeavy),
                 _ => None,
             }
         }
