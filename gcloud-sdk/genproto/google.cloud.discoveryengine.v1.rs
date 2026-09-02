@@ -2374,6 +2374,17 @@ pub struct SearchRequest {
     /// This feature is not supported for healthcare search.
     #[prost(enumeration = "search_request::RelevanceThreshold", tag = "44")]
     pub relevance_threshold: i32,
+    /// Optional. The granular relevance filtering specification.
+    ///
+    /// If not specified, the global `relevance_threshold` will be used for all
+    /// sub-searches. If specified, this overrides the global
+    /// `relevance_threshold` to use thresholds on a per sub-search basis.
+    ///
+    /// This feature is currently supported only for custom and site search.
+    #[prost(message, optional, tag = "86")]
+    pub relevance_filter_spec: ::core::option::Option<
+        search_request::RelevanceFilterSpec,
+    >,
     /// Optional. The specification for returning the relevance score.
     #[prost(message, optional, tag = "52")]
     pub relevance_score_spec: ::core::option::Option<search_request::RelevanceScoreSpec>,
@@ -3587,6 +3598,50 @@ pub mod search_request {
         #[prost(bool, tag = "1")]
         pub return_relevance_score: bool,
     }
+    /// Relevance filtering specification.
+    #[derive(Clone, Copy, PartialEq, ::prost::Message)]
+    pub struct RelevanceFilterSpec {
+        /// Optional. Relevance filtering threshold specification for keyword search.
+        #[prost(message, optional, tag = "1")]
+        pub keyword_search_threshold: ::core::option::Option<
+            relevance_filter_spec::RelevanceThresholdSpec,
+        >,
+        /// Optional. Relevance filtering threshold specification for semantic
+        /// search.
+        #[prost(message, optional, tag = "2")]
+        pub semantic_search_threshold: ::core::option::Option<
+            relevance_filter_spec::RelevanceThresholdSpec,
+        >,
+    }
+    /// Nested message and enum types in `RelevanceFilterSpec`.
+    pub mod relevance_filter_spec {
+        /// Specification for relevance filtering on a specific sub-search.
+        #[derive(Clone, Copy, PartialEq, ::prost::Message)]
+        pub struct RelevanceThresholdSpec {
+            /// Configures how the relevance threshold is determined.
+            #[prost(
+                oneof = "relevance_threshold_spec::RelevanceThresholdSpec",
+                tags = "1, 2"
+            )]
+            pub relevance_threshold_spec: ::core::option::Option<
+                relevance_threshold_spec::RelevanceThresholdSpec,
+            >,
+        }
+        /// Nested message and enum types in `RelevanceThresholdSpec`.
+        pub mod relevance_threshold_spec {
+            /// Configures how the relevance threshold is determined.
+            #[derive(Clone, Copy, PartialEq, ::prost::Oneof)]
+            pub enum RelevanceThresholdSpec {
+                /// Pre-defined relevance threshold for the sub-search.
+                #[prost(enumeration = "super::super::RelevanceThreshold", tag = "1")]
+                RelevanceThreshold(i32),
+                /// Custom relevance threshold for the sub-search.
+                /// The value must be in \[0.0, 1.0\].
+                #[prost(float, tag = "2")]
+                SemanticRelevanceThreshold(f32),
+            }
+        }
+    }
     /// The backend to use for the ranking expression evaluation.
     #[derive(
         Clone,
@@ -4736,6 +4791,9 @@ pub struct StreamAssistRequest {
     /// Optional. Information about the user initiating the query.
     #[prost(message, optional, tag = "6")]
     pub user_metadata: ::core::option::Option<AssistUserMetadata>,
+    /// Optional. Specification of agents that are used to serve the request.
+    #[prost(message, optional, tag = "22")]
+    pub agents_spec: ::core::option::Option<stream_assist_request::AgentsSpec>,
     /// Optional. Specification of tools that are used to serve the request.
     #[prost(message, optional, tag = "18")]
     pub tools_spec: ::core::option::Option<stream_assist_request::ToolsSpec>,
@@ -4745,6 +4803,27 @@ pub struct StreamAssistRequest {
 }
 /// Nested message and enum types in `StreamAssistRequest`.
 pub mod stream_assist_request {
+    /// Specification of agents that are used to serve the request.
+    #[derive(Clone, PartialEq, ::prost::Message)]
+    pub struct AgentsSpec {
+        /// Optional. Specification of agents that are used to serve the request.
+        #[prost(message, repeated, tag = "1")]
+        pub agent_specs: ::prost::alloc::vec::Vec<agents_spec::AgentSpec>,
+    }
+    /// Nested message and enum types in `AgentsSpec`.
+    pub mod agents_spec {
+        /// Specification of an agent.
+        #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+        pub struct AgentSpec {
+            /// Required. ID to identify the agent resource serving the request.
+            ///
+            /// This field must conform to
+            /// [RFC-1034](<https://tools.ietf.org/html/rfc1034>)
+            /// with a length limit of 63 characters.
+            #[prost(string, tag = "1")]
+            pub agent_id: ::prost::alloc::string::String,
+        }
+    }
     /// Specification of tools that are used to serve the request.
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct ToolsSpec {
