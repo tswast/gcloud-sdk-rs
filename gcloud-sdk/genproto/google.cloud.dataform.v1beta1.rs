@@ -80,6 +80,9 @@ pub struct Repository {
     /// format of this field is a JSON string.
     #[prost(string, optional, tag = "15")]
     pub internal_metadata: ::core::option::Option<::prost::alloc::string::String>,
+    /// Optional. Includes configuration options for end user authentication.
+    #[prost(message, optional, tag = "28")]
+    pub end_user_auth_config: ::core::option::Option<repository::EndUserAuthConfig>,
 }
 /// Nested message and enum types in `Repository`.
 pub mod repository {
@@ -89,9 +92,15 @@ pub mod repository {
         /// Required. The Git remote's URL.
         #[prost(string, tag = "1")]
         pub url: ::prost::alloc::string::String,
-        /// Required. The Git remote's default branch name.
+        /// Optional. The Git remote's default branch name.
+        /// If not set, `main` will be used.
         #[prost(string, tag = "2")]
         pub default_branch: ::prost::alloc::string::String,
+        /// Output only. The Git remote's effective default branch name.
+        /// This is the default branch name of the Git remote if it is set,
+        /// otherwise it is `main`.
+        #[prost(string, tag = "9")]
+        pub effective_default_branch: ::prost::alloc::string::String,
         /// Optional. The name of the Secret Manager secret version to use as an
         /// authentication token for Git operations. Must be in the format
         /// `projects/*/secrets/*/versions/*`.
@@ -102,6 +111,11 @@ pub mod repository {
         pub ssh_authentication_config: ::core::option::Option<
             git_remote_settings::SshAuthenticationConfig,
         >,
+        /// Optional. Resource name for the `GitRepositoryLink` used for machine
+        /// credentials. Must be in the format
+        /// `projects/*/locations/*/connections/*/gitRepositoryLinks/*`
+        #[prost(string, optional, tag = "7")]
+        pub git_repository_link: ::core::option::Option<::prost::alloc::string::String>,
         /// Output only. Deprecated: The field does not contain any token status
         /// information. Instead use
         /// <https://cloud.google.com/dataform/reference/rest/v1beta1/projects.locations.repositories/computeAccessTokenStatus>
@@ -194,6 +208,24 @@ pub mod repository {
         #[prost(string, tag = "3")]
         pub table_prefix: ::prost::alloc::string::String,
     }
+    /// Includes configuration options for repository end user authentication.
+    #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+    pub struct EndUserAuthConfig {
+        /// Optional. OAuth configuration for repository end user authentication.
+        #[prost(message, optional, tag = "1")]
+        pub oauth_config: ::core::option::Option<super::OAuthConfig>,
+    }
+}
+/// OAuth configuration for end user authentication.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct OAuthConfig {
+    /// Optional. Additional OAuth scopes to use for BigQuery executions.
+    /// Scopes always in use:
+    /// `<https://www.googleapis.com/auth/bigquery`>
+    #[prost(string, repeated, tag = "1")]
+    pub additional_oauth_scopes: ::prost::alloc::vec::Vec<
+        ::prost::alloc::string::String,
+    >,
 }
 /// Metadata used to identify if a resource is user scoped.
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
@@ -307,6 +339,25 @@ pub struct DeleteRepositoryRequest {
     /// **Note:** *This flag doesn't support deletion of workspaces, release
     /// configs or workflow configs. If any of such resources exists in the
     /// repository, the request will fail.*.
+    #[prost(bool, tag = "2")]
+    pub force: bool,
+}
+/// `DeleteRepositoryLongRunning` response message.
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct DeleteRepositoryLongRunningResponse {}
+/// `DeleteRepositoryLongRunning` request message.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct DeleteRepositoryLongRunningRequest {
+    /// Required. The repository's name.
+    #[prost(string, tag = "1")]
+    pub name: ::prost::alloc::string::String,
+    /// Optional. If set to true, child resources of this repository (compilation
+    /// results and workflow invocations) will also be deleted. Otherwise, the
+    /// request will only succeed if the repository has no child resources.
+    ///
+    /// **Note:** *This flag doesn't support deletion of workspaces, release
+    /// configs or workflow configs. If any of such resources exists in the
+    /// repository, the request will fail.*
     #[prost(bool, tag = "2")]
     pub force: bool,
 }
@@ -532,6 +583,8 @@ pub mod compute_repository_access_token_status_response {
         Invalid = 2,
         /// The token was used successfully to authenticate against the Git remote.
         Valid = 3,
+        /// The token is not accessible due to permission issues.
+        PermissionDenied = 4,
     }
     impl TokenStatus {
         /// String value of the enum field names used in the ProtoBuf definition.
@@ -544,6 +597,7 @@ pub mod compute_repository_access_token_status_response {
                 Self::NotFound => "NOT_FOUND",
                 Self::Invalid => "INVALID",
                 Self::Valid => "VALID",
+                Self::PermissionDenied => "PERMISSION_DENIED",
             }
         }
         /// Creates an enum from field names used in the ProtoBuf definition.
@@ -553,6 +607,7 @@ pub mod compute_repository_access_token_status_response {
                 "NOT_FOUND" => Some(Self::NotFound),
                 "INVALID" => Some(Self::Invalid),
                 "VALID" => Some(Self::Valid),
+                "PERMISSION_DENIED" => Some(Self::PermissionDenied),
                 _ => None,
             }
         }
@@ -594,10 +649,33 @@ pub struct Workspace {
     /// Repository is moved. Instead, it will be deleted.
     #[prost(bool, optional, tag = "6")]
     pub disable_moves: ::core::option::Option<bool>,
+    /// Optional. Input only. Immutable. The name of the default upstream branch
+    /// for all pull/push operations in the remote repository for this workspace.
+    /// If empty, the HEAD branch from repository will be used.
+    #[prost(string, optional, tag = "7")]
+    pub original_branch: ::core::option::Option<::prost::alloc::string::String>,
     /// Output only. Metadata indicating whether this resource is user-scoped. For
     /// `Workspace` resources, the `user_scoped` field is always `true`.
     #[prost(message, optional, tag = "8")]
     pub private_resource_metadata: ::core::option::Option<PrivateResourceMetadata>,
+    /// Immutable. Controls the enablement of branch checkout for the
+    /// workspace.
+    ///
+    /// When set to True, the workspace will be allowed to checkout branches.
+    #[prost(bool, optional, tag = "9")]
+    pub enable_branch_management: ::core::option::Option<bool>,
+    /// Optional. Input only. Immutable. The maximum depth of the Git repository to
+    /// checkout for this workspace. If defined and greater than 0, the Git
+    /// repository will be created as a shallow clone with the given depth,
+    /// otherwise a full clone will be performed. This field is available only for
+    /// GitHub, Gitlab and 1p repositories with enabled branch management.
+    #[prost(int32, tag = "10")]
+    pub depth: i32,
+    /// Output only. If set to true, the workspace was created as a shallow clone.
+    /// Will be set to true if the depth field is set to a value greater than 0,
+    /// otherwise it will be set to false.
+    #[prost(bool, optional, tag = "11")]
+    pub shallow: ::core::option::Option<bool>,
 }
 /// `ListWorkspaces` request message.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -699,6 +777,70 @@ pub struct PullGitCommitsRequest {
 /// `PullGitCommits` response message.
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct PullGitCommitsResponse {}
+/// `CheckoutWorkspaceBranch` request message.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct CheckoutWorkspaceBranchRequest {
+    /// Required. The workspace resource name.
+    /// Format:
+    /// projects/{project}/locations/{location}/repositories/{repository}/workspaces/{workspace}
+    #[prost(string, tag = "1")]
+    pub name: ::prost::alloc::string::String,
+    /// Required. The name of the branch in the Git repository to which the
+    /// workspace should be checked out.
+    #[prost(string, tag = "2")]
+    pub branch: ::prost::alloc::string::String,
+    /// Optional. If set to true and the branch does not exist, it will be created.
+    /// Otherwise, an error will be thrown.
+    #[prost(bool, tag = "3")]
+    pub create_if_not_exists: bool,
+    /// Optional. The name of the branch in the Git repository from which the new
+    /// branch should be created. If left unset, the workspace's current branch
+    /// name will be used. Accepts only branch names from FetchWorkspaceBranches
+    /// response, and can only be set if `create_if_not_exists` is true. Oherwise,
+    /// an error will be thrown.
+    #[prost(string, tag = "4")]
+    pub source_branch: ::prost::alloc::string::String,
+}
+/// `SyncWorkspaceRefs` request message.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct SyncWorkspaceRefsRequest {
+    /// Required. The workspace resource name.
+    /// Format:
+    /// projects/{project}/locations/{location}/repositories/{repository}/workspaces/{workspace}
+    #[prost(string, tag = "1")]
+    pub name: ::prost::alloc::string::String,
+    /// Optional. The name of the branch in the Git remote to which the refs should
+    /// be fetched for. If left unset, all remote branches will be fetched.
+    #[prost(string, tag = "2")]
+    pub remote_branch_name: ::prost::alloc::string::String,
+    /// Optional. Can be used to deepen the commit history of shallow clones.
+    /// Git documentation:
+    /// <https://git-scm.com/docs/git-fetch#Documentation/git-fetch.txt---deependepth>
+    #[prost(int32, tag = "3")]
+    pub deepen: i32,
+}
+/// `SyncWorkspaceRefs` response message.
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct SyncWorkspaceRefsResponse {}
+/// `DeleteBranch` request message.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct DeleteBranchRequest {
+    /// Required. The workspace resource name.
+    /// Format:
+    /// projects/{project}/locations/{location}/repositories/{repository}/workspaces/{workspace}
+    #[prost(string, tag = "1")]
+    pub name: ::prost::alloc::string::String,
+    /// Required. The name of the branch in the Git repository to delete.
+    #[prost(string, tag = "2")]
+    pub branch: ::prost::alloc::string::String,
+    /// Optional. If set to true, any non-pushed commits on the branch will be
+    /// deleted. Upstream branch name will be the same as the branch to delete.
+    #[prost(bool, tag = "3")]
+    pub force: bool,
+}
+/// `DeleteBranch` response message.
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct DeleteBranchResponse {}
 /// `PushGitCommits` request message.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct PushGitCommitsRequest {
@@ -898,6 +1040,12 @@ pub struct QueryDirectoryContentsRequest {
     /// call that provided the page token.
     #[prost(string, tag = "4")]
     pub page_token: ::prost::alloc::string::String,
+    /// Optional. Specifies the metadata to return for each directory entry.
+    /// If unspecified, the default is `DIRECTORY_CONTENTS_VIEW_BASIC`.
+    /// Currently the `DIRECTORY_CONTENTS_VIEW_METADATA` view is not supported by
+    /// CMEK-protected workspaces.
+    #[prost(enumeration = "DirectoryContentsView", tag = "5")]
+    pub view: i32,
 }
 /// `QueryDirectoryContents` response message.
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -913,6 +1061,9 @@ pub struct QueryDirectoryContentsResponse {
 /// Represents a single entry in a directory.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct DirectoryEntry {
+    /// Entry with metadata.
+    #[prost(message, optional, tag = "3")]
+    pub metadata: ::core::option::Option<FilesystemEntryMetadata>,
     /// The entry's contents.
     #[prost(oneof = "directory_entry::Entry", tags = "1, 2")]
     pub entry: ::core::option::Option<directory_entry::Entry>,
@@ -922,13 +1073,26 @@ pub mod directory_entry {
     /// The entry's contents.
     #[derive(Clone, PartialEq, Eq, Hash, ::prost::Oneof)]
     pub enum Entry {
-        /// A file in the directory.
+        /// A file in the directory. The path is returned including the full
+        /// folder structure from the root.
         #[prost(string, tag = "1")]
         File(::prost::alloc::string::String),
-        /// A child directory in the directory.
+        /// A child directory in the directory. The path is returned including
+        /// the full folder structure from the root.
         #[prost(string, tag = "2")]
         Directory(::prost::alloc::string::String),
     }
+}
+/// Represents metadata for a single entry in a filesystem.
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct FilesystemEntryMetadata {
+    /// Output only. Provides the size of the entry in bytes. For directories, this
+    /// will be 0.
+    #[prost(int64, tag = "1")]
+    pub size_bytes: i64,
+    /// Output only. Represents the time of the last modification of the entry.
+    #[prost(message, optional, tag = "2")]
+    pub update_time: ::core::option::Option<::prost_types::Timestamp>,
 }
 /// Configuration containing file search request parameters.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -1122,6 +1286,10 @@ pub struct InstallNpmPackagesRequest {
     /// Required. The workspace's name.
     #[prost(string, tag = "1")]
     pub workspace: ::prost::alloc::string::String,
+    /// Optional. The pipeline options which defines the pipeline type and path
+    /// within the Git repository.
+    #[prost(message, optional, tag = "3")]
+    pub pipeline_config: ::core::option::Option<PipelineConfig>,
 }
 /// `InstallNpmPackages` response message.
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
@@ -1149,9 +1317,9 @@ pub struct ReleaseConfig {
     #[prost(string, tag = "4")]
     pub cron_schedule: ::prost::alloc::string::String,
     /// Optional. Specifies the time zone to be used when interpreting
-    /// cron_schedule. Must be a time zone name from the time zone database
-    /// (<https://en.wikipedia.org/wiki/List_of_tz_database_time_zones>). If left
-    /// unspecified, the default is UTC.
+    /// cron_schedule. Must be a time zone name from the [time zone
+    /// database](<https://en.wikipedia.org/wiki/List_of_tz_database_time_zones>). If
+    /// left unspecified, the default is `UTC`.
     #[prost(string, tag = "7")]
     pub time_zone: ::prost::alloc::string::String,
     /// Output only. Records of the 10 most recent scheduled release attempts,
@@ -1322,6 +1490,12 @@ pub struct CompilationResult {
     /// from a workspace.
     #[prost(message, optional, tag = "12")]
     pub private_resource_metadata: ::core::option::Option<PrivateResourceMetadata>,
+    /// Output only. Metadata about the repository snapshot used by scheduled
+    /// notebooks.
+    #[prost(message, optional, tag = "13")]
+    pub gcs_repository_snapshot_metadata: ::core::option::Option<
+        GcsRepositorySnapshotMetadata,
+    >,
     /// The source of the compilation result.
     #[prost(oneof = "compilation_result::Source", tags = "2, 3, 7")]
     pub source: ::core::option::Option<compilation_result::Source>,
@@ -1367,6 +1541,128 @@ pub mod compilation_result {
         ReleaseConfig(::prost::alloc::string::String),
     }
 }
+/// Represents a trigger configuration for a workflow.
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct WorkflowTriggerConfig {
+    /// Optional. The condition to use when triggering the workflow.
+    #[prost(enumeration = "workflow_trigger_config::Condition", tag = "1")]
+    pub condition: i32,
+    /// Required. The trigger definitions to invoke a workflow.
+    #[prost(message, repeated, tag = "2")]
+    pub workflow_triggers: ::prost::alloc::vec::Vec<WorkflowTrigger>,
+    /// Optional. Minimum duration between two consecutive executions. If not
+    /// specified, the workflow will be executed every time trigger conditions are
+    /// met and there is no ongoing workflow execution.
+    #[prost(message, optional, tag = "3")]
+    pub min_execution_duration: ::core::option::Option<::prost_types::Duration>,
+    /// Optional. The effective maximum wait time duration for the trigger
+    /// condition to be met. If not specified, the workflow won't be triggered
+    /// until conditions are met.
+    #[prost(message, optional, tag = "4")]
+    pub max_wait_duration: ::core::option::Option<::prost_types::Duration>,
+    /// Output only. Records of the 10 most recent trigger evaluations, ordered
+    /// in descending order of `evaluation_time`. Updated whenever the service
+    /// evaluates the trigger conditions (via polling or upon receiving a push
+    /// event).
+    #[prost(message, repeated, tag = "5")]
+    pub recent_trigger_evaluation_records: ::prost::alloc::vec::Vec<
+        TriggerEvaluationRecord,
+    >,
+    /// Output only. The timestamp of the last successful trigger evaluation.
+    #[prost(message, optional, tag = "6")]
+    pub last_successful_evaluation_time: ::core::option::Option<
+        ::prost_types::Timestamp,
+    >,
+}
+/// Nested message and enum types in `WorkflowTriggerConfig`.
+pub mod workflow_trigger_config {
+    /// The condition to use when triggering the workflow.
+    #[derive(
+        Clone,
+        Copy,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash,
+        PartialOrd,
+        Ord,
+        ::prost::Enumeration
+    )]
+    #[repr(i32)]
+    pub enum Condition {
+        /// If CONDITION_UNSPECIFIED, the default value is ANY.
+        Unspecified = 0,
+        /// If ALL, all the trigger config conditions must be met before a workflow
+        /// is invoked.
+        All = 1,
+        /// If ANY, at least one of the trigger config conditions must be met
+        /// before a workflow is invoked.
+        Any = 2,
+    }
+    impl Condition {
+        /// String value of the enum field names used in the ProtoBuf definition.
+        ///
+        /// The values are not transformed in any way and thus are considered stable
+        /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+        pub fn as_str_name(&self) -> &'static str {
+            match self {
+                Self::Unspecified => "CONDITION_UNSPECIFIED",
+                Self::All => "ALL",
+                Self::Any => "ANY",
+            }
+        }
+        /// Creates an enum from field names used in the ProtoBuf definition.
+        pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+            match value {
+                "CONDITION_UNSPECIFIED" => Some(Self::Unspecified),
+                "ALL" => Some(Self::All),
+                "ANY" => Some(Self::Any),
+                _ => None,
+            }
+        }
+    }
+}
+/// A record of an attempt to evaluate trigger conditions.
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct TriggerEvaluationRecord {
+    /// Output only. The timestamp of this trigger evaluation attempt.
+    #[prost(message, optional, tag = "1")]
+    pub evaluation_time: ::core::option::Option<::prost_types::Timestamp>,
+    /// Output only. The status of the trigger evaluation.
+    /// Success is indicated by a code of 0 (OK). Message will only be present
+    /// if the status code is non-zero.
+    #[prost(message, optional, tag = "2")]
+    pub status: ::core::option::Option<super::super::super::rpc::Status>,
+}
+/// The trigger definition to invoke a workflow.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct WorkflowTrigger {
+    /// The trigger defining the conditions to invoke a workflow.
+    #[prost(oneof = "workflow_trigger::Trigger", tags = "1")]
+    pub trigger: ::core::option::Option<workflow_trigger::Trigger>,
+}
+/// Nested message and enum types in `WorkflowTrigger`.
+pub mod workflow_trigger {
+    /// The trigger defining the conditions to invoke a workflow.
+    #[derive(Clone, PartialEq, Eq, Hash, ::prost::Oneof)]
+    pub enum Trigger {
+        /// The table update trigger configuration.
+        #[prost(message, tag = "1")]
+        TableUpdateTrigger(super::TableUpdateTrigger),
+    }
+}
+/// Represents a table update trigger configuration.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct TableUpdateTrigger {
+    /// The target table to trigger the workflow.
+    #[prost(message, optional, tag = "1")]
+    pub table: ::core::option::Option<Target>,
+    /// Output only. The modification time of this table that resulted
+    /// in an invocation of the workflow. This would be updated by the triggering
+    /// service after a successful workflow invocation.
+    #[prost(message, optional, tag = "2")]
+    pub trigger_update_time: ::core::option::Option<::prost_types::Timestamp>,
+}
 /// Configures various aspects of Dataform code compilation.
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CodeCompilationConfig {
@@ -1408,6 +1704,38 @@ pub struct CodeCompilationConfig {
     /// Optional. The default notebook runtime options.
     #[prost(message, optional, tag = "9")]
     pub default_notebook_runtime_options: ::core::option::Option<NotebookRuntimeOptions>,
+    /// Optional. The pipeline options which defines the pipeline type and path
+    /// within the Git repository.
+    #[prost(message, optional, tag = "12")]
+    pub pipeline_config: ::core::option::Option<PipelineConfig>,
+    /// Output only. Whether OpenLineage events are emitted for actions in this
+    /// workflow. Reflects the `lineage.enabled` setting from
+    /// `workflow_settings.yaml`.
+    #[prost(bool, optional, tag = "14")]
+    pub lineage_enabled: ::core::option::Option<bool>,
+}
+/// Metadata about a repository snapshot stored in Google Cloud Storage.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct GcsRepositorySnapshotMetadata {
+    /// Output only. The Google Cloud Storage URI of the repository snapshot.
+    #[prost(string, tag = "1")]
+    pub repository_snapshot_uri: ::prost::alloc::string::String,
+    /// Output only. The crc32c checksum of the repository snapshot, big-endian
+    /// base64 encoded.
+    #[prost(string, tag = "2")]
+    pub crc32c_checksum: ::prost::alloc::string::String,
+    /// Output only. The generation number of the Cloud Storage object. See
+    /// <https://cloud.google.com/storage/docs/metadata#generation-number.>
+    #[prost(int64, tag = "3")]
+    pub generation: i64,
+}
+/// Configures the destination for a repository snapshot.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct GcsRepositorySnapshotDestination {
+    /// Optional. The Google Cloud Storage destination to upload the repository
+    /// snapshot to. Format: `gs://bucket-name/path/`.
+    #[prost(string, tag = "1")]
+    pub repository_snapshot_uri: ::prost::alloc::string::String,
 }
 /// Configures various aspects of Dataform notebook runtime.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -1421,6 +1749,12 @@ pub struct NotebookRuntimeOptions {
     /// The location to store the notebook execution result.
     #[prost(oneof = "notebook_runtime_options::ExecutionSink", tags = "1")]
     pub execution_sink: ::core::option::Option<notebook_runtime_options::ExecutionSink>,
+    /// The destination of the snapshot of repository files to be available for
+    /// read-only access inside a notebook runtime
+    #[prost(oneof = "notebook_runtime_options::RepositorySnapshotStorage", tags = "3")]
+    pub repository_snapshot_storage: ::core::option::Option<
+        notebook_runtime_options::RepositorySnapshotStorage,
+    >,
 }
 /// Nested message and enum types in `NotebookRuntimeOptions`.
 pub mod notebook_runtime_options {
@@ -1431,6 +1765,79 @@ pub mod notebook_runtime_options {
         /// Format: `gs://bucket-name`.
         #[prost(string, tag = "1")]
         GcsOutputBucket(::prost::alloc::string::String),
+    }
+    /// The destination of the snapshot of repository files to be available for
+    /// read-only access inside a notebook runtime
+    #[derive(Clone, PartialEq, Eq, Hash, ::prost::Oneof)]
+    pub enum RepositorySnapshotStorage {
+        /// Optional. The Google Cloud Storage destination to upload the snapshot to.
+        /// For empty URI it defaults to the provided gcs_output_bucket.
+        /// Format: `gs://bucket-name/path/`.
+        #[prost(message, tag = "3")]
+        GcsRepositorySnapshotDestination(super::GcsRepositorySnapshotDestination),
+    }
+}
+/// Defines the pipeline type and path within the Git repository.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct PipelineConfig {
+    /// Required. The type of the pipeline.
+    #[prost(enumeration = "pipeline_config::PipelineType", tag = "1")]
+    pub pipeline_type: i32,
+    /// Required. The relative path within the Git repository where the pipeline is
+    /// defined. For example, for a Dataform pipeline, it is a path to the folder
+    /// where `workflow_settings.yaml` or `dataform.json` is located.
+    #[prost(string, tag = "2")]
+    pub path: ::prost::alloc::string::String,
+}
+/// Nested message and enum types in `PipelineConfig`.
+pub mod pipeline_config {
+    /// The type of the pipeline. This may be extended in the future.
+    /// In case of UNSPECIFIED, the error will be thrown.
+    #[derive(
+        Clone,
+        Copy,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash,
+        PartialOrd,
+        Ord,
+        ::prost::Enumeration
+    )]
+    #[repr(i32)]
+    pub enum PipelineType {
+        /// Default value. This value is unused.
+        Unspecified = 0,
+        /// Regular Dataform pipeline.
+        Dataform = 1,
+        /// SQL single file asset.
+        Sql = 3,
+        /// Notebook single file asset.
+        Notebook = 4,
+    }
+    impl PipelineType {
+        /// String value of the enum field names used in the ProtoBuf definition.
+        ///
+        /// The values are not transformed in any way and thus are considered stable
+        /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+        pub fn as_str_name(&self) -> &'static str {
+            match self {
+                Self::Unspecified => "PIPELINE_TYPE_UNSPECIFIED",
+                Self::Dataform => "DATAFORM",
+                Self::Sql => "SQL",
+                Self::Notebook => "NOTEBOOK",
+            }
+        }
+        /// Creates an enum from field names used in the ProtoBuf definition.
+        pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+            match value {
+                "PIPELINE_TYPE_UNSPECIFIED" => Some(Self::Unspecified),
+                "DATAFORM" => Some(Self::Dataform),
+                "SQL" => Some(Self::Sql),
+                "NOTEBOOK" => Some(Self::Notebook),
+                _ => None,
+            }
+        }
     }
 }
 /// `ListCompilationResults` request message.
@@ -2064,9 +2471,9 @@ pub struct WorkflowConfig {
     #[prost(string, tag = "4")]
     pub cron_schedule: ::prost::alloc::string::String,
     /// Optional. Specifies the time zone to be used when interpreting
-    /// cron_schedule. Must be a time zone name from the time zone database
-    /// (<https://en.wikipedia.org/wiki/List_of_tz_database_time_zones>). If left
-    /// unspecified, the default is UTC.
+    /// cron_schedule. Must be a time zone name from the [time zone
+    /// database](<https://en.wikipedia.org/wiki/List_of_tz_database_time_zones>). If
+    /// left unspecified, the default is `UTC`.
     #[prost(string, tag = "7")]
     pub time_zone: ::prost::alloc::string::String,
     /// Output only. Records of the 10 most recent scheduled execution attempts,
@@ -2090,6 +2497,10 @@ pub struct WorkflowConfig {
     /// format of this field is a JSON string.
     #[prost(string, optional, tag = "11")]
     pub internal_metadata: ::core::option::Option<::prost::alloc::string::String>,
+    /// Optional. Trigger configuration for this workflow.
+    /// If present, the workflow will be triggered based on the specified triggers.
+    #[prost(message, optional, tag = "12")]
+    pub workflow_trigger_config: ::core::option::Option<WorkflowTriggerConfig>,
 }
 /// Nested message and enum types in `WorkflowConfig`.
 pub mod workflow_config {
@@ -2146,6 +2557,12 @@ pub struct InvocationConfig {
     /// Optional. The service account to run workflow invocations under.
     #[prost(string, tag = "6")]
     pub service_account: ::prost::alloc::string::String,
+    /// Optional. Configuration for end user authentication.
+    /// Note that this should not be set when `service_account` is used.
+    #[prost(message, optional, tag = "7")]
+    pub end_user_auth_config: ::core::option::Option<
+        invocation_config::EndUserAuthenticationConfig,
+    >,
     /// Optional. Specifies the priority for query execution in BigQuery.
     /// More information can be found at
     /// <https://cloud.google.com/bigquery/docs/running-queries#queries.>
@@ -2154,6 +2571,16 @@ pub struct InvocationConfig {
 }
 /// Nested message and enum types in `InvocationConfig`.
 pub mod invocation_config {
+    /// Includes configuration options for end user authentication.
+    #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+    pub struct EndUserAuthenticationConfig {
+        /// Output only. Email address of the user to run workflow invocations under.
+        #[prost(string, tag = "2")]
+        pub user_email: ::prost::alloc::string::String,
+        /// Optional. OAuth configuration for end user authentication.
+        #[prost(message, optional, tag = "4")]
+        pub oauth_config: ::core::option::Option<super::OAuthConfig>,
+    }
     /// Types of priority for query execution in BigQuery.
     #[derive(
         Clone,
@@ -2310,6 +2737,10 @@ pub struct WorkflowInvocation {
     /// from a compilation result and the compilation result is user-scoped.
     #[prost(message, optional, tag = "10")]
     pub private_resource_metadata: ::core::option::Option<PrivateResourceMetadata>,
+    /// Output only. The pipeline options which defines the pipeline type and path
+    /// within the Git repository.
+    #[prost(message, optional, tag = "11")]
+    pub pipeline_config: ::core::option::Option<PipelineConfig>,
     /// The source of the compilation result to use for this invocation.
     #[prost(oneof = "workflow_invocation::CompilationSource", tags = "2, 6")]
     pub compilation_source: ::core::option::Option<
@@ -2519,11 +2950,15 @@ pub mod workflow_invocation_action {
         /// Output only. The code contents of a Notebook to be run.
         #[prost(string, tag = "1")]
         pub contents: ::prost::alloc::string::String,
-        /// Output only. The ID of the Vertex job that executed the notebook in
-        /// contents and also the ID used for the outputs created in Google Cloud
-        /// Storage buckets. Only set once the job has started to run.
+        /// Output only. The ID of the Gemini Enterprise Agent Platform job that
+        /// executed the notebook in contents and also the ID used for the outputs
+        /// created in Google Cloud Storage buckets. Only set once the job has
+        /// started to run.
         #[prost(string, tag = "2")]
         pub job_id: ::prost::alloc::string::String,
+        /// Output only. The path to the notebook file in the repository.
+        #[prost(string, tag = "3")]
+        pub file_path: ::prost::alloc::string::String,
     }
     /// Represents a workflow action that will run a Data Preparation.
     #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -2772,8 +3207,8 @@ pub struct Folder {
     /// Optional. The containing Folder resource name. This should take
     /// the format: projects/{project}/locations/{location}/folders/{folder},
     /// projects/{project}/locations/{location}/teamFolders/{teamFolder}, or just
-    /// projects/{project}/locations/{location} if this is a root Folder. This
-    /// field can only be updated through MoveFolder.
+    /// "" if this is a root Folder. This field can only be updated through
+    /// MoveFolder.
     #[prost(string, tag = "3")]
     pub containing_folder: ::prost::alloc::string::String,
     /// Output only. The resource name of the TeamFolder that this Folder is
@@ -2808,8 +3243,11 @@ pub struct CreateFolderRequest {
     /// Required. The Folder to create.
     #[prost(message, optional, tag = "2")]
     pub folder: ::core::option::Option<Folder>,
+    /// Deprecated: This field is not used. The resource name is generated
+    /// automatically.
     /// The ID to use for the Folder, which will become the final component of
     /// the Folder's resource name.
+    #[deprecated]
     #[prost(string, tag = "3")]
     pub folder_id: ::prost::alloc::string::String,
 }
@@ -2854,10 +3292,121 @@ pub struct DeleteFolderRequest {
     #[prost(string, tag = "1")]
     pub name: ::prost::alloc::string::String,
 }
+/// `DeleteFolderTree` request message.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct DeleteFolderTreeRequest {
+    /// Required. The Folder's name.
+    /// Format: projects/{project}/locations/{location}/folders/{folder}
+    #[prost(string, tag = "1")]
+    pub name: ::prost::alloc::string::String,
+    /// Optional. If `false` (default): The operation will fail if any
+    /// Repository within the folder hierarchy has associated Release Configs or
+    /// Workflow Configs.
+    ///
+    /// If `true`: The operation will attempt to delete everything, including any
+    /// Release Configs and Workflow Configs linked to Repositories within the
+    /// folder hierarchy. This permanently removes schedules and resources.
+    #[prost(bool, tag = "2")]
+    pub force: bool,
+}
+/// `DeleteTeamFolderTree` request message.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct DeleteTeamFolderTreeRequest {
+    /// Required. The TeamFolder's name.
+    /// Format: projects/{project}/locations/{location}/teamFolders/{team_folder}
+    #[prost(string, tag = "1")]
+    pub name: ::prost::alloc::string::String,
+    /// Optional. If `false` (default): The operation will fail if any
+    /// Repository within the folder hierarchy has associated Release Configs or
+    /// Workflow Configs.
+    ///
+    /// If `true`: The operation will attempt to delete everything, including any
+    /// Release Configs and Workflow Configs linked to Repositories within the
+    /// folder hierarchy. This permanently removes schedules and resources.
+    #[prost(bool, tag = "2")]
+    pub force: bool,
+}
+/// Contains metadata about the progress of the DeleteFolderTree Long-running
+/// operations.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct DeleteFolderTreeMetadata {
+    /// Output only. The time the operation was created.
+    #[prost(message, optional, tag = "1")]
+    pub create_time: ::core::option::Option<::prost_types::Timestamp>,
+    /// Output only. The time the operation finished running.
+    #[prost(message, optional, tag = "2")]
+    pub end_time: ::core::option::Option<::prost_types::Timestamp>,
+    /// Output only. Resource name of the target of the operation.
+    /// Format: projects/{project}/locations/{location}/folders/{folder} or
+    /// projects/{project}/locations/{location}/teamFolders/{team_folder}
+    #[prost(string, tag = "3")]
+    pub target: ::prost::alloc::string::String,
+    /// Output only. The state of the operation.
+    #[prost(enumeration = "delete_folder_tree_metadata::State", tag = "4")]
+    pub state: i32,
+    /// Output only. Percent complete of the operation \[0, 100\].
+    #[prost(int32, tag = "5")]
+    pub percent_complete: i32,
+}
+/// Nested message and enum types in `DeleteFolderTreeMetadata`.
+pub mod delete_folder_tree_metadata {
+    /// Different states of the DeleteFolderTree operation.
+    #[derive(
+        Clone,
+        Copy,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash,
+        PartialOrd,
+        Ord,
+        ::prost::Enumeration
+    )]
+    #[repr(i32)]
+    pub enum State {
+        /// The state is unspecified.
+        Unspecified = 0,
+        /// The operation was initialized and recorded by the server, but not yet
+        /// started.
+        Initialized = 1,
+        /// The operation is in progress.
+        InProgress = 2,
+        /// The operation has completed successfully.
+        Succeeded = 3,
+        /// The operation has failed.
+        Failed = 4,
+    }
+    impl State {
+        /// String value of the enum field names used in the ProtoBuf definition.
+        ///
+        /// The values are not transformed in any way and thus are considered stable
+        /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+        pub fn as_str_name(&self) -> &'static str {
+            match self {
+                Self::Unspecified => "STATE_UNSPECIFIED",
+                Self::Initialized => "INITIALIZED",
+                Self::InProgress => "IN_PROGRESS",
+                Self::Succeeded => "SUCCEEDED",
+                Self::Failed => "FAILED",
+            }
+        }
+        /// Creates an enum from field names used in the ProtoBuf definition.
+        pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+            match value {
+                "STATE_UNSPECIFIED" => Some(Self::Unspecified),
+                "INITIALIZED" => Some(Self::Initialized),
+                "IN_PROGRESS" => Some(Self::InProgress),
+                "SUCCEEDED" => Some(Self::Succeeded),
+                "FAILED" => Some(Self::Failed),
+                _ => None,
+            }
+        }
+    }
+}
 /// `QueryFolderContents` request message.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct QueryFolderContentsRequest {
-    /// Required. Name of the folder whose contents to list.
+    /// Required. Resource name of the Folder to list contents for.
     /// Format: projects/*/locations/*/folders/\*
     #[prost(string, tag = "1")]
     pub folder: ::prost::alloc::string::String,
@@ -2932,7 +3481,7 @@ pub mod query_folder_contents_response {
 /// `QueryUserRootContents` request message.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct QueryUserRootContentsRequest {
-    /// Required. Location of the user root folder whose contents to list.
+    /// Required. Location of the user root folder to list contents for.
     /// Format: projects/*/locations/*
     #[prost(string, tag = "1")]
     pub location: ::prost::alloc::string::String,
@@ -3039,8 +3588,11 @@ pub struct CreateTeamFolderRequest {
     /// Required. The TeamFolder to create.
     #[prost(message, optional, tag = "2")]
     pub team_folder: ::core::option::Option<TeamFolder>,
+    /// Deprecated: This field is not used. The resource name is generated
+    /// automatically.
     /// The ID to use for the TeamFolder, which will become the final component of
     /// the TeamFolder's resource name.
+    #[deprecated]
     #[prost(string, tag = "3")]
     pub team_folder_id: ::prost::alloc::string::String,
 }
@@ -3072,7 +3624,7 @@ pub struct DeleteTeamFolderRequest {
 /// `QueryTeamFolderContents` request message.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct QueryTeamFolderContentsRequest {
-    /// Required. Name of the team_folder whose contents to list.
+    /// Required. Resource name of the TeamFolder to list contents for.
     /// Format: `projects/*/locations/*/teamFolders/*`.
     #[prost(string, tag = "1")]
     pub team_folder: ::prost::alloc::string::String,
@@ -3151,9 +3703,9 @@ pub struct SearchTeamFoldersRequest {
     /// Format: `projects/*/locations/*`.
     #[prost(string, tag = "1")]
     pub location: ::prost::alloc::string::String,
-    /// Optional. Maximum number of TeamFolders to return. The server may return
-    /// fewer items than requested. If unspecified, the server will pick an
-    /// appropriate default.
+    /// Optional. Maximum number of `TeamFolders` to return. The server may return
+    /// fewer items than requested. If unspecified, the server will pick a default
+    /// of `page_size` = 50.
     #[prost(int32, tag = "2")]
     pub page_size: i32,
     /// Optional. Page token received from a previous `SearchTeamFolders` call.
@@ -3362,6 +3914,231 @@ pub mod move_repository_metadata {
         }
     }
 }
+/// Represents metadata about the progress of the DeleteRepository long-running
+/// operation.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct DeleteRepositoryLongRunningMetadata {
+    /// Output only. The time the operation was created.
+    #[prost(message, optional, tag = "1")]
+    pub create_time: ::core::option::Option<::prost_types::Timestamp>,
+    /// Output only. The time the operation finished running.
+    #[prost(message, optional, tag = "2")]
+    pub end_time: ::core::option::Option<::prost_types::Timestamp>,
+    /// Output only. Server-defined resource path for the target of the operation.
+    /// Format: projects/{project}/locations/{location}/repositories/{repository}
+    #[prost(string, tag = "3")]
+    pub target: ::prost::alloc::string::String,
+    /// Output only. The state of the operation.
+    #[prost(enumeration = "delete_repository_long_running_metadata::State", tag = "4")]
+    pub state: i32,
+    /// Output only. Percent complete of the operation \[0, 100\].
+    #[prost(int32, tag = "5")]
+    pub percent_complete: i32,
+    /// Output only. The total number of child resources (Compilation Results,
+    /// Workflow Executions) that will be deleted.
+    #[prost(int64, tag = "6")]
+    pub child_resources_count: i64,
+    /// Output only. The remaining number of child resources to be deleted.
+    #[prost(int64, tag = "7")]
+    pub remaining_child_resources_count: i64,
+}
+/// Nested message and enum types in `DeleteRepositoryLongRunningMetadata`.
+pub mod delete_repository_long_running_metadata {
+    /// Different states of the DeleteRepositoryLongRunning operation.
+    #[derive(
+        Clone,
+        Copy,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash,
+        PartialOrd,
+        Ord,
+        ::prost::Enumeration
+    )]
+    #[repr(i32)]
+    pub enum State {
+        /// The state is unspecified.
+        Unspecified = 0,
+        /// The operation is running.
+        Running = 1,
+        /// The operation has completed successfully.
+        Succeeded = 2,
+        /// The operation has failed.
+        Failed = 3,
+    }
+    impl State {
+        /// String value of the enum field names used in the ProtoBuf definition.
+        ///
+        /// The values are not transformed in any way and thus are considered stable
+        /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+        pub fn as_str_name(&self) -> &'static str {
+            match self {
+                Self::Unspecified => "STATE_UNSPECIFIED",
+                Self::Running => "RUNNING",
+                Self::Succeeded => "SUCCEEDED",
+                Self::Failed => "FAILED",
+            }
+        }
+        /// Creates an enum from field names used in the ProtoBuf definition.
+        pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+            match value {
+                "STATE_UNSPECIFIED" => Some(Self::Unspecified),
+                "RUNNING" => Some(Self::Running),
+                "SUCCEEDED" => Some(Self::Succeeded),
+                "FAILED" => Some(Self::Failed),
+                _ => None,
+            }
+        }
+    }
+}
+/// Request message for `FetchWorkspaceBranches` method.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct FetchWorkspaceBranchesRequest {
+    /// Required. The workspace resource name.
+    /// Format:
+    /// projects/{project}/locations/{location}/repositories/{repository}/workspaces/{workspace}
+    #[prost(string, tag = "1")]
+    pub name: ::prost::alloc::string::String,
+    /// Optional. Filter for the returned list.
+    #[prost(enumeration = "fetch_workspace_branches_request::BranchFilter", tag = "2")]
+    pub filter: i32,
+    /// Optional. Maximum number of branches to return. The server may return fewer
+    /// items than requested. If unspecified, the server will pick an appropriate
+    /// default. The maximum value is 1000; values above 1000 will be coerced to
+    /// 1000.
+    #[prost(int32, tag = "3")]
+    pub page_size: i32,
+    /// Optional. Page token received from a previous `FetchWorkspaceBranches`
+    /// call. Provide this to retrieve the subsequent page.
+    ///
+    /// When paginating, all other parameters provided to `FetchWorkspaceBranches`,
+    /// with the exception of `page_size`, must match the call that provided the
+    /// page token.
+    #[prost(string, tag = "4")]
+    pub page_token: ::prost::alloc::string::String,
+}
+/// Nested message and enum types in `FetchWorkspaceBranchesRequest`.
+pub mod fetch_workspace_branches_request {
+    /// Filter for the returned list.
+    #[derive(
+        Clone,
+        Copy,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash,
+        PartialOrd,
+        Ord,
+        ::prost::Enumeration
+    )]
+    #[repr(i32)]
+    pub enum BranchFilter {
+        /// Default value. This value is unused.
+        Unspecified = 0,
+        /// Returns local branches.
+        LocalOnly = 1,
+        /// Returns remote branches.
+        RemoteOnly = 2,
+        /// Returns all branches.
+        All = 3,
+    }
+    impl BranchFilter {
+        /// String value of the enum field names used in the ProtoBuf definition.
+        ///
+        /// The values are not transformed in any way and thus are considered stable
+        /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+        pub fn as_str_name(&self) -> &'static str {
+            match self {
+                Self::Unspecified => "BRANCH_FILTER_UNSPECIFIED",
+                Self::LocalOnly => "LOCAL_ONLY",
+                Self::RemoteOnly => "REMOTE_ONLY",
+                Self::All => "ALL",
+            }
+        }
+        /// Creates an enum from field names used in the ProtoBuf definition.
+        pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+            match value {
+                "BRANCH_FILTER_UNSPECIFIED" => Some(Self::Unspecified),
+                "LOCAL_ONLY" => Some(Self::LocalOnly),
+                "REMOTE_ONLY" => Some(Self::RemoteOnly),
+                "ALL" => Some(Self::All),
+                _ => None,
+            }
+        }
+    }
+}
+/// Contains metadata about a branch.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct BranchMetadata {
+    /// The branch name.
+    #[prost(string, tag = "1")]
+    pub branch_name: ::prost::alloc::string::String,
+    /// The last commit on the branch.
+    #[prost(message, optional, tag = "2")]
+    pub last_commit: ::core::option::Option<CommitLogEntry>,
+}
+/// Response message for `FetchWorkspaceBranches` method.
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct FetchWorkspaceBranchesResponse {
+    /// The branches in the workspace.
+    #[prost(message, repeated, tag = "1")]
+    pub branches: ::prost::alloc::vec::Vec<BranchMetadata>,
+    /// A token, which can be sent as `page_token` to retrieve the next page.
+    /// If this field is omitted, there are no subsequent pages.
+    #[prost(string, tag = "2")]
+    pub next_page_token: ::prost::alloc::string::String,
+}
+/// Request message for `FetchCurrentWorkspaceBranch` method.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct FetchCurrentWorkspaceBranchRequest {
+    /// Required. The workspace resource name.
+    /// Format:
+    /// projects/{project}/locations/{location}/repositories/{repository}/workspaces/{workspace}
+    #[prost(string, tag = "1")]
+    pub name: ::prost::alloc::string::String,
+}
+/// Response message for `FetchCurrentWorkspaceBranch` method.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct FetchCurrentWorkspaceBranchResponse {
+    /// The name of the current branch for the workspace.
+    #[prost(string, tag = "1")]
+    pub branch_name: ::prost::alloc::string::String,
+}
+/// Represents the level of detail to return for directory contents.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
+#[repr(i32)]
+pub enum DirectoryContentsView {
+    /// The default unset value. Defaults to DIRECTORY_CONTENTS_VIEW_BASIC.
+    Unspecified = 0,
+    /// Includes only the file or directory name. This is the default behavior.
+    Basic = 1,
+    /// Includes all metadata for each file or directory. Currently not supported
+    /// by CMEK-protected workspaces.
+    Metadata = 2,
+}
+impl DirectoryContentsView {
+    /// String value of the enum field names used in the ProtoBuf definition.
+    ///
+    /// The values are not transformed in any way and thus are considered stable
+    /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+    pub fn as_str_name(&self) -> &'static str {
+        match self {
+            Self::Unspecified => "DIRECTORY_CONTENTS_VIEW_UNSPECIFIED",
+            Self::Basic => "DIRECTORY_CONTENTS_VIEW_BASIC",
+            Self::Metadata => "DIRECTORY_CONTENTS_VIEW_METADATA",
+        }
+    }
+    /// Creates an enum from field names used in the ProtoBuf definition.
+    pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+        match value {
+            "DIRECTORY_CONTENTS_VIEW_UNSPECIFIED" => Some(Self::Unspecified),
+            "DIRECTORY_CONTENTS_VIEW_BASIC" => Some(Self::Basic),
+            "DIRECTORY_CONTENTS_VIEW_METADATA" => Some(Self::Metadata),
+            _ => None,
+        }
+    }
+}
 /// Generated client implementations.
 pub mod dataform_client {
     #![allow(
@@ -3563,6 +4340,37 @@ pub mod dataform_client {
                 );
             self.inner.unary(req, path, codec).await
         }
+        /// Deletes a TeamFolder with its contents (Folders, Repositories, Workspaces,
+        /// ReleaseConfigs, and WorkflowConfigs).
+        pub async fn delete_team_folder_tree(
+            &mut self,
+            request: impl tonic::IntoRequest<super::DeleteTeamFolderTreeRequest>,
+        ) -> std::result::Result<
+            tonic::Response<super::super::super::super::longrunning::Operation>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::unknown(
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic_prost::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/google.cloud.dataform.v1beta1.Dataform/DeleteTeamFolderTree",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(
+                    GrpcMethod::new(
+                        "google.cloud.dataform.v1beta1.Dataform",
+                        "DeleteTeamFolderTree",
+                    ),
+                );
+            self.inner.unary(req, path, codec).await
+        }
         /// Returns the contents of a given TeamFolder.
         pub async fn query_team_folder_contents(
             &mut self,
@@ -3728,6 +4536,37 @@ pub mod dataform_client {
                     GrpcMethod::new(
                         "google.cloud.dataform.v1beta1.Dataform",
                         "DeleteFolder",
+                    ),
+                );
+            self.inner.unary(req, path, codec).await
+        }
+        /// Deletes a Folder with its contents (Folders, Repositories, Workspaces,
+        /// ReleaseConfigs, and WorkflowConfigs).
+        pub async fn delete_folder_tree(
+            &mut self,
+            request: impl tonic::IntoRequest<super::DeleteFolderTreeRequest>,
+        ) -> std::result::Result<
+            tonic::Response<super::super::super::super::longrunning::Operation>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::unknown(
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic_prost::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/google.cloud.dataform.v1beta1.Dataform/DeleteFolderTree",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(
+                    GrpcMethod::new(
+                        "google.cloud.dataform.v1beta1.Dataform",
+                        "DeleteFolderTree",
                     ),
                 );
             self.inner.unary(req, path, codec).await
@@ -3966,6 +4805,36 @@ pub mod dataform_client {
                     GrpcMethod::new(
                         "google.cloud.dataform.v1beta1.Dataform",
                         "DeleteRepository",
+                    ),
+                );
+            self.inner.unary(req, path, codec).await
+        }
+        /// Deletes a single repository asynchronously.
+        pub async fn delete_repository_long_running(
+            &mut self,
+            request: impl tonic::IntoRequest<super::DeleteRepositoryLongRunningRequest>,
+        ) -> std::result::Result<
+            tonic::Response<super::super::super::super::longrunning::Operation>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::unknown(
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic_prost::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/google.cloud.dataform.v1beta1.Dataform/DeleteRepositoryLongRunning",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(
+                    GrpcMethod::new(
+                        "google.cloud.dataform.v1beta1.Dataform",
+                        "DeleteRepositoryLongRunning",
                     ),
                 );
             self.inner.unary(req, path, codec).await
@@ -4355,6 +5224,153 @@ pub mod dataform_client {
                     GrpcMethod::new(
                         "google.cloud.dataform.v1beta1.Dataform",
                         "PullGitCommits",
+                    ),
+                );
+            self.inner.unary(req, path, codec).await
+        }
+        /// Syncs the refs of a Workspace.
+        pub async fn sync_workspace_refs(
+            &mut self,
+            request: impl tonic::IntoRequest<super::SyncWorkspaceRefsRequest>,
+        ) -> std::result::Result<
+            tonic::Response<super::SyncWorkspaceRefsResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::unknown(
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic_prost::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/google.cloud.dataform.v1beta1.Dataform/SyncWorkspaceRefs",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(
+                    GrpcMethod::new(
+                        "google.cloud.dataform.v1beta1.Dataform",
+                        "SyncWorkspaceRefs",
+                    ),
+                );
+            self.inner.unary(req, path, codec).await
+        }
+        /// Fetches branches in a Workspace.
+        pub async fn fetch_workspace_branches(
+            &mut self,
+            request: impl tonic::IntoRequest<super::FetchWorkspaceBranchesRequest>,
+        ) -> std::result::Result<
+            tonic::Response<super::FetchWorkspaceBranchesResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::unknown(
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic_prost::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/google.cloud.dataform.v1beta1.Dataform/FetchWorkspaceBranches",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(
+                    GrpcMethod::new(
+                        "google.cloud.dataform.v1beta1.Dataform",
+                        "FetchWorkspaceBranches",
+                    ),
+                );
+            self.inner.unary(req, path, codec).await
+        }
+        /// Deletes a branch in a Workspace.
+        pub async fn delete_branch(
+            &mut self,
+            request: impl tonic::IntoRequest<super::DeleteBranchRequest>,
+        ) -> std::result::Result<
+            tonic::Response<super::DeleteBranchResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::unknown(
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic_prost::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/google.cloud.dataform.v1beta1.Dataform/DeleteBranch",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(
+                    GrpcMethod::new(
+                        "google.cloud.dataform.v1beta1.Dataform",
+                        "DeleteBranch",
+                    ),
+                );
+            self.inner.unary(req, path, codec).await
+        }
+        /// Checkout a branch in a Workspace.
+        pub async fn checkout_workspace_branch(
+            &mut self,
+            request: impl tonic::IntoRequest<super::CheckoutWorkspaceBranchRequest>,
+        ) -> std::result::Result<tonic::Response<()>, tonic::Status> {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::unknown(
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic_prost::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/google.cloud.dataform.v1beta1.Dataform/CheckoutWorkspaceBranch",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(
+                    GrpcMethod::new(
+                        "google.cloud.dataform.v1beta1.Dataform",
+                        "CheckoutWorkspaceBranch",
+                    ),
+                );
+            self.inner.unary(req, path, codec).await
+        }
+        /// Fetches the current branch of a Workspace.
+        pub async fn fetch_current_workspace_branch(
+            &mut self,
+            request: impl tonic::IntoRequest<super::FetchCurrentWorkspaceBranchRequest>,
+        ) -> std::result::Result<
+            tonic::Response<super::FetchCurrentWorkspaceBranchResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::unknown(
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic_prost::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/google.cloud.dataform.v1beta1.Dataform/FetchCurrentWorkspaceBranch",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(
+                    GrpcMethod::new(
+                        "google.cloud.dataform.v1beta1.Dataform",
+                        "FetchCurrentWorkspaceBranch",
                     ),
                 );
             self.inner.unary(req, path, codec).await

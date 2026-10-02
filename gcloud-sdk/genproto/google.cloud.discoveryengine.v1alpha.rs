@@ -4742,6 +4742,7 @@ pub struct SearchRequest {
     ///   * `is_nan(signal)` -- returns 0 if signal is NaN, 1 otherwise.
     ///   * `fill_nan(signal1, signal2 | double)` -- if signal1 is NaN, returns
     ///     signal2 | double, else returns signal1.
+    ///
     ///   Here are a few examples of ranking formulas that use the supported
     ///   ranking expression types:
     ///
