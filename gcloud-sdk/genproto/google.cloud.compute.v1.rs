@@ -232,6 +232,13 @@ pub struct AcceleratorType {
     /// \[Output Only\] Name of the resource.
     #[prost(string, optional, tag = "3373707")]
     pub name: ::core::option::Option<::prost::alloc::string::String>,
+    /// Output only. Contains standard resource metadata for an AcceleratorType
+    /// resource. It is populated for each instance of the AcceleratorType
+    /// resource, and includes the api_version the
+    /// instance was retrieved through, and its canonical
+    /// resource_type name.
+    #[prost(message, optional, tag = "99063872")]
+    pub resource_metadata: ::core::option::Option<ResourceMetadata>,
     /// Output only. \[Output Only\] Server-defined, fully qualified URL for this resource.
     #[prost(string, optional, tag = "456214797")]
     pub self_link: ::core::option::Option<::prost::alloc::string::String>,
@@ -634,6 +641,13 @@ pub struct AddAssociationOrganizationSecurityPolicyRequest {
 /// A request message for RegionNetworkFirewallPolicies.AddAssociation. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct AddAssociationRegionNetworkFirewallPolicyRequest {
+    /// Name of the firewall policy associated with the target network to swap
+    /// association with. This field is mutually exclusive with
+    /// 'replace_existing_association'.
+    #[prost(string, optional, tag = "240901404")]
+    pub associated_policy_to_be_replaced: ::core::option::Option<
+        ::prost::alloc::string::String,
+    >,
     /// Name of the firewall policy to update.
     #[prost(string, tag = "498173265")]
     pub firewall_policy: ::prost::alloc::string::String,
@@ -1249,22 +1263,37 @@ pub struct Address {
     /// defined by the server.
     #[prost(uint64, optional, tag = "3355")]
     pub id: ::core::option::Option<u64>,
-    /// Reference to the source of external IPv4 addresses,
-    /// like a PublicDelegatedPrefix (PDP) for BYOIP.
-    /// The PDP must support enhanced IPv4 allocations.
+    /// Reference to the source of IP addresses.
     ///
-    /// Use one of the following formats to specify a PDP when reserving an
-    /// external IPv4 address using BYOIP.
+    /// It supports the following cases:
     ///
     /// ```text
     /// -
-    /// Full resource URL, as in<https://www.googleapis.com/compute/v1/projects/projectId/regions/region/publicDelegatedPrefixes/pdp-name>
+    ///   Case 1: PublicDelegatedPrefix (PDP) for BYOIP external
+    ///   addresses. If an IPv4 PDP is used, the PDP must support enhanced IPv4
+    ///   allocations. If an IPv6 PDP is used, the PDP must be in
+    ///   EXTERNAL_IPV6_FORWARDING_RULE_CREATION mode.
     /// -
-    /// Partial URL, as in
+    ///   Case 2: Internal Range for global internal addresses.
+    /// ```
     ///
+    /// Use one of the following formats to specify the resource:
     ///
-    ///        - projects/projectId/regions/region/publicDelegatedPrefixes/pdp-name
-    ///        - regions/region/publicDelegatedPrefixes/pdp-name
+    /// For a Public Delegated Prefix:
+    ///
+    /// ```text
+    /// -
+    /// Full resource URL:<https://www.googleapis.com/compute/v1/projects/projectId/regions/region/publicDelegatedPrefixes/pdp>
+    /// - Partial URL:
+    ///    - projects/projectId/regions/region/publicDelegatedPrefixes/pdp-name
+    ///    - regions/region/publicDelegatedPrefixes/pdp-name
+    /// ```
+    ///
+    /// For an Internal Range:
+    ///
+    /// ```text
+    /// - Full URL:<https://networkconnectivity.googleapis.com/v1/projects/project/locations/global/internalRanges/internal-range>
+    /// - Partial URL:projects/project/locations/global/internalRanges/internal-range
     /// ```
     #[prost(string, optional, tag = "176818358")]
     pub ip_collection: ::core::option::Option<::prost::alloc::string::String>,
@@ -1350,6 +1379,12 @@ pub struct Address {
     ///   - `PRIVATE_SERVICE_CONNECT` for a private network address that is
     ///   used to configure Private Service Connect. Only global internal addresses
     ///   can use this purpose.
+    ///   - `PASSTHROUGH_LOAD_BALANCER_AVAILABILITY_GROUP0` for addresses
+    ///   that can only be assigned to global external Passthrough Network Load
+    ///   Balancer forwarding rules, as an Availability Group 0 address.
+    ///   - `PASSTHROUGH_LOAD_BALANCER_AVAILABILITY_GROUP1` for addresses that
+    ///   can only be assigned to global external Passthrough Network Load Balancer
+    ///   forwarding rules, as an Availability Group 1 address.
     /// ```
     ///
     /// Check the Purpose enum for the list of possible values.
@@ -1607,6 +1642,12 @@ pub mod address {
     ///   - `PRIVATE_SERVICE_CONNECT` for a private network address that is
     ///   used to configure Private Service Connect. Only global internal addresses
     ///   can use this purpose.
+    ///   - `PASSTHROUGH_LOAD_BALANCER_AVAILABILITY_GROUP0` for addresses
+    ///   that can only be assigned to global external Passthrough Network Load
+    ///   Balancer forwarding rules, as an Availability Group 0 address.
+    ///   - `PASSTHROUGH_LOAD_BALANCER_AVAILABILITY_GROUP1` for addresses that
+    ///   can only be assigned to global external Passthrough Network Load Balancer
+    ///   forwarding rules, as an Availability Group 1 address.
     /// ```
     #[derive(
         Clone,
@@ -1633,7 +1674,7 @@ pub mod address {
         /// of subnet/route in the VPC network and its peering networks. After the
         /// VLAN attachment is created with the reserved IP address range, when
         /// creating a new VPN gateway, its interface IP address is allocated
-        /// from the associated VLAN attachment’s IP address range.
+        /// from the associated VLAN attachment's IP address range.
         IpsecInterconnect = 340437251,
         /// External IP automatically reserved for Cloud NAT.
         NatAuto = 163666477,
@@ -1802,6 +1843,34 @@ pub struct AddressesScopedList {
     /// when the list is empty.
     #[prost(message, optional, tag = "50704284")]
     pub warning: ::core::option::Option<Warning>,
+}
+/// A request message for Rollouts.Advance. See the method description for details.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct AdvanceRolloutRequest {
+    /// Required. Wave number of the current wave.
+    #[prost(int64, optional, tag = "178280841")]
+    pub current_wave_number: ::core::option::Option<i64>,
+    /// Required. Project ID for this request.
+    #[prost(string, tag = "227560217")]
+    pub project: ::prost::alloc::string::String,
+    /// An optional request ID to identify requests. Specify a unique request ID so
+    /// that if you must retry your request, the server will know to ignore the
+    /// request if it has already been completed.
+    ///
+    /// For example, consider a situation where you make an initial request and
+    /// the request times out. If you make the request again with the same
+    /// request ID, the server can check if original operation with the same
+    /// request ID was received, and if so, will ignore the second request. This
+    /// prevents clients from accidentally creating duplicate commitments.
+    ///
+    /// The request ID must be
+    /// a valid UUID with the exception that zero UUID is not supported
+    /// (00000000-0000-0000-0000-000000000000).
+    #[prost(string, optional, tag = "37109963")]
+    pub request_id: ::core::option::Option<::prost::alloc::string::String>,
+    /// Required. Name of the Rollout resource to advance.
+    #[prost(string, tag = "303366577")]
+    pub rollout: ::prost::alloc::string::String,
 }
 /// Specifies options for controlling advanced machine features.
 /// Options that would traditionally be configured in a BIOS belong
@@ -2006,14 +2075,6 @@ pub struct AggregatedListAcceleratorTypesRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The Shared VPC service project id or service project number for which
     /// aggregated list request is invoked for subnetworks list-usable api.
     #[prost(int64, optional, tag = "316757497")]
@@ -2123,14 +2184,6 @@ pub struct AggregatedListAddressesRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The Shared VPC service project id or service project number for which
     /// aggregated list request is invoked for subnetworks list-usable api.
     #[prost(int64, optional, tag = "316757497")]
@@ -2240,14 +2293,6 @@ pub struct AggregatedListAutoscalersRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The Shared VPC service project id or service project number for which
     /// aggregated list request is invoked for subnetworks list-usable api.
     #[prost(int64, optional, tag = "316757497")]
@@ -2357,14 +2402,6 @@ pub struct AggregatedListBackendBucketsRequest {
     /// Name of the project scoping this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The Shared VPC service project id or service project number for which
     /// aggregated list request is invoked for subnetworks list-usable api.
     #[prost(int64, optional, tag = "316757497")]
@@ -2474,14 +2511,6 @@ pub struct AggregatedListBackendServicesRequest {
     /// Name of the project scoping this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The Shared VPC service project id or service project number for which
     /// aggregated list request is invoked for subnetworks list-usable api.
     #[prost(int64, optional, tag = "316757497")]
@@ -2591,14 +2620,6 @@ pub struct AggregatedListDiskTypesRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The Shared VPC service project id or service project number for which
     /// aggregated list request is invoked for subnetworks list-usable api.
     #[prost(int64, optional, tag = "316757497")]
@@ -2708,14 +2729,6 @@ pub struct AggregatedListDisksRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The Shared VPC service project id or service project number for which
     /// aggregated list request is invoked for subnetworks list-usable api.
     #[prost(int64, optional, tag = "316757497")]
@@ -2825,14 +2838,6 @@ pub struct AggregatedListForwardingRulesRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The Shared VPC service project id or service project number for which
     /// aggregated list request is invoked for subnetworks list-usable api.
     #[prost(int64, optional, tag = "316757497")]
@@ -2942,14 +2947,6 @@ pub struct AggregatedListFutureReservationsRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The Shared VPC service project id or service project number for which
     /// aggregated list request is invoked for subnetworks list-usable api.
     #[prost(int64, optional, tag = "316757497")]
@@ -3059,14 +3056,6 @@ pub struct AggregatedListGlobalOperationsRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The Shared VPC service project id or service project number for which
     /// aggregated list request is invoked for subnetworks list-usable api.
     #[prost(int64, optional, tag = "316757497")]
@@ -3176,14 +3165,6 @@ pub struct AggregatedListGlobalVmExtensionPoliciesRequest {
     /// Name of the project scoping this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The Shared VPC service project id or service project number for which
     /// aggregated list request is invoked for subnetworks list-usable api.
     #[prost(int64, optional, tag = "316757497")]
@@ -3293,14 +3274,6 @@ pub struct AggregatedListHealthChecksRequest {
     /// Name of the project scoping this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The Shared VPC service project id or service project number for which
     /// aggregated list request is invoked for subnetworks list-usable api.
     #[prost(int64, optional, tag = "316757497")]
@@ -3410,14 +3383,6 @@ pub struct AggregatedListInstanceGroupManagersRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The Shared VPC service project id or service project number for which
     /// aggregated list request is invoked for subnetworks list-usable api.
     #[prost(int64, optional, tag = "316757497")]
@@ -3527,14 +3492,6 @@ pub struct AggregatedListInstanceGroupsRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The Shared VPC service project id or service project number for which
     /// aggregated list request is invoked for subnetworks list-usable api.
     #[prost(int64, optional, tag = "316757497")]
@@ -3644,14 +3601,6 @@ pub struct AggregatedListInstanceTemplatesRequest {
     /// Name of the project scoping this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The Shared VPC service project id or service project number for which
     /// aggregated list request is invoked for subnetworks list-usable api.
     #[prost(int64, optional, tag = "316757497")]
@@ -3761,14 +3710,6 @@ pub struct AggregatedListInstancesRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The Shared VPC service project id or service project number for which
     /// aggregated list request is invoked for subnetworks list-usable api.
     #[prost(int64, optional, tag = "316757497")]
@@ -3878,14 +3819,6 @@ pub struct AggregatedListInstantSnapshotsRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The Shared VPC service project id or service project number for which
     /// aggregated list request is invoked for subnetworks list-usable api.
     #[prost(int64, optional, tag = "316757497")]
@@ -3995,14 +3928,6 @@ pub struct AggregatedListInterconnectAttachmentsRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The Shared VPC service project id or service project number for which
     /// aggregated list request is invoked for subnetworks list-usable api.
     #[prost(int64, optional, tag = "316757497")]
@@ -4112,14 +4037,6 @@ pub struct AggregatedListMachineTypesRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The Shared VPC service project id or service project number for which
     /// aggregated list request is invoked for subnetworks list-usable api.
     #[prost(int64, optional, tag = "316757497")]
@@ -4229,14 +4146,6 @@ pub struct AggregatedListNetworkAttachmentsRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The Shared VPC service project id or service project number for which
     /// aggregated list request is invoked for subnetworks list-usable api.
     #[prost(int64, optional, tag = "316757497")]
@@ -4346,14 +4255,6 @@ pub struct AggregatedListNetworkEdgeSecurityServicesRequest {
     /// Name of the project scoping this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The Shared VPC service project id or service project number for which
     /// aggregated list request is invoked for subnetworks list-usable api.
     #[prost(int64, optional, tag = "316757497")]
@@ -4463,14 +4364,6 @@ pub struct AggregatedListNetworkEndpointGroupsRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The Shared VPC service project id or service project number for which
     /// aggregated list request is invoked for subnetworks list-usable api.
     #[prost(int64, optional, tag = "316757497")]
@@ -4580,14 +4473,6 @@ pub struct AggregatedListNetworkFirewallPoliciesRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The Shared VPC service project id or service project number for which
     /// aggregated list request is invoked for subnetworks list-usable api.
     #[prost(int64, optional, tag = "316757497")]
@@ -4697,14 +4582,6 @@ pub struct AggregatedListNodeGroupsRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The Shared VPC service project id or service project number for which
     /// aggregated list request is invoked for subnetworks list-usable api.
     #[prost(int64, optional, tag = "316757497")]
@@ -4814,14 +4691,6 @@ pub struct AggregatedListNodeTemplatesRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The Shared VPC service project id or service project number for which
     /// aggregated list request is invoked for subnetworks list-usable api.
     #[prost(int64, optional, tag = "316757497")]
@@ -4931,14 +4800,6 @@ pub struct AggregatedListNodeTypesRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The Shared VPC service project id or service project number for which
     /// aggregated list request is invoked for subnetworks list-usable api.
     #[prost(int64, optional, tag = "316757497")]
@@ -5048,14 +4909,6 @@ pub struct AggregatedListPacketMirroringsRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The Shared VPC service project id or service project number for which
     /// aggregated list request is invoked for subnetworks list-usable api.
     #[prost(int64, optional, tag = "316757497")]
@@ -5165,14 +5018,6 @@ pub struct AggregatedListPublicDelegatedPrefixesRequest {
     /// Name of the project scoping this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The Shared VPC service project id or service project number for which
     /// aggregated list request is invoked for subnetworks list-usable api.
     #[prost(int64, optional, tag = "316757497")]
@@ -5282,14 +5127,6 @@ pub struct AggregatedListRegionCommitmentsRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The Shared VPC service project id or service project number for which
     /// aggregated list request is invoked for subnetworks list-usable api.
     #[prost(int64, optional, tag = "316757497")]
@@ -5399,14 +5236,6 @@ pub struct AggregatedListRegionCompositeHealthChecksRequest {
     /// Name of the project scoping this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The Shared VPC service project id or service project number for which
     /// aggregated list request is invoked for subnetworks list-usable api.
     #[prost(int64, optional, tag = "316757497")]
@@ -5516,14 +5345,6 @@ pub struct AggregatedListRegionHealthAggregationPoliciesRequest {
     /// Name of the project scoping this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The Shared VPC service project id or service project number for which
     /// aggregated list request is invoked for subnetworks list-usable api.
     #[prost(int64, optional, tag = "316757497")]
@@ -5633,14 +5454,6 @@ pub struct AggregatedListRegionHealthCheckServicesRequest {
     /// Name of the project scoping this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The Shared VPC service project id or service project number for which
     /// aggregated list request is invoked for subnetworks list-usable api.
     #[prost(int64, optional, tag = "316757497")]
@@ -5750,14 +5563,6 @@ pub struct AggregatedListRegionHealthSourcesRequest {
     /// Name of the project scoping this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The Shared VPC service project id or service project number for which
     /// aggregated list request is invoked for subnetworks list-usable api.
     #[prost(int64, optional, tag = "316757497")]
@@ -5867,14 +5672,6 @@ pub struct AggregatedListRegionNotificationEndpointsRequest {
     /// Name of the project scoping this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The Shared VPC service project id or service project number for which
     /// aggregated list request is invoked for subnetworks list-usable api.
     #[prost(int64, optional, tag = "316757497")]
@@ -5984,14 +5781,6 @@ pub struct AggregatedListReservationsRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The Shared VPC service project id or service project number for which
     /// aggregated list request is invoked for subnetworks list-usable api.
     #[prost(int64, optional, tag = "316757497")]
@@ -6101,14 +5890,6 @@ pub struct AggregatedListResourcePoliciesRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The Shared VPC service project id or service project number for which
     /// aggregated list request is invoked for subnetworks list-usable api.
     #[prost(int64, optional, tag = "316757497")]
@@ -6218,14 +5999,6 @@ pub struct AggregatedListRoutersRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The Shared VPC service project id or service project number for which
     /// aggregated list request is invoked for subnetworks list-usable api.
     #[prost(int64, optional, tag = "316757497")]
@@ -6335,14 +6108,6 @@ pub struct AggregatedListSecurityPoliciesRequest {
     /// Name of the project scoping this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The Shared VPC service project id or service project number for which
     /// aggregated list request is invoked for subnetworks list-usable api.
     #[prost(int64, optional, tag = "316757497")]
@@ -6452,14 +6217,6 @@ pub struct AggregatedListServiceAttachmentsRequest {
     /// Name of the project scoping this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The Shared VPC service project id or service project number for which
     /// aggregated list request is invoked for subnetworks list-usable api.
     #[prost(int64, optional, tag = "316757497")]
@@ -6569,14 +6326,6 @@ pub struct AggregatedListSslCertificatesRequest {
     /// Name of the project scoping this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The Shared VPC service project id or service project number for which
     /// aggregated list request is invoked for subnetworks list-usable api.
     #[prost(int64, optional, tag = "316757497")]
@@ -6686,14 +6435,6 @@ pub struct AggregatedListSslPoliciesRequest {
     /// Name of the project scoping this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The Shared VPC service project id or service project number for which
     /// aggregated list request is invoked for subnetworks list-usable api.
     #[prost(int64, optional, tag = "316757497")]
@@ -6803,14 +6544,6 @@ pub struct AggregatedListStoragePoolTypesRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The Shared VPC service project id or service project number for which
     /// aggregated list request is invoked for subnetworks list-usable api.
     #[prost(int64, optional, tag = "316757497")]
@@ -6920,14 +6653,6 @@ pub struct AggregatedListStoragePoolsRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The Shared VPC service project id or service project number for which
     /// aggregated list request is invoked for subnetworks list-usable api.
     #[prost(int64, optional, tag = "316757497")]
@@ -7037,14 +6762,6 @@ pub struct AggregatedListSubnetworksRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The Shared VPC service project id or service project number for which
     /// aggregated list request is invoked for subnetworks list-usable api.
     #[prost(int64, optional, tag = "316757497")]
@@ -7216,14 +6933,6 @@ pub struct AggregatedListTargetHttpProxiesRequest {
     /// Name of the project scoping this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The Shared VPC service project id or service project number for which
     /// aggregated list request is invoked for subnetworks list-usable api.
     #[prost(int64, optional, tag = "316757497")]
@@ -7333,14 +7042,6 @@ pub struct AggregatedListTargetHttpsProxiesRequest {
     /// Name of the project scoping this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The Shared VPC service project id or service project number for which
     /// aggregated list request is invoked for subnetworks list-usable api.
     #[prost(int64, optional, tag = "316757497")]
@@ -7450,14 +7151,6 @@ pub struct AggregatedListTargetInstancesRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The Shared VPC service project id or service project number for which
     /// aggregated list request is invoked for subnetworks list-usable api.
     #[prost(int64, optional, tag = "316757497")]
@@ -7567,14 +7260,6 @@ pub struct AggregatedListTargetPoolsRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The Shared VPC service project id or service project number for which
     /// aggregated list request is invoked for subnetworks list-usable api.
     #[prost(int64, optional, tag = "316757497")]
@@ -7684,14 +7369,6 @@ pub struct AggregatedListTargetTcpProxiesRequest {
     /// Name of the project scoping this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The Shared VPC service project id or service project number for which
     /// aggregated list request is invoked for subnetworks list-usable api.
     #[prost(int64, optional, tag = "316757497")]
@@ -7801,14 +7478,6 @@ pub struct AggregatedListTargetVpnGatewaysRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The Shared VPC service project id or service project number for which
     /// aggregated list request is invoked for subnetworks list-usable api.
     #[prost(int64, optional, tag = "316757497")]
@@ -7918,14 +7587,6 @@ pub struct AggregatedListUrlMapsRequest {
     /// Name of the project scoping this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The Shared VPC service project id or service project number for which
     /// aggregated list request is invoked for subnetworks list-usable api.
     #[prost(int64, optional, tag = "316757497")]
@@ -8035,14 +7696,6 @@ pub struct AggregatedListVpnGatewaysRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The Shared VPC service project id or service project number for which
     /// aggregated list request is invoked for subnetworks list-usable api.
     #[prost(int64, optional, tag = "316757497")]
@@ -8152,14 +7805,6 @@ pub struct AggregatedListVpnTunnelsRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The Shared VPC service project id or service project number for which
     /// aggregated list request is invoked for subnetworks list-usable api.
     #[prost(int64, optional, tag = "316757497")]
@@ -9249,26 +8894,48 @@ pub struct AttachedDiskInitializeParams {
     /// is 500 GB.
     #[prost(int64, optional, tag = "316263735")]
     pub disk_size_gb: ::core::option::Option<i64>,
-    /// Specifies the disk type to use to create the instance. If not specified,
-    /// the default is pd-standard, specified using the full URL.
-    /// For example:
+    /// Specifies the disk type used for the boot disk or an additional data
+    /// disk. For valid disk type values, see
+    /// Supported types for Hyperdisk volumes and
+    /// Persistent Disk type variables.
     ///
-    /// <https://www.googleapis.com/compute/v1/projects/project/zones/zone/diskTypes/pd-standard>
-    ///
-    /// For a full list of acceptable values, seePersistent disk
-    /// types. If you specify this field when creating a VM, you can provide
-    /// either the full or partial URL. For example, the following values are
+    /// When creating a single instance, you must provide either the full or
+    /// partial URL of the disk type. For example, the following values are
     /// valid:
     ///
     /// ```text
     ///   - <https://www.googleapis.com/compute/v1/projects/project/zones/zone/diskTypes/diskType>
-    /// - projects/project/zones/zone/diskTypes/diskType
-    /// - zones/zone/diskTypes/diskType
+    ///   - projects/project/zones/zone/diskTypes/diskType
+    ///   - zones/zone/diskTypes/diskType
     /// ```
     ///
-    /// If you specify this field when creating or updating an instance template
-    /// or all-instances configuration, specify the type of the disk, not the
-    /// URL. For example: pd-standard.
+    /// When creating an instance template, instance flexibility policy, or when
+    /// creating or updating an all-instances configuration, you specify the
+    /// disk type without a URL, for example, hyperdisk-balanced.
+    ///
+    /// If you omit this field for a disk, the default disk type depends on
+    /// the instance's machine series, as follows.
+    ///
+    /// ```text
+    /// - For first- and second-generation machine series like N1, N2, T2, and
+    /// M1, the
+    ///     default disk type is Standard Persistent Disk
+    ///     (pd-standard).
+    /// - For C3, C3D, and M3 the default is Balanced Persistent Disk
+    /// (pd-balanced).
+    /// - For other third-generation machine
+    /// series like A3, H3, Z3, all
+    ///      fourth-generation types like C4, N4, M4, and newer machine series,
+    ///      the default is Hyperdisk Balanced
+    ///      (hyperdisk-balanced).
+    /// ```
+    ///
+    /// The disk type you specify must be compatible with the instance's machine
+    /// series. For a list of machine series that support Persistent Disk, see Machine
+    /// series support for Persistent Disk.
+    ///
+    /// For a list of machine series that support Hyperdisk, seeMachine
+    /// series support for Hyperdisk.
     #[prost(string, optional, tag = "93009052")]
     pub disk_type: ::core::option::Option<::prost::alloc::string::String>,
     /// Whether this disk is using confidential compute mode.
@@ -9552,8 +9219,6 @@ pub struct AuditConfig {
     /// The configuration for logging of each type of permission.
     #[prost(message, repeated, tag = "488420626")]
     pub audit_log_configs: ::prost::alloc::vec::Vec<AuditLogConfig>,
-    #[prost(string, repeated, tag = "232615576")]
-    pub exempted_members: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
     /// Specifies a service that will be enabled for audit logging.
     /// For example, `storage.googleapis.com`, `cloudsql.googleapis.com`.
     /// `allServices` is a special value that covers all services.
@@ -9588,8 +9253,6 @@ pub struct AuditLogConfig {
     /// Follows the same format of Binding.members.
     #[prost(string, repeated, tag = "232615576")]
     pub exempted_members: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
-    #[prost(bool, optional, tag = "70141850")]
-    pub ignore_child_exemptions: ::core::option::Option<bool>,
     /// The log type that this config enables.
     /// Check the LogType enum for the list of possible values.
     #[prost(string, optional, tag = "403115861")]
@@ -10296,6 +9959,7 @@ pub mod autoscaling_policy {
         OnlyScaleOut = 152713670,
         /// Automatically create VMs according to the policy, but do not scale
         /// the MIG in.
+        /// It's recommended to use ONLY_SCALE_OUT instead of ONLY_UP.
         OnlyUp = 478095374,
     }
     impl Mode {
@@ -10622,7 +10286,8 @@ pub struct Backend {
     /// handle additional traffic or is fully loaded. For usage guidelines, see
     /// Connection balancing mode.
     ///
-    /// Backends must use compatible balancing modes. For more information, see
+    /// Backends must use compatible balancing modes. Backends of a backend
+    /// service may use different balancing modes. For more information, see
     /// Supported balancing modes and target capacity settings and
     /// Restrictions and guidance for instance groups.
     ///
@@ -10658,6 +10323,9 @@ pub struct Backend {
     pub description: ::core::option::Option<::prost::alloc::string::String>,
     /// This field designates whether this is a failover backend. More than one
     /// failover backend can be configured for a given BackendService.
+    ///
+    /// This field can only be used for a regional external Passthrough Network
+    /// Load Balancer or a regional internal Passthrough Network Load Balancer.
     #[prost(bool, optional, tag = "138892530")]
     pub failover: ::core::option::Option<bool>,
     /// The fully-qualified URL of aninstance
@@ -10755,6 +10423,15 @@ pub struct Backend {
     /// default
     /// ```
     ///
+    /// For global external Passthrough Network Load Balancers, the following
+    /// restrictions apply:
+    ///
+    /// ```text
+    /// - At most one backend can be marked as PREFERRED.
+    /// - PREFERRED and DEFAULT backends cannot reside
+    /// in the same Cloud region.
+    /// ```
+    ///
     /// Check the Preference enum for the list of possible values.
     #[prost(string, optional, tag = "150781147")]
     pub preference: ::core::option::Option<::prost::alloc::string::String>,
@@ -10768,7 +10445,8 @@ pub mod backend {
     /// handle additional traffic or is fully loaded. For usage guidelines, see
     /// Connection balancing mode.
     ///
-    /// Backends must use compatible balancing modes. For more information, see
+    /// Backends must use compatible balancing modes. Backends of a backend
+    /// service may use different balancing modes. For more information, see
     /// Supported balancing modes and target capacity settings and
     /// Restrictions and guidance for instance groups.
     ///
@@ -10842,6 +10520,15 @@ pub mod backend {
     /// capacity, backends in this layer would be used and traffic would be
     /// assigned based on the load balancing algorithm you use. This is the
     /// default
+    /// ```
+    ///
+    /// For global external Passthrough Network Load Balancers, the following
+    /// restrictions apply:
+    ///
+    /// ```text
+    /// - At most one backend can be marked as PREFERRED.
+    /// - PREFERRED and DEFAULT backends cannot reside
+    /// in the same Cloud region.
     /// ```
     #[derive(
         Clone,
@@ -11165,14 +10852,17 @@ pub struct BackendBucketCdnPolicy {
     #[prost(message, optional, tag = "159263727")]
     pub cache_key_policy: ::core::option::Option<BackendBucketCdnPolicyCacheKeyPolicy>,
     /// Specifies the cache setting for all responses from this backend.
-    /// The possible values are:USE_ORIGIN_HEADERS Requires the origin to set valid caching
+    /// The possible values are:
+    /// USE_ORIGIN_HEADERS Requires the origin to set valid caching
     /// headers to cache content. Responses without these headers will not be
     /// cached at Google's edge, and will require a full trip to the origin on
     /// every request, potentially impacting performance and increasing load on
-    /// the origin server.FORCE_CACHE_ALL Cache all content, ignoring any "private",
+    /// the origin server.
+    /// FORCE_CACHE_ALL Cache all content, ignoring any "private",
     /// "no-store" or "no-cache" directives in Cache-Control response headers.
     /// Warning: this may result in Cloud CDN caching private,
-    /// per-user (user identifiable) content.CACHE_ALL_STATIC Automatically cache static content,
+    /// per-user (user identifiable) content.
+    /// CACHE_ALL_STATIC Automatically cache static content,
     /// including common image formats, media (video and audio), and web assets
     /// (JavaScript and CSS). Requests and responses that are marked as
     /// uncacheable, as well as dynamic content (including HTML), will not be
@@ -11284,14 +10974,17 @@ pub struct BackendBucketCdnPolicy {
 /// Nested message and enum types in `BackendBucketCdnPolicy`.
 pub mod backend_bucket_cdn_policy {
     /// Specifies the cache setting for all responses from this backend.
-    /// The possible values are:USE_ORIGIN_HEADERS Requires the origin to set valid caching
+    /// The possible values are:
+    /// USE_ORIGIN_HEADERS Requires the origin to set valid caching
     /// headers to cache content. Responses without these headers will not be
     /// cached at Google's edge, and will require a full trip to the origin on
     /// every request, potentially impacting performance and increasing load on
-    /// the origin server.FORCE_CACHE_ALL Cache all content, ignoring any "private",
+    /// the origin server.
+    /// FORCE_CACHE_ALL Cache all content, ignoring any "private",
     /// "no-store" or "no-cache" directives in Cache-Control response headers.
     /// Warning: this may result in Cloud CDN caching private,
-    /// per-user (user identifiable) content.CACHE_ALL_STATIC Automatically cache static content,
+    /// per-user (user identifiable) content.
+    /// CACHE_ALL_STATIC Automatically cache static content,
     /// including common image formats, media (video and audio), and web assets
     /// (JavaScript and CSS). Requests and responses that are marked as
     /// uncacheable, as well as dynamic content (including HTML), will not be
@@ -11660,8 +11353,8 @@ pub struct BackendService {
     /// Balancers](<https://cloud.google.com/load-balancing/docs/internal/failover-overview>)
     /// and [external passthrough Network Load
     /// Balancers](<https://cloud.google.com/load-balancing/docs/network/networklb-failover-overview>).
-    ///
-    /// failoverPolicy cannot be specified with haPolicy.
+    /// failoverPolicy cannot be specified with haPolicy.failoverPolicy cannot be used by global external Passthrough
+    /// Network Load Balancers.
     #[prost(message, optional, tag = "105658655")]
     pub failover_policy: ::core::option::Option<BackendServiceFailoverPolicy>,
     /// Fingerprint of this resource. A hash of the contents stored in this object.
@@ -11700,9 +11393,9 @@ pub struct BackendService {
     /// haPolicy requires customers to be responsible for tracking backend
     /// endpoint health and electing a leader among the healthy endpoints.
     /// Therefore, haPolicy cannot be specified with healthChecks.
-    ///
-    /// haPolicy can only be specified for External Passthrough Network Load
-    /// Balancers and Internal Passthrough Network Load Balancers.
+    /// haPolicy can only be specified for External Passthrough
+    /// Network Load Balancers and Internal Passthrough Network Load Balancers.haPolicy cannot be used by global external Passthrough Network
+    /// Load Balancers.
     #[prost(message, optional, tag = "519879480")]
     pub ha_policy: ::core::option::Option<BackendServiceHaPolicy>,
     /// The list of URLs to the healthChecks, httpHealthChecks (legacy), or
@@ -11772,8 +11465,8 @@ pub struct BackendService {
     pub kind: ::core::option::Option<::prost::alloc::string::String>,
     /// Specifies the load balancer type. A backend service
     /// created for one type of load balancer cannot be used with another.
-    /// For more information, refer toChoosing
-    /// a load balancer.
+    /// For more information, refer to
+    /// Backend services product and scheme table.
     /// Check the LoadBalancingScheme enum for the list of possible values.
     #[prost(string, optional, tag = "363890244")]
     pub load_balancing_scheme: ::core::option::Option<::prost::alloc::string::String>,
@@ -11822,15 +11515,26 @@ pub struct BackendService {
     /// If set, the Backend Service responses are expected to contain non-standard
     /// HTTP response header field Endpoint-Load-Metrics. The reported
     /// metrics to use for computing the weights are specified via thecustomMetrics field.
+    /// - WEIGHTED_MAGLEV: Per-endpoint weighted load balancing via
+    /// health check reported weights. If set, the backend service must configure
+    /// an HTTP-based Health Check, and health check replies are expected to
+    /// contain the non-standard HTTP response header fieldX-Load-Balancing-Endpoint-Weight to specify the per-endpoint
+    /// weights. If set, load balancing is weighted based on the per-endpoint
+    /// weights reported in the last processed health check replies, as long as
+    /// every instance either reported a valid weight or had UNAVAILABLE_WEIGHT.
+    /// Otherwise, load balancing remains equal-weight.
+    /// ```
     ///
     /// This field is applicable to either:
-    ///    - A regional backend service with the service protocol set to HTTP,
-    ///    HTTPS, HTTP2 or H2C, and load_balancing_scheme set to
-    ///    INTERNAL_MANAGED.
-    ///    - A global backend service with the
-    ///    load_balancing_scheme set to INTERNAL_SELF_MANAGED, INTERNAL_MANAGED, or
-    ///    EXTERNAL_MANAGED.
     ///
+    /// ```text
+    /// - A regional backend service with the service protocol set to HTTP,
+    /// HTTPS, HTTP2 or H2C, and load_balancing_scheme set to
+    /// INTERNAL_MANAGED.
+    /// - A global backend service with the
+    /// load_balancing_scheme set to INTERNAL_SELF_MANAGED, INTERNAL_MANAGED, or
+    /// EXTERNAL_MANAGED.
+    /// ```
     ///
     /// If sessionAffinity is not configured—that is, if session
     /// affinity remains at the default value of NONE—then the
@@ -11844,8 +11548,6 @@ pub struct BackendService {
     /// target gRPC proxy that has validateForProxyless field set to true.
     ///
     /// localityLbPolicy cannot be specified with haPolicy.
-    /// ```
-    ///
     /// Check the LocalityLbPolicy enum for the list of possible values.
     #[prost(string, optional, tag = "131431487")]
     pub locality_lb_policy: ::core::option::Option<::prost::alloc::string::String>,
@@ -11966,13 +11668,13 @@ pub struct BackendService {
     /// Balancers, omit port_name.
     #[prost(string, optional, tag = "41534345")]
     pub port_name: ::core::option::Option<::prost::alloc::string::String>,
-    /// The protocol this BackendService uses to communicate
-    /// with backends.
+    /// The protocol this BackendService uses to communicate with backends.
     ///
-    /// Possible values are HTTP, HTTPS, HTTP2, H2C, TCP, SSL, UDP or GRPC.
-    /// depending on the chosen load balancer or Traffic Director configuration.
-    /// Refer to the documentation for the load balancers or for Traffic Director
-    /// for more information.
+    /// Possible values are HTTP, HTTPS, HTTP2, H2C, TCP, SSL, UDP, GRPC, or
+    /// UNSPECIFIED, depending on the chosen load balancer or Traffic Director
+    /// configuration.
+    /// Refer to
+    /// Load balancing features for more information.
     ///
     /// Must be set to GRPC when the backend service is referenced by a URL map
     /// that is bound to target gRPC proxy.
@@ -12006,7 +11708,11 @@ pub struct BackendService {
     /// URL to networkservices.ServiceLbPolicy resource.
     ///
     /// Can only be set if load balancing scheme is EXTERNAL_MANAGED,
-    /// INTERNAL_MANAGED or INTERNAL_SELF_MANAGED and the scope is global.
+    /// INTERNAL_MANAGED or INTERNAL_SELF_MANAGED for a global backend service, and
+    /// EXTERNAL_MANAGED or INTERNAL_MANAGED for a regional backend service. For a
+    /// global backend service, the service lb policy must be global. For a
+    /// regional backend service, the service lb policy must be regional and in the
+    /// same region.
     #[prost(string, optional, tag = "94848785")]
     pub service_lb_policy: ::core::option::Option<::prost::alloc::string::String>,
     /// Type of session affinity to use. The default is NONE.
@@ -12260,8 +11966,8 @@ pub mod backend_service {
     }
     /// Specifies the load balancer type. A backend service
     /// created for one type of load balancer cannot be used with another.
-    /// For more information, refer toChoosing
-    /// a load balancer.
+    /// For more information, refer to
+    /// Backend services product and scheme table.
     #[derive(
         Clone,
         Copy,
@@ -12355,15 +12061,26 @@ pub mod backend_service {
     /// If set, the Backend Service responses are expected to contain non-standard
     /// HTTP response header field Endpoint-Load-Metrics. The reported
     /// metrics to use for computing the weights are specified via thecustomMetrics field.
+    /// - WEIGHTED_MAGLEV: Per-endpoint weighted load balancing via
+    /// health check reported weights. If set, the backend service must configure
+    /// an HTTP-based Health Check, and health check replies are expected to
+    /// contain the non-standard HTTP response header fieldX-Load-Balancing-Endpoint-Weight to specify the per-endpoint
+    /// weights. If set, load balancing is weighted based on the per-endpoint
+    /// weights reported in the last processed health check replies, as long as
+    /// every instance either reported a valid weight or had UNAVAILABLE_WEIGHT.
+    /// Otherwise, load balancing remains equal-weight.
+    /// ```
     ///
     /// This field is applicable to either:
-    ///    - A regional backend service with the service protocol set to HTTP,
-    ///    HTTPS, HTTP2 or H2C, and load_balancing_scheme set to
-    ///    INTERNAL_MANAGED.
-    ///    - A global backend service with the
-    ///    load_balancing_scheme set to INTERNAL_SELF_MANAGED, INTERNAL_MANAGED, or
-    ///    EXTERNAL_MANAGED.
     ///
+    /// ```text
+    /// - A regional backend service with the service protocol set to HTTP,
+    /// HTTPS, HTTP2 or H2C, and load_balancing_scheme set to
+    /// INTERNAL_MANAGED.
+    /// - A global backend service with the
+    /// load_balancing_scheme set to INTERNAL_SELF_MANAGED, INTERNAL_MANAGED, or
+    /// EXTERNAL_MANAGED.
+    /// ```
     ///
     /// If sessionAffinity is not configured—that is, if session
     /// affinity remains at the default value of NONE—then the
@@ -12377,7 +12094,6 @@ pub mod backend_service {
     /// target gRPC proxy that has validateForProxyless field set to true.
     ///
     /// localityLbPolicy cannot be specified with haPolicy.
-    /// ```
     #[derive(
         Clone,
         Copy,
@@ -12480,13 +12196,13 @@ pub mod backend_service {
             }
         }
     }
-    /// The protocol this BackendService uses to communicate
-    /// with backends.
+    /// The protocol this BackendService uses to communicate with backends.
     ///
-    /// Possible values are HTTP, HTTPS, HTTP2, H2C, TCP, SSL, UDP or GRPC.
-    /// depending on the chosen load balancer or Traffic Director configuration.
-    /// Refer to the documentation for the load balancers or for Traffic Director
-    /// for more information.
+    /// Possible values are HTTP, HTTPS, HTTP2, H2C, TCP, SSL, UDP, GRPC, or
+    /// UNSPECIFIED, depending on the chosen load balancer or Traffic Director
+    /// configuration.
+    /// Refer to
+    /// Load balancing features for more information.
     ///
     /// Must be set to GRPC when the backend service is referenced by a URL map
     /// that is bound to target gRPC proxy.
@@ -12704,14 +12420,17 @@ pub struct BackendServiceCdnPolicy {
     #[prost(message, optional, tag = "159263727")]
     pub cache_key_policy: ::core::option::Option<CacheKeyPolicy>,
     /// Specifies the cache setting for all responses from this backend.
-    /// The possible values are:USE_ORIGIN_HEADERS Requires the origin to set valid caching
+    /// The possible values are:
+    /// USE_ORIGIN_HEADERS Requires the origin to set valid caching
     /// headers to cache content. Responses without these headers will not be
     /// cached at Google's edge, and will require a full trip to the origin on
     /// every request, potentially impacting performance and increasing load on
-    /// the origin server.FORCE_CACHE_ALL Cache all content, ignoring any "private",
+    /// the origin server.
+    /// FORCE_CACHE_ALL Cache all content, ignoring any "private",
     /// "no-store" or "no-cache" directives in Cache-Control response headers.
     /// Warning: this may result in Cloud CDN caching private,
-    /// per-user (user identifiable) content.CACHE_ALL_STATIC Automatically cache static content,
+    /// per-user (user identifiable) content.
+    /// CACHE_ALL_STATIC Automatically cache static content,
     /// including common image formats, media (video and audio), and web assets
     /// (JavaScript and CSS). Requests and responses that are marked as
     /// uncacheable, as well as dynamic content (including HTML), will not be
@@ -12823,14 +12542,17 @@ pub struct BackendServiceCdnPolicy {
 /// Nested message and enum types in `BackendServiceCdnPolicy`.
 pub mod backend_service_cdn_policy {
     /// Specifies the cache setting for all responses from this backend.
-    /// The possible values are:USE_ORIGIN_HEADERS Requires the origin to set valid caching
+    /// The possible values are:
+    /// USE_ORIGIN_HEADERS Requires the origin to set valid caching
     /// headers to cache content. Responses without these headers will not be
     /// cached at Google's edge, and will require a full trip to the origin on
     /// every request, potentially impacting performance and increasing load on
-    /// the origin server.FORCE_CACHE_ALL Cache all content, ignoring any "private",
+    /// the origin server.
+    /// FORCE_CACHE_ALL Cache all content, ignoring any "private",
     /// "no-store" or "no-cache" directives in Cache-Control response headers.
     /// Warning: this may result in Cloud CDN caching private,
-    /// per-user (user identifiable) content.CACHE_ALL_STATIC Automatically cache static content,
+    /// per-user (user identifiable) content.
+    /// CACHE_ALL_STATIC Automatically cache static content,
     /// including common image formats, media (video and audio), and web assets
     /// (JavaScript and CSS). Requests and responses that are marked as
     /// uncacheable, as well as dynamic content (including HTML), will not be
@@ -13454,7 +13176,8 @@ pub struct BackendServiceHaPolicyLeaderNetworkEndpoint {
     /// instance must already be attached to the NEG specified in the
     /// haPolicy.leader.backendGroup.
     ///
-    /// The name must be 1-63 characters long, and comply with RFC1035.
+    /// The value must be a valid RFC1035 name (1-63 characters) or a valid
+    /// instance URL.
     /// Authorization requires the following IAM permission on the
     /// specified resource instance: compute.instances.use
     #[prost(string, optional, tag = "18257045")]
@@ -13718,6 +13441,16 @@ pub struct BackendServiceLogConfig {
     /// traffic served by this backend service. The default value is false.
     #[prost(bool, optional, tag = "311764355")]
     pub enable: ::core::option::Option<bool>,
+    /// The list of request headers that will be logged to Stackdriver.
+    #[prost(message, repeated, tag = "430426367")]
+    pub logging_http_request_headers: ::prost::alloc::vec::Vec<
+        BackendServiceLogConfigLoggingHttpHeader,
+    >,
+    /// The list of response headers that will be logged to Stackdriver.
+    #[prost(message, repeated, tag = "515407743")]
+    pub logging_http_response_headers: ::prost::alloc::vec::Vec<
+        BackendServiceLogConfigLoggingHttpHeader,
+    >,
     /// This field can only be specified if logging is enabled for this backend
     /// service and "logConfig.optionalMode" was set to CUSTOM. Contains a list
     /// of optional fields you want to include in the logs. For example:
@@ -13792,6 +13525,13 @@ pub mod backend_service_log_config {
             }
         }
     }
+}
+/// Determines which HTTP headers will be logged to Stackdriver.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct BackendServiceLogConfigLoggingHttpHeader {
+    /// The name of the header to be logged.
+    #[prost(string, optional, tag = "110223613")]
+    pub header_name: ::core::option::Option<::prost::alloc::string::String>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct BackendServiceNetworkPassThroughLbTrafficPolicy {
@@ -13951,6 +13691,47 @@ pub struct BackendServiceTlsSettings {
     /// field. Can only be specified if authenticationMode is not NONE.
     #[prost(string, optional, tag = "408053481")]
     pub authentication_config: ::core::option::Option<::prost::alloc::string::String>,
+    /// Assigns the Managed Identity for the BackendService Workload.
+    ///
+    /// Use this property to configure the load balancer back-end to use
+    /// certificates and roots of trust provisioned by the Managed Workload
+    /// Identity system.
+    ///
+    /// The `identity` property is the
+    /// fully-specified SPIFFE ID to use in the SVID presented by the Load
+    /// Balancer Workload.
+    ///
+    /// The SPIFFE ID must be a resource starting with the
+    /// `trustDomain` property value, followed by the path to the Managed
+    /// Workload Identity.
+    ///
+    /// Supported SPIFFE ID format:
+    ///
+    /// ```text
+    /// - //<trust_domain>/ns/<namespace>/sa/<subject>
+    /// ```
+    ///
+    /// The Trust Domain within the Managed Identity must refer to a valid
+    /// Workload Identity Pool. The TrustConfig and CertificateIssuanceConfig
+    /// will be inherited from the Workload Identity Pool.
+    ///
+    /// Restrictions:
+    ///
+    /// ```text
+    /// - If you set the `identity` property, you cannot manually set
+    /// the following fields:
+    ///     - tlsSettings.sni
+    ///    - tlsSettings.subjectAltNames
+    ///    - tlsSettings.authenticationConfig
+    /// ```
+    ///
+    /// When defining a `identity` for a RegionBackendServices, the
+    /// corresponding Workload Identity Pool must have a ca_pool
+    /// configured in the same region.
+    ///
+    /// The system will set up a read-onlytlsSettings.authenticationConfig for the Managed Identity.
+    #[prost(string, optional, tag = "401109182")]
+    pub identity: ::core::option::Option<::prost::alloc::string::String>,
     /// Server Name Indication - see RFC3546 section 3.1. If set, the load
     /// balancer sends this string as the SNI hostname in the TLS connection to
     /// the backend, and requires that this string match a Subject Alternative
@@ -14587,8 +14368,6 @@ pub struct BgpRouteNetworkLayerReachabilityInformation {
 /// Associates `members`, or principals, with a `role`.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct Binding {
-    #[prost(string, optional, tag = "441088277")]
-    pub binding_id: ::core::option::Option<::prost::alloc::string::String>,
     /// The condition that is associated with this binding.
     ///
     /// If the condition evaluates to `true`, then this binding applies to the
@@ -15583,6 +15362,677 @@ pub struct CancelRolloutRequest {
     #[prost(string, tag = "303366577")]
     pub rollout: ::prost::alloc::string::String,
 }
+/// A request to provide Assistant Scores. These scores determine VM
+/// obtainability and preemption likelihood.
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct CapacityAdviceRequest {
+    /// Policy specifying the distribution of instances across
+    /// zones within the requested region.
+    #[prost(message, optional, tag = "534558541")]
+    pub distribution_policy: ::core::option::Option<
+        CapacityAdviceRequestDistributionPolicy,
+    >,
+    /// Policy for instance selectors.
+    #[prost(message, optional, tag = "26937090")]
+    pub instance_flexibility_policy: ::core::option::Option<
+        CapacityAdviceRequestInstanceFlexibilityPolicy,
+    >,
+    /// Instance properties for this request.
+    #[prost(message, optional, tag = "215355165")]
+    pub instance_properties: ::core::option::Option<
+        CapacityAdviceRequestInstanceProperties,
+    >,
+    /// The number of VM instances to request.
+    #[prost(int32, optional, tag = "3530753")]
+    pub size: ::core::option::Option<i32>,
+}
+/// Distribution policy.
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct CapacityAdviceRequestDistributionPolicy {
+    /// Target distribution shape. You can specify the following values:ANY, ANY_SINGLE_ZONE, or BALANCED.
+    /// Check the TargetShape enum for the list of possible values.
+    #[prost(string, optional, tag = "338621299")]
+    pub target_shape: ::core::option::Option<::prost::alloc::string::String>,
+    /// Zones where Capacity Advisor looks for capacity.
+    #[prost(message, repeated, tag = "116085319")]
+    pub zones: ::prost::alloc::vec::Vec<
+        CapacityAdviceRequestDistributionPolicyZoneConfiguration,
+    >,
+}
+/// Nested message and enum types in `CapacityAdviceRequestDistributionPolicy`.
+pub mod capacity_advice_request_distribution_policy {
+    /// Target distribution shape. You can specify the following values:ANY, ANY_SINGLE_ZONE, or BALANCED.
+    #[derive(
+        Clone,
+        Copy,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash,
+        PartialOrd,
+        Ord,
+        ::prost::Enumeration
+    )]
+    #[repr(i32)]
+    pub enum TargetShape {
+        /// A value indicating that the enum field is not set.
+        UndefinedTargetShape = 0,
+        /// Picks zones for creating VM instances to fulfill the requested number
+        /// of VMs within present resource constraints.
+        Any = 64972,
+        /// Creates all VM instances within a single zone. The zone is selected
+        /// based on the present resource constraints.
+        AnySingleZone = 61100880,
+        /// Prioritizes acquisition of resources, scheduling VMs in zones where
+        /// resources are available while distributing VMs as evenly as possible
+        /// across selected zones to minimize the impact of zonal failure.
+        Balanced = 468409608,
+        /// Default value, unused.
+        Unspecified = 449316907,
+    }
+    impl TargetShape {
+        /// String value of the enum field names used in the ProtoBuf definition.
+        ///
+        /// The values are not transformed in any way and thus are considered stable
+        /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+        pub fn as_str_name(&self) -> &'static str {
+            match self {
+                Self::UndefinedTargetShape => "UNDEFINED_TARGET_SHAPE",
+                Self::Any => "ANY",
+                Self::AnySingleZone => "ANY_SINGLE_ZONE",
+                Self::Balanced => "BALANCED",
+                Self::Unspecified => "TARGET_SHAPE_UNSPECIFIED",
+            }
+        }
+        /// Creates an enum from field names used in the ProtoBuf definition.
+        pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+            match value {
+                "UNDEFINED_TARGET_SHAPE" => Some(Self::UndefinedTargetShape),
+                "ANY" => Some(Self::Any),
+                "ANY_SINGLE_ZONE" => Some(Self::AnySingleZone),
+                "BALANCED" => Some(Self::Balanced),
+                "TARGET_SHAPE_UNSPECIFIED" => Some(Self::Unspecified),
+                _ => None,
+            }
+        }
+    }
+}
+/// Zone configuration for the distribution policy.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct CapacityAdviceRequestDistributionPolicyZoneConfiguration {
+    /// The URL of the zone. It can be a
+    /// partial or full URL. For example, the following are valid values:
+    ///
+    /// ```text
+    ///   - <https://www.googleapis.com/compute/v1/projects/project/zones/zone>
+    /// - projects/project/zones/zone
+    /// - zones/zone
+    /// ```
+    #[prost(string, optional, tag = "3744684")]
+    pub zone: ::core::option::Option<::prost::alloc::string::String>,
+}
+/// Specification of alternative, flexible instance configurations.
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct CapacityAdviceRequestInstanceFlexibilityPolicy {
+    /// Named instance selections to configure properties.
+    /// The key is an arbitrary, unique RFC1035 string that identifies the
+    /// instance selection.
+    #[prost(map = "string, message", tag = "22954577")]
+    pub instance_selections: ::std::collections::HashMap<
+        ::prost::alloc::string::String,
+        CapacityAdviceRequestInstanceFlexibilityPolicyInstanceSelection,
+    >,
+}
+/// Machine specification.
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct CapacityAdviceRequestInstanceFlexibilityPolicyInstanceSelection {
+    /// Local SSDs.
+    #[prost(message, repeated, tag = "95594102")]
+    pub disks: ::prost::alloc::vec::Vec<
+        CapacityAdviceRequestInstanceFlexibilityPolicyInstanceSelectionAttachedDisk,
+    >,
+    /// Accelerators configuration.
+    #[prost(message, repeated, tag = "463595119")]
+    pub guest_accelerators: ::prost::alloc::vec::Vec<AcceleratorConfig>,
+    /// Full machine-type names, e.g. "n1-standard-16".
+    #[prost(string, repeated, tag = "79720065")]
+    pub machine_types: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
+    /// Optional. Rank when prioritizing the shape flexibilities.
+    /// The instance selections are considered in the ascending order of the
+    /// rank. If not set, defaults to 0.
+    #[prost(int64, optional, tag = "3492908")]
+    pub rank: ::core::option::Option<i64>,
+}
+/// Attached disk configuration.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct CapacityAdviceRequestInstanceFlexibilityPolicyInstanceSelectionAttachedDisk {
+    /// Specifies the type of the disk.
+    /// Check the Type enum for the list of possible values.
+    #[prost(string, optional, tag = "3575610")]
+    pub r#type: ::core::option::Option<::prost::alloc::string::String>,
+}
+/// Nested message and enum types in `CapacityAdviceRequestInstanceFlexibilityPolicyInstanceSelectionAttachedDisk`.
+pub mod capacity_advice_request_instance_flexibility_policy_instance_selection_attached_disk {
+    /// Specifies the type of the disk.
+    #[derive(
+        Clone,
+        Copy,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash,
+        PartialOrd,
+        Ord,
+        ::prost::Enumeration
+    )]
+    #[repr(i32)]
+    pub enum Type {
+        /// A value indicating that the enum field is not set.
+        UndefinedType = 0,
+        /// Default value, unspecified disk type.
+        DiskTypeUnspecified = 333621236,
+        /// Scratch disk (Local SSD).
+        Scratch = 496778970,
+    }
+    impl Type {
+        /// String value of the enum field names used in the ProtoBuf definition.
+        ///
+        /// The values are not transformed in any way and thus are considered stable
+        /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+        pub fn as_str_name(&self) -> &'static str {
+            match self {
+                Self::UndefinedType => "UNDEFINED_TYPE",
+                Self::DiskTypeUnspecified => "DISK_TYPE_UNSPECIFIED",
+                Self::Scratch => "SCRATCH",
+            }
+        }
+        /// Creates an enum from field names used in the ProtoBuf definition.
+        pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+            match value {
+                "UNDEFINED_TYPE" => Some(Self::UndefinedType),
+                "DISK_TYPE_UNSPECIFIED" => Some(Self::DiskTypeUnspecified),
+                "SCRATCH" => Some(Self::Scratch),
+                _ => None,
+            }
+        }
+    }
+}
+/// Instance provisioning properties.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct CapacityAdviceRequestInstanceProperties {
+    /// Specifies the scheduling options.
+    #[prost(message, optional, tag = "386688404")]
+    pub scheduling: ::core::option::Option<
+        CapacityAdviceRequestInstancePropertiesScheduling,
+    >,
+}
+/// Defines the instance scheduling options.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct CapacityAdviceRequestInstancePropertiesScheduling {
+    /// Specifies the provisioning model.
+    /// Check the ProvisioningModel enum for the list of possible values.
+    #[prost(string, optional, tag = "494423")]
+    pub provisioning_model: ::core::option::Option<::prost::alloc::string::String>,
+}
+/// Nested message and enum types in `CapacityAdviceRequestInstancePropertiesScheduling`.
+pub mod capacity_advice_request_instance_properties_scheduling {
+    /// Specifies the provisioning model.
+    #[derive(
+        Clone,
+        Copy,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash,
+        PartialOrd,
+        Ord,
+        ::prost::Enumeration
+    )]
+    #[repr(i32)]
+    pub enum ProvisioningModel {
+        /// A value indicating that the enum field is not set.
+        UndefinedProvisioningModel = 0,
+        /// Instance is provisioned using the Flex Start provisioning model and
+        /// has a limited runtime.
+        FlexStart = 101746812,
+        /// Bound to the lifecycle of the reservation in which it is provisioned.
+        ReservationBound = 293538571,
+        /// Heavily discounted, no guaranteed runtime.
+        Spot = 2552066,
+        /// Standard provisioning with user controlled runtime, no discounts.
+        Standard = 484642493,
+    }
+    impl ProvisioningModel {
+        /// String value of the enum field names used in the ProtoBuf definition.
+        ///
+        /// The values are not transformed in any way and thus are considered stable
+        /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+        pub fn as_str_name(&self) -> &'static str {
+            match self {
+                Self::UndefinedProvisioningModel => "UNDEFINED_PROVISIONING_MODEL",
+                Self::FlexStart => "FLEX_START",
+                Self::ReservationBound => "RESERVATION_BOUND",
+                Self::Spot => "SPOT",
+                Self::Standard => "STANDARD",
+            }
+        }
+        /// Creates an enum from field names used in the ProtoBuf definition.
+        pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+            match value {
+                "UNDEFINED_PROVISIONING_MODEL" => Some(Self::UndefinedProvisioningModel),
+                "FLEX_START" => Some(Self::FlexStart),
+                "RESERVATION_BOUND" => Some(Self::ReservationBound),
+                "SPOT" => Some(Self::Spot),
+                "STANDARD" => Some(Self::Standard),
+                _ => None,
+            }
+        }
+    }
+}
+/// A response contains scoring recommendations.
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct CapacityAdviceResponse {
+    /// Initially the API will provide one recommendation which balances the
+    /// individual scores according to the service provider's preference.
+    #[prost(message, repeated, tag = "324515802")]
+    pub recommendations: ::prost::alloc::vec::Vec<CapacityAdviceResponseRecommendation>,
+}
+/// Recommendation.
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct CapacityAdviceResponseRecommendation {
+    /// Scores for the recommendation.
+    #[prost(message, optional, tag = "165975073")]
+    pub scores: ::core::option::Option<CapacityAdviceResponseRecommendationScores>,
+    /// Shards represent blocks of uniform capacity in recommendations.
+    #[prost(message, repeated, tag = "170175573")]
+    pub shards: ::prost::alloc::vec::Vec<CapacityAdviceResponseRecommendationShard>,
+}
+/// Groups information about a shard of capacity.
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct CapacityAdviceResponseRecommendationScores {
+    /// The estimated run time of the majority of Spot VMs in the request
+    /// before preemption. The estimate is best-effort only. It is based on
+    /// historical data and current conditions.
+    #[prost(string, optional, tag = "223976779")]
+    pub estimated_uptime: ::core::option::Option<::prost::alloc::string::String>,
+    /// The obtainability score indicates the likelihood of successfully
+    /// obtaining (provisioning) the requested number of VMs.
+    /// The score range is 0.0 through 1.0. Higher is better.
+    #[prost(double, optional, tag = "260735205")]
+    pub obtainability: ::core::option::Option<f64>,
+}
+/// Shards represent blocks of uniform capacity in recommendations.
+/// Each shard is for a single zone and a single machine shape. Each shard
+/// defines a size expressed as the number of VMs.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct CapacityAdviceResponseRecommendationShard {
+    /// The number of instances.
+    #[prost(int32, optional, tag = "77317349")]
+    pub instance_count: ::core::option::Option<i32>,
+    /// The machine type corresponds to the instance selection in the request.
+    #[prost(string, optional, tag = "227711026")]
+    pub machine_type: ::core::option::Option<::prost::alloc::string::String>,
+    /// The provisioning model that you want to view recommendations for.
+    /// Check the ProvisioningModel enum for the list of possible values.
+    #[prost(string, optional, tag = "494423")]
+    pub provisioning_model: ::core::option::Option<::prost::alloc::string::String>,
+    /// Output only. The zone name for this shard.
+    #[prost(string, optional, tag = "3744684")]
+    pub zone: ::core::option::Option<::prost::alloc::string::String>,
+}
+/// Nested message and enum types in `CapacityAdviceResponseRecommendationShard`.
+pub mod capacity_advice_response_recommendation_shard {
+    /// The provisioning model that you want to view recommendations for.
+    #[derive(
+        Clone,
+        Copy,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash,
+        PartialOrd,
+        Ord,
+        ::prost::Enumeration
+    )]
+    #[repr(i32)]
+    pub enum ProvisioningModel {
+        /// A value indicating that the enum field is not set.
+        UndefinedProvisioningModel = 0,
+        /// Instance is provisioned using the Flex Start provisioning model and
+        /// has a limited runtime.
+        FlexStart = 101746812,
+        /// Bound to the lifecycle of the reservation in which it is provisioned.
+        ReservationBound = 293538571,
+        /// Heavily discounted, no guaranteed runtime.
+        Spot = 2552066,
+        /// Standard provisioning with user controlled runtime, no discounts.
+        Standard = 484642493,
+    }
+    impl ProvisioningModel {
+        /// String value of the enum field names used in the ProtoBuf definition.
+        ///
+        /// The values are not transformed in any way and thus are considered stable
+        /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+        pub fn as_str_name(&self) -> &'static str {
+            match self {
+                Self::UndefinedProvisioningModel => "UNDEFINED_PROVISIONING_MODEL",
+                Self::FlexStart => "FLEX_START",
+                Self::ReservationBound => "RESERVATION_BOUND",
+                Self::Spot => "SPOT",
+                Self::Standard => "STANDARD",
+            }
+        }
+        /// Creates an enum from field names used in the ProtoBuf definition.
+        pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+            match value {
+                "UNDEFINED_PROVISIONING_MODEL" => Some(Self::UndefinedProvisioningModel),
+                "FLEX_START" => Some(Self::FlexStart),
+                "RESERVATION_BOUND" => Some(Self::ReservationBound),
+                "SPOT" => Some(Self::Spot),
+                "STANDARD" => Some(Self::Standard),
+                _ => None,
+            }
+        }
+    }
+}
+/// A request message for Advice.Capacity. See the method description for details.
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct CapacityAdviceRpcRequest {
+    /// The body resource for this request
+    #[prost(message, optional, tag = "176354208")]
+    pub capacity_advice_request_resource: ::core::option::Option<CapacityAdviceRequest>,
+    /// Project ID for this request.
+    #[prost(string, tag = "227560217")]
+    pub project: ::prost::alloc::string::String,
+    /// Name of the region for this request.
+    #[prost(string, tag = "138946292")]
+    pub region: ::prost::alloc::string::String,
+}
+/// A request message for Advice.CapacityHistory. See the method description for details.
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct CapacityHistoryAdviceRequest {
+    /// The body resource for this request
+    #[prost(message, optional, tag = "182030318")]
+    pub capacity_history_request_resource: ::core::option::Option<
+        CapacityHistoryRequest,
+    >,
+    /// Project ID for this request.
+    #[prost(string, tag = "227560217")]
+    pub project: ::prost::alloc::string::String,
+    /// Name of the region for this request.
+    #[prost(string, tag = "138946292")]
+    pub region: ::prost::alloc::string::String,
+}
+/// A request to get the capacity history.
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct CapacityHistoryRequest {
+    /// Instance properties for this request.
+    #[prost(message, optional, tag = "215355165")]
+    pub instance_properties: ::core::option::Option<
+        CapacityHistoryRequestInstanceProperties,
+    >,
+    /// Location policy for this request.
+    #[prost(message, optional, tag = "465689852")]
+    pub location_policy: ::core::option::Option<CapacityHistoryRequestLocationPolicy>,
+    /// List of history types to get capacity history for.
+    /// Check the Types enum for the list of possible values.
+    #[prost(string, repeated, tag = "110844025")]
+    pub types: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
+}
+/// Nested message and enum types in `CapacityHistoryRequest`.
+pub mod capacity_history_request {
+    #[derive(
+        Clone,
+        Copy,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash,
+        PartialOrd,
+        Ord,
+        ::prost::Enumeration
+    )]
+    #[repr(i32)]
+    pub enum Types {
+        /// A value indicating that the enum field is not set.
+        UndefinedTypes = 0,
+        /// Default value, unused.
+        HistoryTypeUnspecified = 58549757,
+        /// Preemption history.
+        Preemption = 512869337,
+        /// Price history.
+        Price = 76396841,
+    }
+    impl Types {
+        /// String value of the enum field names used in the ProtoBuf definition.
+        ///
+        /// The values are not transformed in any way and thus are considered stable
+        /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+        pub fn as_str_name(&self) -> &'static str {
+            match self {
+                Self::UndefinedTypes => "UNDEFINED_TYPES",
+                Self::HistoryTypeUnspecified => "HISTORY_TYPE_UNSPECIFIED",
+                Self::Preemption => "PREEMPTION",
+                Self::Price => "PRICE",
+            }
+        }
+        /// Creates an enum from field names used in the ProtoBuf definition.
+        pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+            match value {
+                "UNDEFINED_TYPES" => Some(Self::UndefinedTypes),
+                "HISTORY_TYPE_UNSPECIFIED" => Some(Self::HistoryTypeUnspecified),
+                "PREEMPTION" => Some(Self::Preemption),
+                "PRICE" => Some(Self::Price),
+                _ => None,
+            }
+        }
+    }
+}
+/// Instance properties for this request.
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct CapacityHistoryRequestInstanceProperties {
+    /// Local SSDs.
+    #[prost(message, repeated, tag = "95594102")]
+    pub disks: ::prost::alloc::vec::Vec<
+        CapacityHistoryRequestInstancePropertiesAttachedDisk,
+    >,
+    /// Accelerators configuration.
+    #[prost(message, repeated, tag = "463595119")]
+    pub guest_accelerators: ::prost::alloc::vec::Vec<AcceleratorConfig>,
+    /// The machine type for the VM, such as `n2-standard-4`.
+    #[prost(string, optional, tag = "227711026")]
+    pub machine_type: ::core::option::Option<::prost::alloc::string::String>,
+    /// Specifies the scheduling options.
+    #[prost(message, optional, tag = "386688404")]
+    pub scheduling: ::core::option::Option<
+        CapacityHistoryRequestInstancePropertiesScheduling,
+    >,
+}
+/// AttachedDisk modeled after Instance's AttachedDisk.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct CapacityHistoryRequestInstancePropertiesAttachedDisk {
+    /// Specifies the type of the disk.
+    /// Check the Type enum for the list of possible values.
+    #[prost(string, optional, tag = "3575610")]
+    pub r#type: ::core::option::Option<::prost::alloc::string::String>,
+}
+/// Nested message and enum types in `CapacityHistoryRequestInstancePropertiesAttachedDisk`.
+pub mod capacity_history_request_instance_properties_attached_disk {
+    /// Specifies the type of the disk.
+    #[derive(
+        Clone,
+        Copy,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash,
+        PartialOrd,
+        Ord,
+        ::prost::Enumeration
+    )]
+    #[repr(i32)]
+    pub enum Type {
+        /// A value indicating that the enum field is not set.
+        UndefinedType = 0,
+        /// Default value, unused.
+        DiskTypeUnspecified = 333621236,
+        /// Scratch disk (Local SSD).
+        Scratch = 496778970,
+    }
+    impl Type {
+        /// String value of the enum field names used in the ProtoBuf definition.
+        ///
+        /// The values are not transformed in any way and thus are considered stable
+        /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+        pub fn as_str_name(&self) -> &'static str {
+            match self {
+                Self::UndefinedType => "UNDEFINED_TYPE",
+                Self::DiskTypeUnspecified => "DISK_TYPE_UNSPECIFIED",
+                Self::Scratch => "SCRATCH",
+            }
+        }
+        /// Creates an enum from field names used in the ProtoBuf definition.
+        pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+            match value {
+                "UNDEFINED_TYPE" => Some(Self::UndefinedType),
+                "DISK_TYPE_UNSPECIFIED" => Some(Self::DiskTypeUnspecified),
+                "SCRATCH" => Some(Self::Scratch),
+                _ => None,
+            }
+        }
+    }
+}
+/// Scheduling options.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct CapacityHistoryRequestInstancePropertiesScheduling {
+    /// The provisioning model to get capacity history for.
+    /// This field must be set to SPOT.
+    ///
+    /// For more information, see
+    /// Compute Engine instances provisioning models.
+    /// Check the ProvisioningModel enum for the list of possible values.
+    #[prost(string, optional, tag = "494423")]
+    pub provisioning_model: ::core::option::Option<::prost::alloc::string::String>,
+}
+/// Nested message and enum types in `CapacityHistoryRequestInstancePropertiesScheduling`.
+pub mod capacity_history_request_instance_properties_scheduling {
+    /// The provisioning model to get capacity history for.
+    /// This field must be set to SPOT.
+    ///
+    /// For more information, see
+    /// Compute Engine instances provisioning models.
+    #[derive(
+        Clone,
+        Copy,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash,
+        PartialOrd,
+        Ord,
+        ::prost::Enumeration
+    )]
+    #[repr(i32)]
+    pub enum ProvisioningModel {
+        /// A value indicating that the enum field is not set.
+        UndefinedProvisioningModel = 0,
+        /// Instance is provisioned using the Flex Start provisioning model and
+        /// has a limited runtime.
+        FlexStart = 101746812,
+        /// Bound to the lifecycle of the reservation in which it is provisioned.
+        ReservationBound = 293538571,
+        /// Heavily discounted, no guaranteed runtime.
+        Spot = 2552066,
+        /// Standard provisioning with user controlled runtime, no discounts.
+        Standard = 484642493,
+    }
+    impl ProvisioningModel {
+        /// String value of the enum field names used in the ProtoBuf definition.
+        ///
+        /// The values are not transformed in any way and thus are considered stable
+        /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+        pub fn as_str_name(&self) -> &'static str {
+            match self {
+                Self::UndefinedProvisioningModel => "UNDEFINED_PROVISIONING_MODEL",
+                Self::FlexStart => "FLEX_START",
+                Self::ReservationBound => "RESERVATION_BOUND",
+                Self::Spot => "SPOT",
+                Self::Standard => "STANDARD",
+            }
+        }
+        /// Creates an enum from field names used in the ProtoBuf definition.
+        pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+            match value {
+                "UNDEFINED_PROVISIONING_MODEL" => Some(Self::UndefinedProvisioningModel),
+                "FLEX_START" => Some(Self::FlexStart),
+                "RESERVATION_BOUND" => Some(Self::ReservationBound),
+                "SPOT" => Some(Self::Spot),
+                "STANDARD" => Some(Self::Standard),
+                _ => None,
+            }
+        }
+    }
+}
+/// Location policy for this request.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct CapacityHistoryRequestLocationPolicy {
+    /// The region or zone to get capacity history for.
+    ///
+    /// It can be a partial or full URL. For example, the following are valid
+    /// values:
+    ///
+    /// ```text
+    ///   - <https://www.googleapis.com/compute/v1/projects/project/zones/zone>
+    /// - projects/project/zones/zone
+    /// - zones/zone
+    /// ```
+    ///
+    /// This field is optional.
+    #[prost(string, optional, tag = "290430901")]
+    pub location: ::core::option::Option<::prost::alloc::string::String>,
+}
+/// Contains the capacity history.
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct CapacityHistoryResponse {
+    /// Output only. The location (region or zone) for which the capacity history is returned.
+    /// It is returned as a URL - For example,<https://www.googleapis.com/compute/v1/projects/project/zones/zone.>
+    #[prost(string, optional, tag = "290430901")]
+    pub location: ::core::option::Option<::prost::alloc::string::String>,
+    /// The machine type for which the capacity history is returned.
+    #[prost(string, optional, tag = "227711026")]
+    pub machine_type: ::core::option::Option<::prost::alloc::string::String>,
+    /// The preemption history for the requested machine type and location.
+    #[prost(message, repeated, tag = "364018222")]
+    pub preemption_history: ::prost::alloc::vec::Vec<
+        CapacityHistoryResponsePreemptionRecord,
+    >,
+    /// The price history for the requested machine type and location.
+    #[prost(message, repeated, tag = "326230942")]
+    pub price_history: ::prost::alloc::vec::Vec<CapacityHistoryResponsePriceRecord>,
+}
+/// A record of Spot VM preemption history.
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct CapacityHistoryResponsePreemptionRecord {
+    /// The time interval for this preemption record.
+    #[prost(message, optional, tag = "33547461")]
+    pub interval: ::core::option::Option<Interval>,
+    /// The preemption rate during the interval, representing the fraction of
+    /// Spot VMs that were preempted. Range: 0.0 to 1.0. Preemption rate is
+    /// calculated as (total preempted Spots) / (total Spots that stopped
+    /// running).
+    #[prost(double, optional, tag = "140651910")]
+    pub preemption_rate: ::core::option::Option<f64>,
+}
+/// A record of price history.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct CapacityHistoryResponsePriceRecord {
+    /// The time interval for this price record.
+    #[prost(message, optional, tag = "33547461")]
+    pub interval: ::core::option::Option<Interval>,
+    /// The Spot VM list price during the interval.
+    #[prost(message, optional, tag = "167990888")]
+    pub list_price: ::core::option::Option<Money>,
+}
 /// Settings controlling the volume of requests, connections and retries to this
 /// backend service.
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
@@ -15843,7 +16293,7 @@ pub struct Commitment {
     /// resource types.
     ///
     /// The type must be one of the following:ACCELERATOR_OPTIMIZED, ACCELERATOR_OPTIMIZED_A3,ACCELERATOR_OPTIMIZED_A3_MEGA,COMPUTE_OPTIMIZED, COMPUTE_OPTIMIZED_C2D,
-    /// COMPUTE_OPTIMIZED_C3, COMPUTE_OPTIMIZED_C3D,COMPUTE_OPTIMIZED_H3, GENERAL_PURPOSE,GENERAL_PURPOSE_C4, GENERAL_PURPOSE_E2,GENERAL_PURPOSE_N2, GENERAL_PURPOSE_N2D,GENERAL_PURPOSE_N4, GENERAL_PURPOSE_T2D,GRAPHICS_OPTIMIZED, GRAPHICS_OPTIMIZED_G4,GRAPHICS_OPTIMIZED_G4_VGPU,MEMORY_OPTIMIZED, MEMORY_OPTIMIZED_M3,MEMORY_OPTIMIZED_X4, STORAGE_OPTIMIZED_Z3. For
+    /// COMPUTE_OPTIMIZED_C3, COMPUTE_OPTIMIZED_C3D,COMPUTE_OPTIMIZED_H3, GENERAL_PURPOSE,GENERAL_PURPOSE_C4, GENERAL_PURPOSE_E2,GENERAL_PURPOSE_N2, GENERAL_PURPOSE_N2D,GENERAL_PURPOSE_N4, GENERAL_PURPOSE_T2D,GRAPHICS_OPTIMIZED, GRAPHICS_OPTIMIZED_G4,GRAPHICS_OPTIMIZED_G4_VGPU,MEMORY_OPTIMIZED, MEMORY_OPTIMIZED_M3,MEMORY_OPTIMIZED_X4, STORAGE_OPTIMIZED_Z3,STORAGE_OPTIMIZED_Z4DS, STORAGE_OPTIMIZED_Z4DH,STORAGE_OPTIMIZED_Z4D4T,STORAGE_OPTIMIZED_Z4M. For
     /// example, type MEMORY_OPTIMIZED specifies a commitment that
     /// applies only to eligible resources of memory optimized M1 and M2 machine
     /// series. Type GENERAL_PURPOSE specifies a commitment that
@@ -16014,7 +16464,7 @@ pub mod commitment {
     /// resource types.
     ///
     /// The type must be one of the following:ACCELERATOR_OPTIMIZED, ACCELERATOR_OPTIMIZED_A3,ACCELERATOR_OPTIMIZED_A3_MEGA,COMPUTE_OPTIMIZED, COMPUTE_OPTIMIZED_C2D,
-    /// COMPUTE_OPTIMIZED_C3, COMPUTE_OPTIMIZED_C3D,COMPUTE_OPTIMIZED_H3, GENERAL_PURPOSE,GENERAL_PURPOSE_C4, GENERAL_PURPOSE_E2,GENERAL_PURPOSE_N2, GENERAL_PURPOSE_N2D,GENERAL_PURPOSE_N4, GENERAL_PURPOSE_T2D,GRAPHICS_OPTIMIZED, GRAPHICS_OPTIMIZED_G4,GRAPHICS_OPTIMIZED_G4_VGPU,MEMORY_OPTIMIZED, MEMORY_OPTIMIZED_M3,MEMORY_OPTIMIZED_X4, STORAGE_OPTIMIZED_Z3. For
+    /// COMPUTE_OPTIMIZED_C3, COMPUTE_OPTIMIZED_C3D,COMPUTE_OPTIMIZED_H3, GENERAL_PURPOSE,GENERAL_PURPOSE_C4, GENERAL_PURPOSE_E2,GENERAL_PURPOSE_N2, GENERAL_PURPOSE_N2D,GENERAL_PURPOSE_N4, GENERAL_PURPOSE_T2D,GRAPHICS_OPTIMIZED, GRAPHICS_OPTIMIZED_G4,GRAPHICS_OPTIMIZED_G4_VGPU,MEMORY_OPTIMIZED, MEMORY_OPTIMIZED_M3,MEMORY_OPTIMIZED_X4, STORAGE_OPTIMIZED_Z3,STORAGE_OPTIMIZED_Z4DS, STORAGE_OPTIMIZED_Z4DH,STORAGE_OPTIMIZED_Z4D4T,STORAGE_OPTIMIZED_Z4M. For
     /// example, type MEMORY_OPTIMIZED specifies a commitment that
     /// applies only to eligible resources of memory optimized M1 and M2 machine
     /// series. Type GENERAL_PURPOSE specifies a commitment that
@@ -16078,7 +16528,23 @@ pub mod commitment {
         MemoryOptimizedX496012t = 424752410,
         /// CUD bucket for X4 machine with 960 vCPUs and 16TB of memory.
         MemoryOptimizedX496016t = 424752534,
+        /// CUD bucket for C4N (dual Diorite) machines.
+        NetworkOptimizedC4n = 147027572,
+        /// CUD bucket for NETWORK_OPTIMIZED_U4C machines.
+        NetworkOptimizedU4c = 147044859,
+        /// CUD bucket for NETWORK_OPTIMIZED_U4P machines.
+        NetworkOptimizedU4p = 147044872,
+        /// CUD bucket for NETWORK_OPTIMIZED_U4S machines.
+        NetworkOptimizedU4s = 147044875,
         StorageOptimizedZ3 = 316796085,
+        /// CUD bucket for Z4D-4T machines.
+        StorageOptimizedZ4d4t = 18503022,
+        /// CUD bucket for Z4DH machines.
+        StorageOptimizedZ4dh = 35233722,
+        /// CUD bucket for Z4DS machines.
+        StorageOptimizedZ4ds = 35233733,
+        /// CUD bucket for Z4M (bare metal) machines.
+        StorageOptimizedZ4m = 157002327,
         /// Note for internal users: When adding a new enum Type for v1, make sure
         /// to also add it in the comment for the `optional Type type` definition.
         /// This ensures that the public documentation displays the new enum Type.
@@ -16130,7 +16596,15 @@ pub mod commitment {
                 Self::MemoryOptimizedX44808t => "MEMORY_OPTIMIZED_X4_480_8T",
                 Self::MemoryOptimizedX496012t => "MEMORY_OPTIMIZED_X4_960_12T",
                 Self::MemoryOptimizedX496016t => "MEMORY_OPTIMIZED_X4_960_16T",
+                Self::NetworkOptimizedC4n => "NETWORK_OPTIMIZED_C4N",
+                Self::NetworkOptimizedU4c => "NETWORK_OPTIMIZED_U4C",
+                Self::NetworkOptimizedU4p => "NETWORK_OPTIMIZED_U4P",
+                Self::NetworkOptimizedU4s => "NETWORK_OPTIMIZED_U4S",
                 Self::StorageOptimizedZ3 => "STORAGE_OPTIMIZED_Z3",
+                Self::StorageOptimizedZ4d4t => "STORAGE_OPTIMIZED_Z4D4T",
+                Self::StorageOptimizedZ4dh => "STORAGE_OPTIMIZED_Z4DH",
+                Self::StorageOptimizedZ4ds => "STORAGE_OPTIMIZED_Z4DS",
+                Self::StorageOptimizedZ4m => "STORAGE_OPTIMIZED_Z4M",
                 Self::Unspecified => "TYPE_UNSPECIFIED",
             }
         }
@@ -16178,7 +16652,15 @@ pub mod commitment {
                 "MEMORY_OPTIMIZED_X4_480_8T" => Some(Self::MemoryOptimizedX44808t),
                 "MEMORY_OPTIMIZED_X4_960_12T" => Some(Self::MemoryOptimizedX496012t),
                 "MEMORY_OPTIMIZED_X4_960_16T" => Some(Self::MemoryOptimizedX496016t),
+                "NETWORK_OPTIMIZED_C4N" => Some(Self::NetworkOptimizedC4n),
+                "NETWORK_OPTIMIZED_U4C" => Some(Self::NetworkOptimizedU4c),
+                "NETWORK_OPTIMIZED_U4P" => Some(Self::NetworkOptimizedU4p),
+                "NETWORK_OPTIMIZED_U4S" => Some(Self::NetworkOptimizedU4s),
                 "STORAGE_OPTIMIZED_Z3" => Some(Self::StorageOptimizedZ3),
+                "STORAGE_OPTIMIZED_Z4D4T" => Some(Self::StorageOptimizedZ4d4t),
+                "STORAGE_OPTIMIZED_Z4DH" => Some(Self::StorageOptimizedZ4dh),
+                "STORAGE_OPTIMIZED_Z4DS" => Some(Self::StorageOptimizedZ4ds),
+                "STORAGE_OPTIMIZED_Z4M" => Some(Self::StorageOptimizedZ4m),
                 "TYPE_UNSPECIFIED" => Some(Self::Unspecified),
                 _ => None,
             }
@@ -16564,6 +17046,10 @@ pub mod confidential_instance_config {
     pub enum ConfidentialInstanceType {
         /// A value indicating that the enum field is not set.
         UndefinedConfidentialInstanceType = 0,
+        /// Bare Metal Secure AI.
+        Bmsai = 63328144,
+        /// Arm Confidential Compute Architecture.
+        Cca = 66529,
         /// No type specified. Do not use this value.
         Unspecified = 115021829,
         /// AMD Secure Encrypted Virtualization.
@@ -16583,6 +17069,8 @@ pub mod confidential_instance_config {
                 Self::UndefinedConfidentialInstanceType => {
                     "UNDEFINED_CONFIDENTIAL_INSTANCE_TYPE"
                 }
+                Self::Bmsai => "BMSAI",
+                Self::Cca => "CCA",
                 Self::Unspecified => "CONFIDENTIAL_INSTANCE_TYPE_UNSPECIFIED",
                 Self::Sev => "SEV",
                 Self::SevSnp => "SEV_SNP",
@@ -16595,6 +17083,8 @@ pub mod confidential_instance_config {
                 "UNDEFINED_CONFIDENTIAL_INSTANCE_TYPE" => {
                     Some(Self::UndefinedConfidentialInstanceType)
                 }
+                "BMSAI" => Some(Self::Bmsai),
+                "CCA" => Some(Self::Cca),
                 "CONFIDENTIAL_INSTANCE_TYPE_UNSPECIFIED" => Some(Self::Unspecified),
                 "SEV" => Some(Self::Sev),
                 "SEV_SNP" => Some(Self::SevSnp),
@@ -17045,6 +17535,7 @@ pub struct CustomerEncryptionKey {
     /// "kmsKeyServiceAccount": "name@project_id.iam.gserviceaccount.com/
     #[prost(string, optional, tag = "209986261")]
     pub kms_key_service_account: ::core::option::Option<::prost::alloc::string::String>,
+    /// \[DEPRECATED\] CSEK is no longer supported. Use CMEK instead.
     /// Specifies a 256-bit customer-supplied
     /// encryption key, encoded in RFC
     /// 4648 base64 to either encrypt or decrypt this resource. You can
@@ -17055,6 +17546,7 @@ pub struct CustomerEncryptionKey {
     /// "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0="
     #[prost(string, optional, tag = "449196488")]
     pub raw_key: ::core::option::Option<::prost::alloc::string::String>,
+    /// \[DEPRECATED\] CSEK is no longer supported. Use CMEK instead.
     /// Specifies an RFC 4648 base64 encoded, RSA-wrapped 2048-bit
     /// customer-supplied encryption key to either encrypt or decrypt this
     /// resource. You can provide either the rawKey or thersaEncryptedKey.
@@ -17080,6 +17572,7 @@ pub struct CustomerEncryptionKey {
     /// <https://cloud-certs.storage.googleapis.com/google-cloud-csek-ingress.pem>
     #[prost(string, optional, tag = "335487397")]
     pub rsa_encrypted_key: ::core::option::Option<::prost::alloc::string::String>,
+    /// \[DEPRECATED\] CSEK is no longer supported. Use CMEK instead.
     /// \[Output only\] TheRFC
     /// 4648 base64 encoded SHA-256 hash of the customer-supplied
     /// encryption key that protects this resource.
@@ -17145,6 +17638,69 @@ pub struct Date {
     pub month: ::core::option::Option<i32>,
     /// Year of the date. Must be from 1 to 9999, or 0 to specify a date without
     /// a year.
+    #[prost(int32, optional, tag = "3704893")]
+    pub year: ::core::option::Option<i32>,
+}
+/// Represents civil time (or occasionally physical time).
+///
+/// This type can represent a civil time in one of a few possible ways:
+///
+/// * When utc_offset is set and time_zone is unset: a civil time on a calendar
+///   day with a particular offset from UTC.
+/// * When time_zone is set and utc_offset is unset: a civil time on a calendar
+///   day in a particular time zone.
+/// * When neither time_zone nor utc_offset is set: a civil time on a calendar
+///   day in local time.
+///
+/// The date is relative to the Proleptic Gregorian Calendar.
+///
+/// If year, month, or day are 0, the DateTime is considered not to have a
+/// specific year, month, or day respectively.
+///
+/// This type may also be used to represent a physical time if all the date and
+/// time fields are set and either case of the `time_offset` oneof is set.
+/// Consider using `Timestamp` message for physical time instead. If your use
+/// case also would like to store the user's timezone, that can be done in
+/// another field.
+///
+/// This type is more flexible than some applications may want. Make sure to
+/// document and validate your application's limitations.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct DateTime {
+    /// Optional. Day of month. Must be from 1 to 31 and valid for the year and
+    /// month, or 0 if specifying a datetime without a day.
+    #[prost(int32, optional, tag = "99228")]
+    pub day: ::core::option::Option<i32>,
+    /// Optional. Hours of day in 24 hour format. Should be from 0 to 23, defaults
+    /// to 0 (midnight). An API may choose to allow the value "24:00:00" for
+    /// scenarios like business closing time.
+    #[prost(int32, optional, tag = "99469071")]
+    pub hours: ::core::option::Option<i32>,
+    /// Optional. Minutes of hour of day. Must be from 0 to 59, defaults to 0.
+    #[prost(int32, optional, tag = "528030943")]
+    pub minutes: ::core::option::Option<i32>,
+    /// Optional. Month of year. Must be from 1 to 12, or 0 if specifying a
+    /// datetime without a month.
+    #[prost(int32, optional, tag = "104080000")]
+    pub month: ::core::option::Option<i32>,
+    /// Optional. Fractions of seconds in nanoseconds. Must be from 0 to
+    /// 999,999,999, defaults to 0.
+    #[prost(int32, optional, tag = "104586303")]
+    pub nanos: ::core::option::Option<i32>,
+    /// Optional. Seconds of minutes of the time. Must normally be from 0 to 59,
+    /// defaults to 0. An API may allow the value 60 if it allows leap-seconds.
+    #[prost(int32, optional, tag = "359484031")]
+    pub seconds: ::core::option::Option<i32>,
+    /// Time zone.
+    #[prost(message, optional, tag = "36848094")]
+    pub time_zone: ::core::option::Option<TimeZone>,
+    /// UTC offset. Must be whole seconds, between -18 hours and +18 hours.
+    /// For example, a UTC offset of -4:00 would be represented as
+    /// { seconds: -14400 }.
+    #[prost(string, optional, tag = "89045902")]
+    pub utc_offset: ::core::option::Option<::prost::alloc::string::String>,
+    /// Optional. Year of date. Must be from 1 to 9999, or 0 if specifying a
+    /// datetime without a year.
     #[prost(int32, optional, tag = "3704893")]
     pub year: ::core::option::Option<i32>,
 }
@@ -17685,6 +18241,10 @@ pub struct DeleteInstanceGroupManagerRequest {
     /// The name of the managed instance group to delete.
     #[prost(string, tag = "249363395")]
     pub instance_group_manager: ::prost::alloc::string::String,
+    /// When set, graceful shutdown is skipped for instance deletion even if it's
+    /// configured for the instances.
+    #[prost(bool, optional, tag = "336255890")]
+    pub no_graceful_shutdown: ::core::option::Option<bool>,
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
@@ -17777,6 +18337,9 @@ pub struct DeleteInstanceRequest {
     /// Name of the instance resource to delete.
     #[prost(string, tag = "18257045")]
     pub instance: ::prost::alloc::string::String,
+    /// If set to true, Graceful Shutdown is skipped.
+    #[prost(bool, optional, tag = "336255890")]
+    pub no_graceful_shutdown: ::core::option::Option<bool>,
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
@@ -17835,6 +18398,10 @@ pub struct DeleteInstancesInstanceGroupManagerRequest {
     pub instance_group_managers_delete_instances_request_resource: ::core::option::Option<
         InstanceGroupManagersDeleteInstancesRequest,
     >,
+    /// When set, graceful shutdown is skipped for instance deletion even if it's
+    /// configured for the instances.
+    #[prost(bool, optional, tag = "336255890")]
+    pub no_graceful_shutdown: ::core::option::Option<bool>,
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
@@ -17864,6 +18431,10 @@ pub struct DeleteInstancesRegionInstanceGroupManagerRequest {
     /// Name of the managed instance group.
     #[prost(string, tag = "249363395")]
     pub instance_group_manager: ::prost::alloc::string::String,
+    /// When set, graceful shutdown is skipped for instance deletion even if it's
+    /// configured for the instances.
+    #[prost(bool, optional, tag = "336255890")]
+    pub no_graceful_shutdown: ::core::option::Option<bool>,
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
@@ -18101,6 +18672,37 @@ pub struct DeleteMachineImageRequest {
     /// (00000000-0000-0000-0000-000000000000).
     #[prost(string, optional, tag = "37109963")]
     pub request_id: ::core::option::Option<::prost::alloc::string::String>,
+}
+/// A request message for Routers.DeleteNamedSet. See the method description for details.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct DeleteNamedSetRouterRequest {
+    /// The Named Set name for this request. Name must conform to RFC1035
+    #[prost(string, optional, tag = "164134492")]
+    pub named_set: ::core::option::Option<::prost::alloc::string::String>,
+    /// Project ID for this request.
+    #[prost(string, tag = "227560217")]
+    pub project: ::prost::alloc::string::String,
+    /// Name of the region for this request.
+    #[prost(string, tag = "138946292")]
+    pub region: ::prost::alloc::string::String,
+    /// An optional request ID to identify requests. Specify a unique request ID so
+    /// that if you must retry your request, the server will know to ignore the
+    /// request if it has already been completed.
+    ///
+    /// For example, consider a situation where you make an initial request and
+    /// the request times out. If you make the request again with the same
+    /// request ID, the server can check if original operation with the same
+    /// request ID was received, and if so, will ignore the second request. This
+    /// prevents clients from accidentally creating duplicate commitments.
+    ///
+    /// The request ID must be
+    /// a valid UUID with the exception that zero UUID is not supported
+    /// (00000000-0000-0000-0000-000000000000).
+    #[prost(string, optional, tag = "37109963")]
+    pub request_id: ::core::option::Option<::prost::alloc::string::String>,
+    /// Name of the Router resource where Named Set is defined.
+    #[prost(string, tag = "148608841")]
+    pub router: ::prost::alloc::string::String,
 }
 /// A request message for NetworkAttachments.Delete. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -18763,6 +19365,10 @@ pub struct DeleteRegionInstanceGroupManagerRequest {
     /// Name of the managed instance group to delete.
     #[prost(string, tag = "249363395")]
     pub instance_group_manager: ::prost::alloc::string::String,
+    /// When set, graceful shutdown is skipped for instance deletion even if it's
+    /// configured for the instances.
+    #[prost(bool, optional, tag = "336255890")]
+    pub no_graceful_shutdown: ::core::option::Option<bool>,
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
@@ -21641,14 +22247,20 @@ pub struct Error {
     #[prost(message, repeated, tag = "315977579")]
     pub errors: ::prost::alloc::vec::Vec<Errors>,
 }
+/// Container for structured error details providing additional context
+/// specific to the encountered error code.
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ErrorDetails {
+    /// Error information containing structured domain, reason, and metadata.
     #[prost(message, optional, tag = "25251973")]
     pub error_info: ::core::option::Option<ErrorInfo>,
+    /// Links and information to help the user resolve the error.
     #[prost(message, optional, tag = "3198785")]
     pub help: ::core::option::Option<Help>,
+    /// A localized human-readable error message intended for end users.
     #[prost(message, optional, tag = "404537155")]
     pub localized_message: ::core::option::Option<LocalizedMessage>,
+    /// Details about quota limits and metrics when a quota is exceeded.
     #[prost(message, optional, tag = "93923861")]
     pub quota_info: ::core::option::Option<QuotaExceededInfo>,
 }
@@ -21712,6 +22324,8 @@ pub struct ErrorInfo {
     #[prost(string, optional, tag = "138777156")]
     pub reason: ::core::option::Option<::prost::alloc::string::String>,
 }
+/// Represents a single error encountered during the processing of an
+/// operation.
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Errors {
     /// \[Output Only\] The error type identifier for this error.
@@ -22698,6 +23312,14 @@ pub struct FirewallPolicyAssociation {
     /// The name for an association.
     #[prost(string, optional, tag = "3373707")]
     pub name: ::core::option::Option<::prost::alloc::string::String>,
+    /// An integer indicating the priority of an association. The priority
+    /// must be a positive value between 1 and 2147483647.
+    /// Firewall Policies are evaluated from highest to lowest priority where 1
+    /// is the highest priority and 2147483647 is the lowest priority.
+    /// The default value is `1000`. If two associations have the same priority
+    /// then lexicographical order on association names is applied.
+    #[prost(int32, optional, tag = "445151652")]
+    pub priority: ::core::option::Option<i32>,
     /// Output only. \[Output Only\] The short name of the firewall policy of the association.
     #[prost(string, optional, tag = "492051566")]
     pub short_name: ::core::option::Option<::prost::alloc::string::String>,
@@ -22730,7 +23352,9 @@ pub struct FirewallPolicyList {
 pub struct FirewallPolicyRule {
     /// The Action to perform when the client connection triggers the rule.
     /// Valid actions for firewall rules are: "allow", "deny",
-    /// "apply_security_profile_group" and "goto_next".
+    /// "apply_security_profile_group" and "goto_next" (
+    /// "apply_security_profile_group" can be specified only for global
+    /// network firewall policies or hierarchical firewall policies).
     /// Valid actions for packet mirroring rules are: "mirror", "do_not_mirror"
     /// and "goto_next".
     #[prost(string, optional, tag = "187661878")]
@@ -22775,13 +23399,30 @@ pub struct FirewallPolicyRule {
     /// rule.
     #[prost(int32, optional, tag = "388342037")]
     pub rule_tuple_count: ::core::option::Option<i32>,
-    /// A fully-qualified URL of a SecurityProfile resource instance.
+    /// A fully-qualified URL of a SecurityProfileGroup resource instance.
     /// Example:
     /// <https://networksecurity.googleapis.com/v1/projects/{project}/locations/{location}/securityProfileGroups/my-security-profile-group>
     /// Must be specified if action is one of 'apply_security_profile_group' or
-    /// 'mirror'. Cannot be specified for other actions.
+    /// 'mirror'. Cannot be specified for other actions. Can be specified only
+    /// for global network firewall policies or hierarchical firewall policies.
     #[prost(string, optional, tag = "207411626")]
     pub security_profile_group: ::core::option::Option<::prost::alloc::string::String>,
+    /// A list of forwarding rules to which this rule applies.
+    /// This field allows you to control which load balancers get this rule.
+    /// For example, the following are valid values:
+    ///
+    /// ```text
+    ///   - <https://www.googleapis.com/compute/v1/projects/project/global/forwardingRules/forwardingRule>
+    ///   - <https://www.googleapis.com/compute/v1/projects/project/regions/region/forwardingRules/forwardingRule>
+    ///   - projects/project/global/
+    ///   forwardingRules/forwardingRule
+    ///   - projects/project/regions/region/forwardingRules/
+    ///   forwardingRule
+    /// ```
+    #[prost(string, repeated, tag = "495923747")]
+    pub target_forwarding_rules: ::prost::alloc::vec::Vec<
+        ::prost::alloc::string::String,
+    >,
     /// A list of network resource URLs to which this rule applies.  This field
     /// allows you to control which network's VMs get this rule.  If this field
     /// is left blank, all VMs within the organization will receive the rule.
@@ -22803,6 +23444,11 @@ pub struct FirewallPolicyRule {
     pub target_service_accounts: ::prost::alloc::vec::Vec<
         ::prost::alloc::string::String,
     >,
+    /// Target types of the firewall policy rule.
+    /// Default value is INSTANCES.
+    /// Check the TargetType enum for the list of possible values.
+    #[prost(string, optional, tag = "62925096")]
+    pub target_type: ::core::option::Option<::prost::alloc::string::String>,
     /// Boolean flag indicating if the traffic should be TLS decrypted.
     /// Can be set only if action = 'apply_security_profile_group' and cannot
     /// be set for other actions.
@@ -22848,6 +23494,48 @@ pub mod firewall_policy_rule {
                 "UNDEFINED_DIRECTION" => Some(Self::UndefinedDirection),
                 "EGRESS" => Some(Self::Egress),
                 "INGRESS" => Some(Self::Ingress),
+                _ => None,
+            }
+        }
+    }
+    /// Target types of the firewall policy rule.
+    /// Default value is INSTANCES.
+    #[derive(
+        Clone,
+        Copy,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash,
+        PartialOrd,
+        Ord,
+        ::prost::Enumeration
+    )]
+    #[repr(i32)]
+    pub enum TargetType {
+        /// A value indicating that the enum field is not set.
+        UndefinedTargetType = 0,
+        Instances = 131337822,
+        InternalManagedLb = 309241080,
+    }
+    impl TargetType {
+        /// String value of the enum field names used in the ProtoBuf definition.
+        ///
+        /// The values are not transformed in any way and thus are considered stable
+        /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+        pub fn as_str_name(&self) -> &'static str {
+            match self {
+                Self::UndefinedTargetType => "UNDEFINED_TARGET_TYPE",
+                Self::Instances => "INSTANCES",
+                Self::InternalManagedLb => "INTERNAL_MANAGED_LB",
+            }
+        }
+        /// Creates an enum from field names used in the ProtoBuf definition.
+        pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+            match value {
+                "UNDEFINED_TARGET_TYPE" => Some(Self::UndefinedTargetType),
+                "INSTANCES" => Some(Self::Instances),
+                "INTERNAL_MANAGED_LB" => Some(Self::InternalManagedLb),
                 _ => None,
             }
         }
@@ -23339,6 +24027,8 @@ pub struct ForwardingRule {
     ///   * global/addresses/address-name
     ///   * address-name
     ///
+    /// The IP address can only be set at creation. Once set, it cannot be updated.
+    ///
     /// The forwarding rule's target or backendService,
     /// and in most cases, also the loadBalancingScheme, determine the
     /// type of IP address that you can use. For detailed information, see
@@ -23347,6 +24037,10 @@ pub struct ForwardingRule {
     ///
     /// When reading an IPAddress, the API always returns the IP
     /// address number.
+    ///
+    /// When creating a global external Passthrough Network Load Balancer
+    /// forwarding rule (a parent forwarding rule), you must use theIPAddresses field, but the Google Cloud generated child
+    /// forwarding rules set the IPAddress field instead. Refer to theavailabilityGroup field for further details.
     #[prost(string, optional, tag = "42976943")]
     pub i_p_address: ::core::option::Option<::prost::alloc::string::String>,
     /// The IP protocol to which this rule applies.
@@ -23392,9 +24086,22 @@ pub struct ForwardingRule {
     /// endpoint can be accessed from another region.
     #[prost(bool, optional, tag = "263471819")]
     pub allow_psc_global_access: ::core::option::Option<bool>,
+    /// Output only. \[Output Only\]. The extensions that are attached to this ForwardingRule.
+    #[prost(message, repeated, tag = "385226127")]
+    pub attached_extensions: ::prost::alloc::vec::Vec<ForwardingRuleAttachedExtension>,
     /// Identifies the backend service to which the forwarding rule sends traffic.
-    /// Required for internal and external passthrough Network Load Balancers;
-    /// must be omitted for all other load balancer types.
+    ///
+    /// It is a required field for the following load balancers:
+    ///
+    /// ```text
+    /// - Internal passthrough Network Load Balancers
+    /// - Backend service-based regional external passthrough Network Load
+    /// Balancers
+    /// - Global external passthrough Network Load Balancers
+    /// ```
+    ///
+    /// It cannot be set by other load balancer types and protocol forwarding
+    /// rules.
     #[prost(string, optional, tag = "306946058")]
     pub backend_service: ::core::option::Option<::prost::alloc::string::String>,
     /// Output only. \[Output Only\] The URL for the corresponding base forwarding rule. By base
@@ -23508,8 +24215,8 @@ pub struct ForwardingRule {
     >,
     /// Specifies the forwarding rule type.
     ///
-    /// For more information about forwarding rules, refer to
-    /// Forwarding rule concepts.
+    /// For more information, refer to
+    /// Forwarding rule product and scheme table.
     /// Check the LoadBalancingScheme enum for the list of possible values.
     #[prost(string, optional, tag = "363890244")]
     pub load_balancing_scheme: ::core::option::Option<::prost::alloc::string::String>,
@@ -23546,6 +24253,13 @@ pub struct ForwardingRule {
     /// For Private Service Connect forwarding rules that forward traffic to Google
     /// APIs, the forwarding rule name must be a 1-20 characters string with
     /// lowercase letters and numbers and must start with a letter.
+    ///
+    /// For global external Passthrough Network Load Balancer forwarding rules, the
+    /// forwarding rule name must be 1-43 characters long. For each global external
+    /// Passthrough Network Load Balancer forwarding rule (a parent forwarding
+    /// rule) that you create, Google Cloud generates two output-only child
+    /// forwarding rules that are named by concatenating the parent forwarding rule
+    /// name with the `-ag0` and `-ag1` suffixes, respectively. Refer to theavailabilityGroup field for further details.
     #[prost(string, optional, tag = "3373707")]
     pub name: ::core::option::Option<::prost::alloc::string::String>,
     /// This field is not used for global external load balancing.
@@ -23596,7 +24310,8 @@ pub struct ForwardingRule {
     /// ```
     ///
     /// For external forwarding rules, two or more forwarding rules cannot use the
-    /// same \[IPAddress, IPProtocol\] pair, and cannot have overlappingportRanges.
+    /// same \[IPAddress, IPProtocol\] pair (specified inIPAddress, IPAddresses, IPProtocol
+    /// fields) if they have overlapping portRanges.
     ///
     /// For internal forwarding rules within the same VPC network, two or more
     /// forwarding rules cannot use the same \[IPAddress, IPProtocol\]
@@ -23623,8 +24338,8 @@ pub struct ForwardingRule {
     /// ```
     ///
     /// For external forwarding rules, two or more forwarding rules cannot use the
-    /// same \[IPAddress, IPProtocol\] pair if they share at least one
-    /// port number.
+    /// same \[IPAddress, IPProtocol\] pair (specified inIPAddress, IPAddresses, IPProtocol
+    /// fields) if they share at least one port number.
     ///
     /// For internal forwarding rules within the same VPC network, two or more
     /// forwarding rules cannot use the same \[IPAddress, IPProtocol\]
@@ -23711,6 +24426,15 @@ pub struct ForwardingRule {
     ///
     ///
     ///   -  For Private Service Connect forwarding rules that forward traffic to managed services, the target must be a service attachment. The target is not mutable once set as a service attachment.
+    /// ```
+    ///
+    /// The following load balancers cannot set the target field (they should set the backendService field instead):
+    ///
+    /// ```text
+    /// - Internal passthrough Network Load Balancers
+    /// - Backend service-based regional external passthrough Network Load
+    /// Balancers
+    /// - Global external passthrough Network Load Balancers
     /// ```
     #[prost(string, optional, tag = "192835985")]
     pub target: ::core::option::Option<::prost::alloc::string::String>,
@@ -23890,8 +24614,8 @@ pub mod forwarding_rule {
     }
     /// Specifies the forwarding rule type.
     ///
-    /// For more information about forwarding rules, refer to
-    /// Forwarding rule concepts.
+    /// For more information, refer to
+    /// Forwarding rule product and scheme table.
     #[derive(
         Clone,
         Copy,
@@ -24104,6 +24828,13 @@ pub struct ForwardingRuleAggregatedList {
     #[prost(message, optional, tag = "50704284")]
     pub warning: ::core::option::Option<Warning>,
 }
+/// Reference to an extension resource that is attached to this ForwardingRule.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct ForwardingRuleAttachedExtension {
+    /// Output only. The resource name.
+    #[prost(string, optional, tag = "148586315")]
+    pub reference: ::core::option::Option<::prost::alloc::string::String>,
+}
 /// Contains a list of ForwardingRule resources.
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ForwardingRuleList {
@@ -24192,6 +24923,11 @@ pub struct FutureReservation {
     /// to false.
     #[prost(bool, optional, tag = "491352490")]
     pub auto_delete_auto_created_reservations: ::core::option::Option<bool>,
+    /// Full or partial URL of an existing future reservation to indicate
+    /// intent for reserving capacity in the same cluster as the colocation
+    /// resource.
+    #[prost(string, optional, tag = "32901740")]
+    pub colocation_resource: ::core::option::Option<::prost::alloc::string::String>,
     /// If not present, then FR will not deliver a new commitment or update an
     /// existing commitment.
     #[prost(message, optional, tag = "164362136")]
@@ -24259,6 +24995,18 @@ pub struct FutureReservation {
     /// reservation_name or a name_prefix.
     #[prost(string, optional, tag = "277311262")]
     pub reservation_name: ::core::option::Option<::prost::alloc::string::String>,
+    /// Output only. Contains standard resource metadata for an FutureReservation
+    /// resource. It is populated for each instance of the FutureReservation
+    /// resource, and includes the api_version the
+    /// instance was retrieved through, and its canonical
+    /// resource_type name.
+    #[prost(message, optional, tag = "99063872")]
+    pub resource_metadata: ::core::option::Option<ResourceMetadata>,
+    /// Name of the resource intended to be delivered. Name should conform to
+    /// RFC1035. This will be the name of storage pool or Exapool for persistent
+    /// disk FRs.
+    #[prost(string, optional, tag = "442550300")]
+    pub resource_name: ::core::option::Option<::prost::alloc::string::String>,
     /// Maintenance information for this reservation
     /// Check the SchedulingType enum for the list of possible values.
     #[prost(string, optional, tag = "199835397")]
@@ -24286,6 +25034,11 @@ pub struct FutureReservation {
     /// Output only. \[Output only\] Status of the Future Reservation
     #[prost(message, optional, tag = "181260274")]
     pub status: ::core::option::Option<FutureReservationStatus>,
+    /// Storage pool details for the future reservation.
+    #[prost(message, optional, tag = "71410546")]
+    pub storage_pool_properties: ::core::option::Option<
+        FutureReservationStoragePoolProperties,
+    >,
     /// Time window for this Future Reservation.
     #[prost(message, optional, tag = "422983074")]
     pub time_window: ::core::option::Option<FutureReservationTimeWindow>,
@@ -24310,6 +25063,8 @@ pub mod future_reservation {
     pub enum ConfidentialComputeType {
         /// A value indicating that the enum field is not set.
         UndefinedConfidentialComputeType = 0,
+        /// Bare Metal Secure AI.
+        Bmsai = 103738250,
         /// Intel Trust Domain Extensions.
         Tdx = 301241954,
         Unspecified = 42227601,
@@ -24324,6 +25079,7 @@ pub mod future_reservation {
                 Self::UndefinedConfidentialComputeType => {
                     "UNDEFINED_CONFIDENTIAL_COMPUTE_TYPE"
                 }
+                Self::Bmsai => "CONFIDENTIAL_COMPUTE_TYPE_BMSAI",
                 Self::Tdx => "CONFIDENTIAL_COMPUTE_TYPE_TDX",
                 Self::Unspecified => "CONFIDENTIAL_COMPUTE_TYPE_UNSPECIFIED",
             }
@@ -24334,6 +25090,7 @@ pub mod future_reservation {
                 "UNDEFINED_CONFIDENTIAL_COMPUTE_TYPE" => {
                     Some(Self::UndefinedConfidentialComputeType)
                 }
+                "CONFIDENTIAL_COMPUTE_TYPE_BMSAI" => Some(Self::Bmsai),
                 "CONFIDENTIAL_COMPUTE_TYPE_TDX" => Some(Self::Tdx),
                 "CONFIDENTIAL_COMPUTE_TYPE_UNSPECIFIED" => Some(Self::Unspecified),
                 _ => None,
@@ -24700,6 +25457,11 @@ pub struct FutureReservationStatus {
     pub auto_created_reservations: ::prost::alloc::vec::Vec<
         ::prost::alloc::string::String,
     >,
+    /// Output only. Exapool provisioned capacities for each SKU type.
+    #[prost(message, optional, tag = "345174240")]
+    pub exapool_provisioned_capacity_gb: ::core::option::Option<
+        StoragePoolExapoolProvisionedCapacityGb,
+    >,
     /// Output only. \[Output Only\] Represents the existing matching usage for the future
     /// reservation.
     #[prost(message, optional, tag = "509920602")]
@@ -24734,6 +25496,11 @@ pub struct FutureReservationStatus {
     #[prost(message, optional, tag = "108887106")]
     pub specific_sku_properties: ::core::option::Option<
         FutureReservationStatusSpecificSkuProperties,
+    >,
+    /// Output only. Storage pool provisioned capacities for each SKU type.
+    #[prost(message, optional, tag = "135892964")]
+    pub storage_pool_provisioned_capacity: ::core::option::Option<
+        FutureReservationStoragePoolProvisionedCapacity,
     >,
 }
 /// Nested message and enum types in `FutureReservationStatus`.
@@ -25053,6 +25820,38 @@ pub struct FutureReservationStatusSpecificSkuProperties {
     pub source_instance_template_id: ::core::option::Option<
         ::prost::alloc::string::String,
     >,
+}
+/// Storage pool properties for the future reservation.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct FutureReservationStoragePoolProperties {
+    /// Requested exapool provisioned capacity in GiB.
+    #[prost(message, optional, tag = "174982159")]
+    pub requested_exapool_provisioned_capacity_gb: ::core::option::Option<
+        StoragePoolExapoolProvisionedCapacityGb,
+    >,
+    /// Requested storage pool provisioned capacity.
+    #[prost(message, optional, tag = "326931283")]
+    pub requested_storage_pool_provisioned_capacity: ::core::option::Option<
+        FutureReservationStoragePoolProvisionedCapacity,
+    >,
+    /// Type of the storage pool.
+    #[prost(string, optional, tag = "285999289")]
+    pub storage_pool_type: ::core::option::Option<::prost::alloc::string::String>,
+}
+/// Storage pool provisioned capacities for each SKU type.
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct FutureReservationStoragePoolProvisionedCapacity {
+    /// Size of the storage pool in GiB.
+    #[prost(int64, optional, tag = "478537682")]
+    pub pool_provisioned_capacity_gb: ::core::option::Option<i64>,
+    /// Provisioned IOPS of the storage pool. Only relevant if the storage pool
+    /// type is hyperdisk-balanced.
+    #[prost(int64, optional, tag = "112092311")]
+    pub pool_provisioned_iops: ::core::option::Option<i64>,
+    /// Provisioned throughput of the storage pool in MiB/s. Only relevant if
+    /// the storage pool type is hyperdisk-balanced or hyperdisk-throughput.
+    #[prost(int64, optional, tag = "169215640")]
+    pub pool_provisioned_throughput: ::core::option::Option<i64>,
 }
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct FutureReservationTimeWindow {
@@ -26149,6 +26948,54 @@ pub struct GetForwardingRuleRequest {
     /// Name of the region scoping this request.
     #[prost(string, tag = "138946292")]
     pub region: ::prost::alloc::string::String,
+    /// Check the View enum for the list of possible values.
+    #[prost(string, optional, tag = "3619493")]
+    pub view: ::core::option::Option<::prost::alloc::string::String>,
+}
+/// Nested message and enum types in `GetForwardingRuleRequest`.
+pub mod get_forwarding_rule_request {
+    #[derive(
+        Clone,
+        Copy,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash,
+        PartialOrd,
+        Ord,
+        ::prost::Enumeration
+    )]
+    #[repr(i32)]
+    pub enum View {
+        /// A value indicating that the enum field is not set.
+        UndefinedView = 0,
+        /// The default view of a ForwardingRule, which includes the basic fields.
+        Basic = 62970894,
+        /// The full view, including the ForwardingRule.`attached_extensions` field.
+        Full = 2169487,
+    }
+    impl View {
+        /// String value of the enum field names used in the ProtoBuf definition.
+        ///
+        /// The values are not transformed in any way and thus are considered stable
+        /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+        pub fn as_str_name(&self) -> &'static str {
+            match self {
+                Self::UndefinedView => "UNDEFINED_VIEW",
+                Self::Basic => "BASIC",
+                Self::Full => "FULL",
+            }
+        }
+        /// Creates an enum from field names used in the ProtoBuf definition.
+        pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+            match value {
+                "UNDEFINED_VIEW" => Some(Self::UndefinedView),
+                "BASIC" => Some(Self::Basic),
+                "FULL" => Some(Self::Full),
+                _ => None,
+            }
+        }
+    }
 }
 /// A request message for Images.GetFromFamily. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -26191,6 +27038,61 @@ pub struct GetGlobalForwardingRuleRequest {
     #[prost(string, tag = "269964030")]
     pub forwarding_rule: ::prost::alloc::string::String,
     /// Project ID for this request.
+    #[prost(string, tag = "227560217")]
+    pub project: ::prost::alloc::string::String,
+    /// Check the View enum for the list of possible values.
+    #[prost(string, optional, tag = "3619493")]
+    pub view: ::core::option::Option<::prost::alloc::string::String>,
+}
+/// Nested message and enum types in `GetGlobalForwardingRuleRequest`.
+pub mod get_global_forwarding_rule_request {
+    #[derive(
+        Clone,
+        Copy,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash,
+        PartialOrd,
+        Ord,
+        ::prost::Enumeration
+    )]
+    #[repr(i32)]
+    pub enum View {
+        /// A value indicating that the enum field is not set.
+        UndefinedView = 0,
+        /// The default view of a ForwardingRule, which includes the basic fields.
+        Basic = 62970894,
+        /// The full view, including the ForwardingRule.`attached_extensions` field.
+        Full = 2169487,
+    }
+    impl View {
+        /// String value of the enum field names used in the ProtoBuf definition.
+        ///
+        /// The values are not transformed in any way and thus are considered stable
+        /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+        pub fn as_str_name(&self) -> &'static str {
+            match self {
+                Self::UndefinedView => "UNDEFINED_VIEW",
+                Self::Basic => "BASIC",
+                Self::Full => "FULL",
+            }
+        }
+        /// Creates an enum from field names used in the ProtoBuf definition.
+        pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+            match value {
+                "UNDEFINED_VIEW" => Some(Self::UndefinedView),
+                "BASIC" => Some(Self::Basic),
+                "FULL" => Some(Self::Full),
+                _ => None,
+            }
+        }
+    }
+}
+/// A request message for GlobalFrontendSettingsService.Get. See the method description for details.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct GetGlobalFrontendSettingRequest {
+    /// Required. Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
 }
@@ -26289,6 +27191,252 @@ pub struct GetHealthCheckRequest {
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
 }
+/// Metadata for GetHealth operations.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct GetHealthOperationMetadata {
+    /// Output only. The health information.
+    #[prost(message, optional, tag = "235287729")]
+    pub health_info: ::core::option::Option<GetHealthOperationMetadataHealthInfo>,
+}
+/// Health information.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct GetHealthOperationMetadataHealthInfo {
+    /// Output only. The availability SLO status.
+    /// Check the AvailabilitySloStatus enum for the list of possible values.
+    #[prost(string, optional, tag = "255971455")]
+    pub availability_slo_status: ::core::option::Option<::prost::alloc::string::String>,
+    /// Output only. The health status.
+    /// Check the HealthStatus enum for the list of possible values.
+    #[prost(string, optional, tag = "380545845")]
+    pub health_status: ::core::option::Option<::prost::alloc::string::String>,
+    /// Output only. The repair category.
+    /// Check the RepairCategory enum for the list of possible values.
+    #[prost(string, optional, tag = "113376624")]
+    pub repair_category: ::core::option::Option<::prost::alloc::string::String>,
+    /// Output only. The reason for unhealthy status.
+    /// Check the UnhealthyReason enum for the list of possible values.
+    #[prost(string, optional, tag = "448838143")]
+    pub unhealthy_reason: ::core::option::Option<::prost::alloc::string::String>,
+    /// Output only. The time when health info was updated.
+    #[prost(string, optional, tag = "500295811")]
+    pub update_time: ::core::option::Option<::prost::alloc::string::String>,
+}
+/// Nested message and enum types in `GetHealthOperationMetadataHealthInfo`.
+pub mod get_health_operation_metadata_health_info {
+    /// Output only. The availability SLO status.
+    #[derive(
+        Clone,
+        Copy,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash,
+        PartialOrd,
+        Ord,
+        ::prost::Enumeration
+    )]
+    #[repr(i32)]
+    pub enum AvailabilitySloStatus {
+        /// A value indicating that the enum field is not set.
+        UndefinedAvailabilitySloStatus = 0,
+        /// The slot availability is in SLO.
+        InSlo = 142966428,
+        /// The slot availability is out of SLO.
+        OutOfSlo = 112099455,
+        /// The slot availability is unknown.
+        SloUnknown = 280579681,
+        /// Unspecified availability SLO status.
+        Unspecified = 481084279,
+    }
+    impl AvailabilitySloStatus {
+        /// String value of the enum field names used in the ProtoBuf definition.
+        ///
+        /// The values are not transformed in any way and thus are considered stable
+        /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+        pub fn as_str_name(&self) -> &'static str {
+            match self {
+                Self::UndefinedAvailabilitySloStatus => {
+                    "UNDEFINED_AVAILABILITY_SLO_STATUS"
+                }
+                Self::InSlo => "AVAILABILITY_SLO_STATUS_IN_SLO",
+                Self::OutOfSlo => "AVAILABILITY_SLO_STATUS_OUT_OF_SLO",
+                Self::SloUnknown => "AVAILABILITY_SLO_STATUS_SLO_UNKNOWN",
+                Self::Unspecified => "AVAILABILITY_SLO_STATUS_UNSPECIFIED",
+            }
+        }
+        /// Creates an enum from field names used in the ProtoBuf definition.
+        pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+            match value {
+                "UNDEFINED_AVAILABILITY_SLO_STATUS" => {
+                    Some(Self::UndefinedAvailabilitySloStatus)
+                }
+                "AVAILABILITY_SLO_STATUS_IN_SLO" => Some(Self::InSlo),
+                "AVAILABILITY_SLO_STATUS_OUT_OF_SLO" => Some(Self::OutOfSlo),
+                "AVAILABILITY_SLO_STATUS_SLO_UNKNOWN" => Some(Self::SloUnknown),
+                "AVAILABILITY_SLO_STATUS_UNSPECIFIED" => Some(Self::Unspecified),
+                _ => None,
+            }
+        }
+    }
+    /// Output only. The health status.
+    #[derive(
+        Clone,
+        Copy,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash,
+        PartialOrd,
+        Ord,
+        ::prost::Enumeration
+    )]
+    #[repr(i32)]
+    pub enum HealthStatus {
+        /// A value indicating that the enum field is not set.
+        UndefinedHealthStatus = 0,
+        /// The reservation slot is healthy.
+        Healthy = 281715315,
+        /// The reservation slot is unhealthy.
+        Unhealthy = 476038202,
+        /// Unspecified health status.
+        Unspecified = 482246925,
+    }
+    impl HealthStatus {
+        /// String value of the enum field names used in the ProtoBuf definition.
+        ///
+        /// The values are not transformed in any way and thus are considered stable
+        /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+        pub fn as_str_name(&self) -> &'static str {
+            match self {
+                Self::UndefinedHealthStatus => "UNDEFINED_HEALTH_STATUS",
+                Self::Healthy => "HEALTH_STATUS_HEALTHY",
+                Self::Unhealthy => "HEALTH_STATUS_UNHEALTHY",
+                Self::Unspecified => "HEALTH_STATUS_UNSPECIFIED",
+            }
+        }
+        /// Creates an enum from field names used in the ProtoBuf definition.
+        pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+            match value {
+                "UNDEFINED_HEALTH_STATUS" => Some(Self::UndefinedHealthStatus),
+                "HEALTH_STATUS_HEALTHY" => Some(Self::Healthy),
+                "HEALTH_STATUS_UNHEALTHY" => Some(Self::Unhealthy),
+                "HEALTH_STATUS_UNSPECIFIED" => Some(Self::Unspecified),
+                _ => None,
+            }
+        }
+    }
+    /// Output only. The repair category.
+    #[derive(
+        Clone,
+        Copy,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash,
+        PartialOrd,
+        Ord,
+        ::prost::Enumeration
+    )]
+    #[repr(i32)]
+    pub enum RepairCategory {
+        /// A value indicating that the enum field is not set.
+        UndefinedRepairCategory = 0,
+        /// The repair is because of critical failures, that are scoped outside
+        /// emergent maintenance
+        CriticalFailure = 58241977,
+        /// The repair is because of an emergent maintenance
+        EmergentMaintenance = 400869148,
+        /// The repair is because of a planned maintenance
+        PlannedMaintenance = 489286537,
+        /// Unspecified repair category.
+        Unspecified = 287264456,
+        /// The repair is because of a user reported fault
+        UserReportedFault = 227760443,
+    }
+    impl RepairCategory {
+        /// String value of the enum field names used in the ProtoBuf definition.
+        ///
+        /// The values are not transformed in any way and thus are considered stable
+        /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+        pub fn as_str_name(&self) -> &'static str {
+            match self {
+                Self::UndefinedRepairCategory => "UNDEFINED_REPAIR_CATEGORY",
+                Self::CriticalFailure => "REPAIR_CATEGORY_CRITICAL_FAILURE",
+                Self::EmergentMaintenance => "REPAIR_CATEGORY_EMERGENT_MAINTENANCE",
+                Self::PlannedMaintenance => "REPAIR_CATEGORY_PLANNED_MAINTENANCE",
+                Self::Unspecified => "REPAIR_CATEGORY_UNSPECIFIED",
+                Self::UserReportedFault => "REPAIR_CATEGORY_USER_REPORTED_FAULT",
+            }
+        }
+        /// Creates an enum from field names used in the ProtoBuf definition.
+        pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+            match value {
+                "UNDEFINED_REPAIR_CATEGORY" => Some(Self::UndefinedRepairCategory),
+                "REPAIR_CATEGORY_CRITICAL_FAILURE" => Some(Self::CriticalFailure),
+                "REPAIR_CATEGORY_EMERGENT_MAINTENANCE" => Some(Self::EmergentMaintenance),
+                "REPAIR_CATEGORY_PLANNED_MAINTENANCE" => Some(Self::PlannedMaintenance),
+                "REPAIR_CATEGORY_UNSPECIFIED" => Some(Self::Unspecified),
+                "REPAIR_CATEGORY_USER_REPORTED_FAULT" => Some(Self::UserReportedFault),
+                _ => None,
+            }
+        }
+    }
+    /// Output only. The reason for unhealthy status.
+    #[derive(
+        Clone,
+        Copy,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash,
+        PartialOrd,
+        Ord,
+        ::prost::Enumeration
+    )]
+    #[repr(i32)]
+    pub enum UnhealthyReason {
+        /// A value indicating that the enum field is not set.
+        UndefinedUnhealthyReason = 0,
+        /// The slot is unhealthy because there is a pending repair, waiting for
+        /// customer approval
+        PendingUserApproval = 315397455,
+        /// The slot is unhealthy because repair is in progress
+        Repairing = 199320309,
+        /// The slot is unhealthy because a vm cannot be scheduled on it, and no
+        /// repairs are running on the slot
+        Unschedulable = 118083439,
+        /// Unspecified unhealthy reason.
+        Unspecified = 337725687,
+    }
+    impl UnhealthyReason {
+        /// String value of the enum field names used in the ProtoBuf definition.
+        ///
+        /// The values are not transformed in any way and thus are considered stable
+        /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+        pub fn as_str_name(&self) -> &'static str {
+            match self {
+                Self::UndefinedUnhealthyReason => "UNDEFINED_UNHEALTHY_REASON",
+                Self::PendingUserApproval => "UNHEALTHY_REASON_PENDING_USER_APPROVAL",
+                Self::Repairing => "UNHEALTHY_REASON_REPAIRING",
+                Self::Unschedulable => "UNHEALTHY_REASON_UNSCHEDULABLE",
+                Self::Unspecified => "UNHEALTHY_REASON_UNSPECIFIED",
+            }
+        }
+        /// Creates an enum from field names used in the ProtoBuf definition.
+        pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+            match value {
+                "UNDEFINED_UNHEALTHY_REASON" => Some(Self::UndefinedUnhealthyReason),
+                "UNHEALTHY_REASON_PENDING_USER_APPROVAL" => {
+                    Some(Self::PendingUserApproval)
+                }
+                "UNHEALTHY_REASON_REPAIRING" => Some(Self::Repairing),
+                "UNHEALTHY_REASON_UNSCHEDULABLE" => Some(Self::Unschedulable),
+                "UNHEALTHY_REASON_UNSPECIFIED" => Some(Self::Unspecified),
+                _ => None,
+            }
+        }
+    }
+}
 /// A request message for RegionBackendServices.GetHealth. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct GetHealthRegionBackendServiceRequest {
@@ -26332,6 +27480,28 @@ pub struct GetHealthRegionHealthSourceRequest {
     #[prost(string, tag = "138946292")]
     pub region: ::prost::alloc::string::String,
 }
+/// A request message for ReservationSlots.GetHealth. See the method description for details.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct GetHealthReservationSlotRequest {
+    /// The name of the parent reservation, parent block and parent sub-block. In
+    /// the format of
+    /// reservations/{reservation_name}/reservationBlocks/{reservation_block_name}/reservationSubBlocks/{reservation_sub_block_name}
+    #[prost(string, tag = "478151936")]
+    pub parent_name: ::prost::alloc::string::String,
+    /// Project ID for this request.
+    #[prost(string, tag = "227560217")]
+    pub project: ::prost::alloc::string::String,
+    /// An optional request ID to identify requests.
+    #[prost(string, optional, tag = "37109963")]
+    pub request_id: ::core::option::Option<::prost::alloc::string::String>,
+    /// The name of the reservation slot.
+    /// Name should conform to RFC1035 or be a resource ID.
+    #[prost(string, tag = "277470865")]
+    pub reservation_slot: ::prost::alloc::string::String,
+    /// Name of the zone for this request. Zone name should conform to RFC1035.
+    #[prost(string, tag = "3744684")]
+    pub zone: ::prost::alloc::string::String,
+}
 /// A request message for TargetPools.GetHealth. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct GetHealthTargetPoolRequest {
@@ -26347,6 +27517,27 @@ pub struct GetHealthTargetPoolRequest {
     /// Name of the TargetPool resource to which the queried instance belongs.
     #[prost(string, tag = "62796298")]
     pub target_pool: ::prost::alloc::string::String,
+}
+/// A request message for Hosts.Get. See the method description for details.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct GetHostRequest {
+    /// The parent resource association for the Host. This field specifies the
+    /// hierarchical context (e.g., reservation, block, sub-block) when
+    /// accessing the host. For example, reservations/reservation_name,
+    /// reservations/reservation_name/reservationBlocks/reservation_block_name or
+    /// reservations/reservation_name/reservationBlocks/reservation_block_name/reservationSubBlocks/reservation_sub_block_name.
+    #[prost(string, tag = "449371265")]
+    pub association: ::prost::alloc::string::String,
+    /// The name of the host, formatted as RFC1035 or a resource ID
+    /// number.
+    #[prost(string, tag = "3208616")]
+    pub host: ::prost::alloc::string::String,
+    /// The project ID for this request.
+    #[prost(string, tag = "227560217")]
+    pub project: ::prost::alloc::string::String,
+    /// The name of the zone for this request, formatted as RFC1035.
+    #[prost(string, tag = "3744684")]
+    pub zone: ::prost::alloc::string::String,
 }
 /// A request message for BackendBuckets.GetIamPolicy. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -26866,6 +28057,19 @@ pub struct GetImageRequest {
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
 }
+/// A request message for ImageViews.Get. See the method description for details.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct GetImageViewRequest {
+    /// Required. Project ID for this request.
+    #[prost(string, tag = "227560217")]
+    pub project: ::prost::alloc::string::String,
+    /// Required. Name of the region for this request.
+    #[prost(string, tag = "138946292")]
+    pub region: ::prost::alloc::string::String,
+    /// Name of the image resource to return.
+    #[prost(string, tag = "160795372")]
+    pub resource_id: ::prost::alloc::string::String,
+}
 /// A request message for InstanceGroupManagers.Get. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct GetInstanceGroupManagerRequest {
@@ -27088,6 +28292,33 @@ pub struct GetMacsecConfigInterconnectRequest {
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
 }
+/// A request message for ManagedRulesets.Get. See the method description for details.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct GetManagedRulesetRequest {
+    /// Name of the managed ruleset to return.
+    #[prost(string, tag = "447322950")]
+    pub managed_ruleset: ::prost::alloc::string::String,
+    /// Project ID for this request.
+    #[prost(string, tag = "227560217")]
+    pub project: ::prost::alloc::string::String,
+}
+/// A request message for Routers.GetNamedSet. See the method description for details.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct GetNamedSetRouterRequest {
+    /// The Named Set name for this request. Name must conform to RFC1035
+    #[prost(string, optional, tag = "164134492")]
+    pub named_set: ::core::option::Option<::prost::alloc::string::String>,
+    /// Project ID for this request.
+    #[prost(string, tag = "227560217")]
+    pub project: ::prost::alloc::string::String,
+    /// Name of the region for this request.
+    #[prost(string, tag = "138946292")]
+    pub region: ::prost::alloc::string::String,
+    /// Name of the Router resource to query for the named set. The name should
+    /// conform to RFC1035.
+    #[prost(string, tag = "148608841")]
+    pub router: ::prost::alloc::string::String,
+}
 /// A request message for Routers.GetNatIpInfo. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct GetNatIpInfoRouterRequest {
@@ -27210,14 +28441,6 @@ pub struct GetNatMappingInfoRoutersRequest {
     /// Name of the region for this request.
     #[prost(string, tag = "138946292")]
     pub region: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// Name of the Router resource to query for Nat Mapping information of
     /// VM endpoints.
     #[prost(string, tag = "148608841")]
@@ -27401,6 +28624,16 @@ pub struct GetProjectRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
+}
+/// A request message for ProjectViews.Get. See the method description for details.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct GetProjectViewRequest {
+    /// Required. Project ID for this request. This is part of the URL path.
+    #[prost(string, tag = "227560217")]
+    pub project: ::prost::alloc::string::String,
+    /// Required. Name of the region for this request. This is part of the URL path.
+    #[prost(string, tag = "138946292")]
+    pub region: ::prost::alloc::string::String,
 }
 /// A request message for PublicAdvertisedPrefixes.Get. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -27831,6 +29064,16 @@ pub struct GetRegionUrlMapRequest {
     /// Name of the UrlMap resource to return.
     #[prost(string, tag = "367020684")]
     pub url_map: ::prost::alloc::string::String,
+}
+/// A request message for ReliabilityRisks.Get. See the method description for details.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct GetReliabilityRiskRequest {
+    /// Project ID for this request.
+    #[prost(string, tag = "227560217")]
+    pub project: ::prost::alloc::string::String,
+    /// Name of the ReliabilityRisk resource to return.
+    #[prost(string, tag = "340233140")]
+    pub reliability_risk: ::prost::alloc::string::String,
 }
 /// A request message for ReservationBlocks.Get. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -28509,6 +29752,35 @@ pub struct GetUrlMapRequest {
     #[prost(string, tag = "367020684")]
     pub url_map: ::prost::alloc::string::String,
 }
+/// A request message for Hosts.GetVersion. See the method description for details.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct GetVersionHostRequest {
+    /// The parent resource association for the Host. This field specifies the
+    /// hierarchical context (e.g., reservation, block, sub-block) when
+    /// accessing the host.
+    #[prost(string, tag = "449371265")]
+    pub association: ::prost::alloc::string::String,
+    /// The name of the host, formatted as RFC1035 or a resource ID
+    /// number.
+    #[prost(string, tag = "3208616")]
+    pub host: ::prost::alloc::string::String,
+    /// The body resource for this request
+    #[prost(message, optional, tag = "273373442")]
+    pub hosts_get_version_request_resource: ::core::option::Option<
+        HostsGetVersionRequest,
+    >,
+    /// Project ID for this request.
+    #[prost(string, tag = "227560217")]
+    pub project: ::prost::alloc::string::String,
+    /// An optional request ID to identify requests. Specify a unique request ID so
+    /// that if you must retry your request, the server will know to ignore the
+    /// request if it has already been completed.
+    #[prost(string, optional, tag = "37109963")]
+    pub request_id: ::core::option::Option<::prost::alloc::string::String>,
+    /// Name of the zone for this request. Zone name should conform to RFC1035.
+    #[prost(string, tag = "3744684")]
+    pub zone: ::prost::alloc::string::String,
+}
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct GetVersionOperationMetadata {
     #[prost(message, optional, tag = "7079706")]
@@ -28747,14 +30019,6 @@ pub struct GetXpnResourcesProjectsRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for ZoneOperations.Get. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -28810,6 +30074,95 @@ pub struct GlobalAddressesMoveRequest {
     /// Note that destination project must be different from the source project. So/global/addresses/address is not valid partial url.
     #[prost(string, optional, tag = "371693763")]
     pub destination_address: ::core::option::Option<::prost::alloc::string::String>,
+}
+/// Represents the Global Frontend Bundle settings for a single project.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct GlobalFrontendSettings {
+    /// Customer-settable bundle type.
+    /// Check the BundleType enum for the list of possible values.
+    #[prost(string, optional, tag = "291903703")]
+    pub bundle_type: ::core::option::Option<::prost::alloc::string::String>,
+    /// Output only. \[Output Only\] Creation timestamp in RFC3339 text format.
+    #[prost(string, optional, tag = "30525366")]
+    pub creation_timestamp: ::core::option::Option<::prost::alloc::string::String>,
+    /// Output only. \[Output Only\] An optional description of this resource.
+    #[prost(string, optional, tag = "422937596")]
+    pub description: ::core::option::Option<::prost::alloc::string::String>,
+    /// Output only. For optimistic locking.
+    #[prost(string, optional, tag = "3123477")]
+    pub etag: ::core::option::Option<::prost::alloc::string::String>,
+    /// Output only. \[Output Only\] The unique identifier for the resource. This identifier is
+    /// defined by the server.
+    #[prost(uint64, optional, tag = "3355")]
+    pub id: ::core::option::Option<u64>,
+    /// Output only. OUTPUT_ONLY fields
+    /// \[Output Only\] Name of the resource. Must be 1-63 characters long and match
+    /// the regular expression `[a-z](\[-a-z0-9\]*[a-z0-9])?` which means the first
+    /// character must be a lowercase letter, and all following characters must
+    /// be a dash, lowercase letter, or digit, except the last character, which
+    /// cannot be a dash.
+    #[prost(string, optional, tag = "3373707")]
+    pub name: ::core::option::Option<::prost::alloc::string::String>,
+    /// Output only. \[Output Only\] Server-defined URL for the resource.
+    #[prost(string, optional, tag = "456214797")]
+    pub self_link: ::core::option::Option<::prost::alloc::string::String>,
+}
+/// Nested message and enum types in `GlobalFrontendSettings`.
+pub mod global_frontend_settings {
+    /// Customer-settable bundle type.
+    #[derive(
+        Clone,
+        Copy,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash,
+        PartialOrd,
+        Ord,
+        ::prost::Enumeration
+    )]
+    #[repr(i32)]
+    pub enum BundleType {
+        /// A value indicating that the enum field is not set.
+        UndefinedBundleType = 0,
+        /// Bundling is not active.
+        Unspecified = 466587567,
+        /// Standard Global Frontend bundle.
+        GlobalFrontEnd = 182122473,
+        /// Ala Carte mode.
+        Individual = 438800025,
+    }
+    impl BundleType {
+        /// String value of the enum field names used in the ProtoBuf definition.
+        ///
+        /// The values are not transformed in any way and thus are considered stable
+        /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+        pub fn as_str_name(&self) -> &'static str {
+            match self {
+                Self::UndefinedBundleType => "UNDEFINED_BUNDLE_TYPE",
+                Self::Unspecified => "BUNDLE_TYPE_UNSPECIFIED",
+                Self::GlobalFrontEnd => "GLOBAL_FRONT_END",
+                Self::Individual => "INDIVIDUAL",
+            }
+        }
+        /// Creates an enum from field names used in the ProtoBuf definition.
+        pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+            match value {
+                "UNDEFINED_BUNDLE_TYPE" => Some(Self::UndefinedBundleType),
+                "BUNDLE_TYPE_UNSPECIFIED" => Some(Self::Unspecified),
+                "GLOBAL_FRONT_END" => Some(Self::GlobalFrontEnd),
+                "INDIVIDUAL" => Some(Self::Individual),
+                _ => None,
+            }
+        }
+    }
+}
+/// Response to an UpdateGlobalFrontendSettingsRequest.
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct GlobalFrontendSettingsPatchResponse {
+    /// The Operation resource for this long-running operation.
+    #[prost(message, optional, tag = "52090215")]
+    pub operation: ::core::option::Option<Operation>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct GlobalNetworkEndpointGroupsAttachEndpointsRequest {
@@ -29507,6 +30860,7 @@ pub struct GuestOsFeature {
     /// - IDPF
     /// - SNP_SVSM_CAPABLE
     /// - CCA_CAPABLE
+    /// - SUSPEND_SAFE_FPR
     /// ```
     ///
     /// For more information, see
@@ -29534,6 +30888,7 @@ pub mod guest_os_feature {
     /// - IDPF
     /// - SNP_SVSM_CAPABLE
     /// - CCA_CAPABLE
+    /// - SUSPEND_SAFE_FPR
     /// ```
     ///
     /// For more information, see
@@ -29554,6 +30909,10 @@ pub mod guest_os_feature {
         /// A value indicating that the enum field is not set.
         UndefinedType = 0,
         BareMetalLinuxCompatible = 354232740,
+        /// Indicates the guest OS is capable of Bare Metal Secure AI (BMSAI)
+        /// confidential computing.
+        BmsaiCapable = 449302109,
+        CcaCapable = 79012270,
         FeatureTypeUnspecified = 531767259,
         Gvnic = 68209305,
         Idpf = 2242641,
@@ -29564,6 +30923,9 @@ pub mod guest_os_feature {
         SevLiveMigratableV2 = 168551983,
         SevSnpCapable = 426919,
         SnpSvsmCapable = 52921460,
+        /// Indicates the guest OS is safe for free page reporting (FPR) during
+        /// suspend.
+        SuspendSafeFpr = 223956441,
         TdxCapable = 240446133,
         UefiCompatible = 195865408,
         VirtioScsiMultiqueue = 201597069,
@@ -29578,6 +30940,8 @@ pub mod guest_os_feature {
             match self {
                 Self::UndefinedType => "UNDEFINED_TYPE",
                 Self::BareMetalLinuxCompatible => "BARE_METAL_LINUX_COMPATIBLE",
+                Self::BmsaiCapable => "BMSAI_CAPABLE",
+                Self::CcaCapable => "CCA_CAPABLE",
                 Self::FeatureTypeUnspecified => "FEATURE_TYPE_UNSPECIFIED",
                 Self::Gvnic => "GVNIC",
                 Self::Idpf => "IDPF",
@@ -29588,6 +30952,7 @@ pub mod guest_os_feature {
                 Self::SevLiveMigratableV2 => "SEV_LIVE_MIGRATABLE_V2",
                 Self::SevSnpCapable => "SEV_SNP_CAPABLE",
                 Self::SnpSvsmCapable => "SNP_SVSM_CAPABLE",
+                Self::SuspendSafeFpr => "SUSPEND_SAFE_FPR",
                 Self::TdxCapable => "TDX_CAPABLE",
                 Self::UefiCompatible => "UEFI_COMPATIBLE",
                 Self::VirtioScsiMultiqueue => "VIRTIO_SCSI_MULTIQUEUE",
@@ -29599,6 +30964,8 @@ pub mod guest_os_feature {
             match value {
                 "UNDEFINED_TYPE" => Some(Self::UndefinedType),
                 "BARE_METAL_LINUX_COMPATIBLE" => Some(Self::BareMetalLinuxCompatible),
+                "BMSAI_CAPABLE" => Some(Self::BmsaiCapable),
+                "CCA_CAPABLE" => Some(Self::CcaCapable),
                 "FEATURE_TYPE_UNSPECIFIED" => Some(Self::FeatureTypeUnspecified),
                 "GVNIC" => Some(Self::Gvnic),
                 "IDPF" => Some(Self::Idpf),
@@ -29609,6 +30976,7 @@ pub mod guest_os_feature {
                 "SEV_LIVE_MIGRATABLE_V2" => Some(Self::SevLiveMigratableV2),
                 "SEV_SNP_CAPABLE" => Some(Self::SevSnpCapable),
                 "SNP_SVSM_CAPABLE" => Some(Self::SnpSvsmCapable),
+                "SUSPEND_SAFE_FPR" => Some(Self::SuspendSafeFpr),
                 "TDX_CAPABLE" => Some(Self::TdxCapable),
                 "UEFI_COMPATIBLE" => Some(Self::UefiCompatible),
                 "VIRTIO_SCSI_MULTIQUEUE" => Some(Self::VirtioScsiMultiqueue),
@@ -30434,7 +31802,7 @@ pub struct HealthCheck {
     /// can use this health check:
     ///
     /// ```text
-    /// - SSL, HTTP2, and GRPC protocols are not supported.
+    /// - SSL, HTTP2, GRPC, and GRPC_WITH_TLS protocols are not supported.
     /// - The TCP request field is not supported.
     /// - The proxyHeader field for HTTP, HTTPS, and TCP is not
     /// supported.
@@ -30453,8 +31821,9 @@ pub struct HealthCheck {
     /// value than checkIntervalSec.
     #[prost(int32, optional, tag = "79994995")]
     pub timeout_sec: ::core::option::Option<i32>,
-    /// Specifies the type of the healthCheck, either TCP,SSL, HTTP, HTTPS,HTTP2 or GRPC. Exactly one of the
-    /// protocol-specific health check fields must be specified, which must matchtype field.
+    /// Specifies the type of the healthCheck, either TCP,SSL, HTTP, HTTPS,HTTP2, GRPC or GRPC_WITH_TLS.
+    /// Exactly one of the protocol-specific health check fields must be specified,
+    /// which must match type field.
     /// Check the Type enum for the list of possible values.
     #[prost(string, optional, tag = "3575610")]
     pub r#type: ::core::option::Option<::prost::alloc::string::String>,
@@ -30465,8 +31834,9 @@ pub struct HealthCheck {
 }
 /// Nested message and enum types in `HealthCheck`.
 pub mod health_check {
-    /// Specifies the type of the healthCheck, either TCP,SSL, HTTP, HTTPS,HTTP2 or GRPC. Exactly one of the
-    /// protocol-specific health check fields must be specified, which must matchtype field.
+    /// Specifies the type of the healthCheck, either TCP,SSL, HTTP, HTTPS,HTTP2, GRPC or GRPC_WITH_TLS.
+    /// Exactly one of the protocol-specific health check fields must be specified,
+    /// which must match type field.
     #[derive(
         Clone,
         Copy,
@@ -31170,9 +32540,6 @@ pub struct HealthStatus {
 /// Nested message and enum types in `HealthStatus`.
 pub mod health_status {
     /// Health state of the IPv4 address of the instance.
-    /// Additional supported values which may be not listed in the enum directly due to technical reasons:
-    /// HEALTHY
-    /// UNHEALTHY
     #[derive(
         Clone,
         Copy,
@@ -31347,11 +32714,6 @@ pub struct HealthStatusForNetworkEndpoint {
 pub mod health_status_for_network_endpoint {
     /// Health state of the network endpoint determined based on the health checks
     /// configured.
-    /// Additional supported values which may be not listed in the enum directly due to technical reasons:
-    /// DRAINING
-    /// HEALTHY
-    /// UNHEALTHY
-    /// UNKNOWN
     #[derive(
         Clone,
         Copy,
@@ -31367,9 +32729,13 @@ pub mod health_status_for_network_endpoint {
     pub enum HealthState {
         /// A value indicating that the enum field is not set.
         UndefinedHealthState = 0,
+        /// Endpoint is being drained.
         Draining = 480455402,
+        /// Endpoint is healthy.
         Healthy = 439801213,
+        /// Endpoint is unhealthy.
         Unhealthy = 462118084,
+        /// Health status of the endpoint is unknown.
         Unknown = 433141802,
     }
     impl HealthState {
@@ -31461,6 +32827,120 @@ pub struct HelpLink {
     #[prost(string, optional, tag = "116079")]
     pub url: ::core::option::Option<::prost::alloc::string::String>,
 }
+/// Represents a host resource.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct Host {
+    /// Output only. All aliases for this resource.
+    /// e.g.
+    /// projects/123/zones/us-centra1-a/reservation/r1/reservationBlock/b1/hosts/h1
+    #[prost(string, repeated, tag = "296963338")]
+    pub alias_links: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
+    /// Output only. The creation timestamp, formatted asRFC3339 text.
+    #[prost(string, optional, tag = "30525366")]
+    pub creation_timestamp: ::core::option::Option<::prost::alloc::string::String>,
+    /// An optional description of this resource.
+    #[prost(string, optional, tag = "422937596")]
+    pub description: ::core::option::Option<::prost::alloc::string::String>,
+    /// Output only. The unique identifier for this resource. This identifier is
+    /// defined by the server.
+    #[prost(uint64, optional, tag = "3355")]
+    pub id: ::core::option::Option<u64>,
+    /// Output only. The type of resource. Alwayscompute#host for hosts.
+    #[prost(string, optional, tag = "3292052")]
+    pub kind: ::core::option::Option<::prost::alloc::string::String>,
+    /// Output only. The name of the host.
+    #[prost(string, optional, tag = "3373707")]
+    pub name: ::core::option::Option<::prost::alloc::string::String>,
+    /// Output only. The self link of the host.
+    #[prost(string, optional, tag = "456214797")]
+    pub self_link: ::core::option::Option<::prost::alloc::string::String>,
+    /// Output only. The self link with id of the host.
+    #[prost(string, optional, tag = "44520962")]
+    pub self_link_with_id: ::core::option::Option<::prost::alloc::string::String>,
+    /// Output only. The state of the host.
+    /// Check the State enum for the list of possible values.
+    #[prost(string, optional, tag = "109757585")]
+    pub state: ::core::option::Option<::prost::alloc::string::String>,
+    /// Output only. The status of the host
+    #[prost(message, optional, tag = "181260274")]
+    pub status: ::core::option::Option<HostStatus>,
+    /// Output only. The zone in which the host resides.
+    #[prost(string, optional, tag = "3744684")]
+    pub zone: ::core::option::Option<::prost::alloc::string::String>,
+}
+/// Nested message and enum types in `Host`.
+pub mod host {
+    /// Output only. The state of the host.
+    #[derive(
+        Clone,
+        Copy,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash,
+        PartialOrd,
+        Ord,
+        ::prost::Enumeration
+    )]
+    #[repr(i32)]
+    pub enum State {
+        /// A value indicating that the enum field is not set.
+        UndefinedState = 0,
+        /// The host has allocated all its resources.
+        Active = 314733318,
+        /// The resources are being allocated for the host.
+        Creating = 455564985,
+        /// The host is currently being deleted.
+        Deleting = 528602024,
+        Unspecified = 470755401,
+        /// The host is currently unavailable.
+        Unavailable = 413756464,
+    }
+    impl State {
+        /// String value of the enum field names used in the ProtoBuf definition.
+        ///
+        /// The values are not transformed in any way and thus are considered stable
+        /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+        pub fn as_str_name(&self) -> &'static str {
+            match self {
+                Self::UndefinedState => "UNDEFINED_STATE",
+                Self::Active => "ACTIVE",
+                Self::Creating => "CREATING",
+                Self::Deleting => "DELETING",
+                Self::Unspecified => "STATE_UNSPECIFIED",
+                Self::Unavailable => "UNAVAILABLE",
+            }
+        }
+        /// Creates an enum from field names used in the ProtoBuf definition.
+        pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+            match value {
+                "UNDEFINED_STATE" => Some(Self::UndefinedState),
+                "ACTIVE" => Some(Self::Active),
+                "CREATING" => Some(Self::Creating),
+                "DELETING" => Some(Self::Deleting),
+                "STATE_UNSPECIFIED" => Some(Self::Unspecified),
+                "UNAVAILABLE" => Some(Self::Unavailable),
+                _ => None,
+            }
+        }
+    }
+}
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct HostPhysicalTopology {
+    /// The unique identifier of the capacity block within the cluster.
+    #[prost(string, optional, tag = "93832333")]
+    pub block: ::core::option::Option<::prost::alloc::string::String>,
+    /// The cluster name of the reservation sub-block.
+    #[prost(string, optional, tag = "335221242")]
+    pub cluster: ::core::option::Option<::prost::alloc::string::String>,
+    /// The unique identifier of the capacity host within the capacity sub-block.
+    #[prost(string, optional, tag = "3208616")]
+    pub host: ::core::option::Option<::prost::alloc::string::String>,
+    /// The unique identifier of the capacity sub-block within the capacity
+    /// block.
+    #[prost(string, optional, tag = "478033358")]
+    pub sub_block: ::core::option::Option<::prost::alloc::string::String>,
+}
 /// UrlMaps
 /// A host-matching rule for a URL. If matched, will use the namedPathMatcher to select the BackendService.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -31484,6 +32964,100 @@ pub struct HostRule {
     /// of the URL if the hostRule matches the URL's host portion.
     #[prost(string, optional, tag = "337813272")]
     pub path_matcher: ::core::option::Option<::prost::alloc::string::String>,
+}
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct HostStatus {
+    /// Output only. The physical topology of the reservation sub-block, if
+    /// present
+    #[prost(message, optional, tag = "279778519")]
+    pub physical_topology: ::core::option::Option<HostPhysicalTopology>,
+    /// Output only. The URIs of the instances currently running on this host.
+    #[prost(string, repeated, tag = "536292350")]
+    pub running_instances: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
+}
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct HostsGetVersionRequest {
+    /// The SBOM selection to return. Duplicate values in the list will be ignored.
+    /// Check the SbomSelections enum for the list of possible values.
+    #[prost(string, repeated, tag = "69155705")]
+    pub sbom_selections: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
+}
+/// Nested message and enum types in `HostsGetVersionRequest`.
+pub mod hosts_get_version_request {
+    #[derive(
+        Clone,
+        Copy,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash,
+        PartialOrd,
+        Ord,
+        ::prost::Enumeration
+    )]
+    #[repr(i32)]
+    pub enum SbomSelections {
+        /// A value indicating that the enum field is not set.
+        UndefinedSbomSelections = 0,
+        SbomSelectionCurrent = 423856692,
+        SbomSelectionTarget = 152837462,
+        SbomSelectionUnspecified = 379615858,
+    }
+    impl SbomSelections {
+        /// String value of the enum field names used in the ProtoBuf definition.
+        ///
+        /// The values are not transformed in any way and thus are considered stable
+        /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+        pub fn as_str_name(&self) -> &'static str {
+            match self {
+                Self::UndefinedSbomSelections => "UNDEFINED_SBOM_SELECTIONS",
+                Self::SbomSelectionCurrent => "SBOM_SELECTION_CURRENT",
+                Self::SbomSelectionTarget => "SBOM_SELECTION_TARGET",
+                Self::SbomSelectionUnspecified => "SBOM_SELECTION_UNSPECIFIED",
+            }
+        }
+        /// Creates an enum from field names used in the ProtoBuf definition.
+        pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+            match value {
+                "UNDEFINED_SBOM_SELECTIONS" => Some(Self::UndefinedSbomSelections),
+                "SBOM_SELECTION_CURRENT" => Some(Self::SbomSelectionCurrent),
+                "SBOM_SELECTION_TARGET" => Some(Self::SbomSelectionTarget),
+                "SBOM_SELECTION_UNSPECIFIED" => Some(Self::SbomSelectionUnspecified),
+                _ => None,
+            }
+        }
+    }
+}
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct HostsListResponse {
+    #[prost(string, optional, tag = "3123477")]
+    pub etag: ::core::option::Option<::prost::alloc::string::String>,
+    /// The unique identifier for the resource; defined by the server.
+    #[prost(string, optional, tag = "3355")]
+    pub id: ::core::option::Option<::prost::alloc::string::String>,
+    /// A list of host resources.
+    #[prost(message, repeated, tag = "100526016")]
+    pub items: ::prost::alloc::vec::Vec<Host>,
+    /// The type of resource. Always compute#host for a list of hosts.
+    #[prost(string, optional, tag = "3292052")]
+    pub kind: ::core::option::Option<::prost::alloc::string::String>,
+    /// This token allows you to get the next page of results for
+    /// list requests. If the number of results is larger thanmaxResults, use the nextPageToken as a value for
+    /// the query parameter pageToken in the next list request.
+    /// Subsequent list requests will have their own nextPageToken to
+    /// continue paging through the results.
+    #[prost(string, optional, tag = "79797525")]
+    pub next_page_token: ::core::option::Option<::prost::alloc::string::String>,
+    /// The server-defined URL for this resource.
+    #[prost(string, optional, tag = "456214797")]
+    pub self_link: ::core::option::Option<::prost::alloc::string::String>,
+    /// Unreachable resources.
+    /// end_interface: MixerListResponseWithEtagBuilder
+    #[prost(string, repeated, tag = "243372063")]
+    pub unreachables: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
+    /// An informational warning message.
+    #[prost(message, optional, tag = "50704284")]
+    pub warning: ::core::option::Option<Warning>,
 }
 /// Specification for how requests are aborted as part of fault injection.
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
@@ -32630,6 +34204,39 @@ pub struct ImageParams {
         ::prost::alloc::string::String,
     >,
 }
+/// Represents a read-only view of a global Image resource.
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct ImageView {
+    /// The Image resource.
+    #[prost(message, optional, tag = "100313435")]
+    pub image: ::core::option::Option<Image>,
+}
+/// Response message for ImageViewsService.List
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct ImageViewsListResponse {
+    /// Etag of the resource.
+    #[prost(string, optional, tag = "3123477")]
+    pub etag: ::core::option::Option<::prost::alloc::string::String>,
+    /// \[Output Only\] Unique identifier for the resource; defined by the server.
+    #[prost(string, optional, tag = "3355")]
+    pub id: ::core::option::Option<::prost::alloc::string::String>,
+    /// A list of Image resources.
+    #[prost(message, repeated, tag = "100526016")]
+    pub items: ::prost::alloc::vec::Vec<ImageView>,
+    #[prost(string, optional, tag = "3292052")]
+    pub kind: ::core::option::Option<::prost::alloc::string::String>,
+    #[prost(string, optional, tag = "79797525")]
+    pub next_page_token: ::core::option::Option<::prost::alloc::string::String>,
+    /// Output only. \[Output Only\] Server-defined URL for this resource.
+    #[prost(string, optional, tag = "456214797")]
+    pub self_link: ::core::option::Option<::prost::alloc::string::String>,
+    /// Output only. \[Output Only\] Unreachable resources.
+    #[prost(string, repeated, tag = "243372063")]
+    pub unreachables: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
+    /// \[Output Only\] Informational warning message.
+    #[prost(message, optional, tag = "50704284")]
+    pub warning: ::core::option::Option<Warning>,
+}
 /// Initial State for shielded instance,
 /// these are public keys which are safe to store in public
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -32847,8 +34454,8 @@ pub struct InsertFirewallPolicyRequest {
     /// Parent ID for this request. The ID can be either be "folders/\[FOLDER_ID\]"
     /// if the parent is a folder or "organizations/\[ORGANIZATION_ID\]" if the
     /// parent is an organization.
-    #[prost(string, tag = "459714768")]
-    pub parent_id: ::prost::alloc::string::String,
+    #[prost(string, optional, tag = "459714768")]
+    pub parent_id: ::core::option::Option<::prost::alloc::string::String>,
     /// An optional request ID to identify requests. Specify a unique request ID so
     /// that if you must retry your request, the server will know to ignore the
     /// request if it has already been completed.
@@ -35345,6 +36952,13 @@ pub struct Instance {
     /// Output only. \[Output Only\] Last suspended timestamp inRFC3339 text format.
     #[prost(string, optional, tag = "356275337")]
     pub last_suspended_timestamp: ::core::option::Option<::prost::alloc::string::String>,
+    /// Specifies which method should be used for encrypting the
+    /// Local SSDs attached to the VM.
+    /// Check the LocalSsdEncryptionMode enum for the list of possible values.
+    #[prost(string, optional, tag = "121582032")]
+    pub local_ssd_encryption_mode: ::core::option::Option<
+        ::prost::alloc::string::String,
+    >,
     /// Full or partial URL of the machine type resource to use for this instance,
     /// in the format:zones/zone/machineTypes/machine-type. This is provided by the client
     /// when the instance is created. For example, the following is a valid partial
@@ -35363,6 +36977,7 @@ pub struct Instance {
     /// zones/zone/machineTypes/custom-CPUS-MEMORY
     ///
     /// For example: zones/us-central1-f/machineTypes/custom-4-5120
+    ///
     /// For a full list of restrictions, read theSpecifications
     /// for custom machine types.
     #[prost(string, optional, tag = "227711026")]
@@ -35538,6 +37153,65 @@ pub mod instance {
             }
         }
     }
+    /// Specifies which method should be used for encrypting the
+    /// Local SSDs attached to the VM.
+    #[derive(
+        Clone,
+        Copy,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash,
+        PartialOrd,
+        Ord,
+        ::prost::Enumeration
+    )]
+    #[repr(i32)]
+    pub enum LocalSsdEncryptionMode {
+        /// A value indicating that the enum field is not set.
+        UndefinedLocalSsdEncryptionMode = 0,
+        /// The given VM will opt-in for using ephemeral key for
+        /// encryption of Local SSDs.
+        /// The Local SSDs will not be able to recover data in case of VM
+        /// crash.
+        EphemeralKeyEncryption = 413047941,
+        /// The given VM will be encrypted using keys managed by the cloud
+        /// infrastructure and the keys will be deleted when the VM is
+        /// deleted.
+        Unspecified = 454655720,
+        /// The given VM will be encrypted using keys managed by the cloud
+        /// infrastructure and the keys will be deleted when the VM is
+        /// deleted.
+        StandardEncryption = 269392453,
+    }
+    impl LocalSsdEncryptionMode {
+        /// String value of the enum field names used in the ProtoBuf definition.
+        ///
+        /// The values are not transformed in any way and thus are considered stable
+        /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+        pub fn as_str_name(&self) -> &'static str {
+            match self {
+                Self::UndefinedLocalSsdEncryptionMode => {
+                    "UNDEFINED_LOCAL_SSD_ENCRYPTION_MODE"
+                }
+                Self::EphemeralKeyEncryption => "EPHEMERAL_KEY_ENCRYPTION",
+                Self::Unspecified => "LOCAL_SSD_ENCRYPTION_MODE_UNSPECIFIED",
+                Self::StandardEncryption => "STANDARD_ENCRYPTION",
+            }
+        }
+        /// Creates an enum from field names used in the ProtoBuf definition.
+        pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+            match value {
+                "UNDEFINED_LOCAL_SSD_ENCRYPTION_MODE" => {
+                    Some(Self::UndefinedLocalSsdEncryptionMode)
+                }
+                "EPHEMERAL_KEY_ENCRYPTION" => Some(Self::EphemeralKeyEncryption),
+                "LOCAL_SSD_ENCRYPTION_MODE_UNSPECIFIED" => Some(Self::Unspecified),
+                "STANDARD_ENCRYPTION" => Some(Self::StandardEncryption),
+                _ => None,
+            }
+        }
+    }
     /// The private IPv6 google access type for the VM.
     /// If not specified, use  INHERIT_FROM_SUBNETWORK as default.
     #[derive(
@@ -35630,6 +37304,8 @@ pub mod instance {
         /// For Flex Start provisioning instance is waiting for available capacity
         /// from Dynamic Workload Scheduler (DWS).
         Pending = 35394935,
+        /// The instance is gracefully shutting down.
+        PendingStop = 362509770,
         /// Resources are being allocated for the instance.
         Provisioning = 290896621,
         /// The instance is in repair.
@@ -35661,6 +37337,7 @@ pub mod instance {
                 Self::UndefinedStatus => "UNDEFINED_STATUS",
                 Self::Deprovisioning => "DEPROVISIONING",
                 Self::Pending => "PENDING",
+                Self::PendingStop => "PENDING_STOP",
                 Self::Provisioning => "PROVISIONING",
                 Self::Repairing => "REPAIRING",
                 Self::Running => "RUNNING",
@@ -35678,6 +37355,7 @@ pub mod instance {
                 "UNDEFINED_STATUS" => Some(Self::UndefinedStatus),
                 "DEPROVISIONING" => Some(Self::Deprovisioning),
                 "PENDING" => Some(Self::Pending),
+                "PENDING_STOP" => Some(Self::PendingStop),
                 "PROVISIONING" => Some(Self::Provisioning),
                 "REPAIRING" => Some(Self::Repairing),
                 "RUNNING" => Some(Self::Running),
@@ -35787,6 +37465,10 @@ pub struct InstanceFlexibilityPolicyInstanceSelection {
     /// example `n2-standard-4` and not URLs or partial URLs.
     #[prost(string, repeated, tag = "79720065")]
     pub machine_types: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
+    /// Name of the minimum CPU platform to be used by this instance selection.
+    /// e.g. 'Intel Ice Lake'.
+    #[prost(string, optional, tag = "242912759")]
+    pub min_cpu_platform: ::core::option::Option<::prost::alloc::string::String>,
     /// Rank when prioritizing the shape flexibilities.
     /// The instance selections with rank are considered
     /// first, in the ascending order of the rank.
@@ -36315,11 +37997,19 @@ pub struct InstanceGroupManagerInstanceFlexibilityPolicy {
         InstanceGroupManagerInstanceFlexibilityPolicyInstanceSelection,
     >,
 }
-#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+#[derive(Clone, PartialEq, ::prost::Message)]
 pub struct InstanceGroupManagerInstanceFlexibilityPolicyInstanceSelection {
+    /// List of disks to be attached to the instances created from this
+    /// selection.
+    #[prost(message, repeated, tag = "95594102")]
+    pub disks: ::prost::alloc::vec::Vec<AttachedDisk>,
     /// Full machine-type names, e.g. "n1-standard-16".
     #[prost(string, repeated, tag = "79720065")]
     pub machine_types: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
+    /// Name of the minimum CPU platform to be used by this instance selection.
+    /// e.g. 'Intel Ice Lake'.
+    #[prost(string, optional, tag = "242912759")]
+    pub min_cpu_platform: ::core::option::Option<::prost::alloc::string::String>,
     /// Preference of this instance selection. Lower number means higher
     /// preference. MIG will first try to create a VM based on the machine-type
     /// with lowest rank and fallback to next rank based on availability.
@@ -36330,17 +38020,16 @@ pub struct InstanceGroupManagerInstanceFlexibilityPolicyInstanceSelection {
 }
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct InstanceGroupManagerInstanceLifecyclePolicy {
-    /// The action that a MIG performs on a failed or an unhealthy VM.
-    /// A VM is marked as unhealthy when the application running on that
-    /// VM fails a health check.
+    /// The action that a MIG performs on a failed VM. If the value of the
+    /// onFailedHealthCheck field is `DEFAULT_ACTION`, then the same action also
+    /// applies to the VMs on which your application fails a health check.
     /// Valid values are
     ///
     /// ```text
-    /// - REPAIR (default): MIG automatically repairs a failed or
-    /// an unhealthy VM by recreating it. For more information, see About
+    /// - REPAIR (default): MIG automatically repairs a failed VM
+    /// by recreating it. For more information, see About
     /// repairing VMs in a MIG.
-    /// - DO_NOTHING: MIG does not repair a failed or an unhealthy
-    /// VM.
+    /// - DO_NOTHING: MIG does not repair a failed VM.
     /// ```
     ///
     /// Check the DefaultActionOnFailure enum for the list of possible values.
@@ -36380,25 +38069,25 @@ pub struct InstanceGroupManagerInstanceLifecyclePolicy {
     /// Check the OnFailedHealthCheck enum for the list of possible values.
     #[prost(string, optional, tag = "39807943")]
     pub on_failed_health_check: ::core::option::Option<::prost::alloc::string::String>,
+    /// Configuration for VM repairs in the MIG.
+    #[prost(message, optional, tag = "371820013")]
+    pub on_repair: ::core::option::Option<
+        InstanceGroupManagerInstanceLifecyclePolicyOnRepair,
+    >,
 }
 /// Nested message and enum types in `InstanceGroupManagerInstanceLifecyclePolicy`.
 pub mod instance_group_manager_instance_lifecycle_policy {
-    /// The action that a MIG performs on a failed or an unhealthy VM.
-    /// A VM is marked as unhealthy when the application running on that
-    /// VM fails a health check.
+    /// The action that a MIG performs on a failed VM. If the value of the
+    /// onFailedHealthCheck field is `DEFAULT_ACTION`, then the same action also
+    /// applies to the VMs on which your application fails a health check.
     /// Valid values are
     ///
     /// ```text
-    /// - REPAIR (default): MIG automatically repairs a failed or
-    /// an unhealthy VM by recreating it. For more information, see About
+    /// - REPAIR (default): MIG automatically repairs a failed VM
+    /// by recreating it. For more information, see About
     /// repairing VMs in a MIG.
-    /// - DO_NOTHING: MIG does not repair a failed or an unhealthy
-    /// VM.
+    /// - DO_NOTHING: MIG does not repair a failed VM.
     /// ```
-    ///
-    /// Additional supported values which may be not listed in the enum directly due to technical reasons:
-    /// DO_NOTHING
-    /// REPAIR
     #[derive(
         Clone,
         Copy,
@@ -36414,7 +38103,11 @@ pub mod instance_group_manager_instance_lifecycle_policy {
     pub enum DefaultActionOnFailure {
         /// A value indicating that the enum field is not set.
         UndefinedDefaultActionOnFailure = 0,
+        /// MIG does not repair a failed VM.
         DoNothing = 451307513,
+        /// (default): MIG automatically repairs a failed VM by recreating it.
+        /// For more information, see About
+        /// repairing VMs in a MIG.
         Repair = 266277773,
     }
     impl DefaultActionOnFailure {
@@ -36555,6 +38248,77 @@ pub mod instance_group_manager_instance_lifecycle_policy {
         }
     }
 }
+/// Configuration for VM repairs in the MIG.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct InstanceGroupManagerInstanceLifecyclePolicyOnRepair {
+    /// Specifies whether the MIG can change a VM's zone during a repair.
+    /// Valid values are:
+    ///
+    /// ```text
+    /// - NO (default): MIG cannot change a VM's zone during a
+    /// repair.
+    /// - YES: MIG can select a different zone for the VM during
+    /// a repair.
+    /// ```
+    ///
+    /// Check the AllowChangingZone enum for the list of possible values.
+    #[prost(string, optional, tag = "426055112")]
+    pub allow_changing_zone: ::core::option::Option<::prost::alloc::string::String>,
+}
+/// Nested message and enum types in `InstanceGroupManagerInstanceLifecyclePolicyOnRepair`.
+pub mod instance_group_manager_instance_lifecycle_policy_on_repair {
+    /// Specifies whether the MIG can change a VM's zone during a repair.
+    /// Valid values are:
+    ///
+    /// ```text
+    /// - NO (default): MIG cannot change a VM's zone during a
+    /// repair.
+    /// - YES: MIG can select a different zone for the VM during
+    /// a repair.
+    /// ```
+    #[derive(
+        Clone,
+        Copy,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash,
+        PartialOrd,
+        Ord,
+        ::prost::Enumeration
+    )]
+    #[repr(i32)]
+    pub enum AllowChangingZone {
+        /// A value indicating that the enum field is not set.
+        UndefinedAllowChangingZone = 0,
+        /// \[Default\] MIG cannot change a VM's zone during a repair.
+        No = 2497,
+        /// MIG can select a different zone for the VM during a repair.
+        Yes = 87751,
+    }
+    impl AllowChangingZone {
+        /// String value of the enum field names used in the ProtoBuf definition.
+        ///
+        /// The values are not transformed in any way and thus are considered stable
+        /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+        pub fn as_str_name(&self) -> &'static str {
+            match self {
+                Self::UndefinedAllowChangingZone => "UNDEFINED_ALLOW_CHANGING_ZONE",
+                Self::No => "NO",
+                Self::Yes => "YES",
+            }
+        }
+        /// Creates an enum from field names used in the ProtoBuf definition.
+        pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+            match value {
+                "UNDEFINED_ALLOW_CHANGING_ZONE" => Some(Self::UndefinedAllowChangingZone),
+                "NO" => Some(Self::No),
+                "YES" => Some(Self::Yes),
+                _ => None,
+            }
+        }
+    }
+}
 /// \[Output Only\] A list of managed instance groups.
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct InstanceGroupManagerList {
@@ -36600,6 +38364,12 @@ pub struct InstanceGroupManagerResizeRequest {
     /// identifier.
     #[prost(uint64, optional, tag = "3355")]
     pub id: ::core::option::Option<u64>,
+    /// The names of instances to be created by this resize request. The number of
+    /// names specified determines the number of instances to create. The group's
+    /// target size will be increased by this number. This field cannot be used
+    /// together with 'resize_by'.
+    #[prost(message, repeated, tag = "29097598")]
+    pub instances: ::prost::alloc::vec::Vec<PerInstanceConfig>,
     /// Output only. The resource type, which is alwayscompute#instanceGroupManagerResizeRequest for resize requests.
     #[prost(string, optional, tag = "3292052")]
     pub kind: ::core::option::Option<::prost::alloc::string::String>,
@@ -37556,7 +39326,7 @@ pub struct InstanceGroupManagersAbandonInstancesRequest {
 /// InstanceGroupManagers.applyUpdatesToInstances
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct InstanceGroupManagersApplyUpdatesRequest {
-    /// Flag to update all instances instead of specified list of “instances”.
+    /// Flag to update all instances instead of specified list of "instances".
     /// If the flag is set to true then the instances may not be specified
     /// in the request.
     #[prost(bool, optional, tag = "403676512")]
@@ -37758,11 +39528,12 @@ pub struct InstanceGroupManagersDeletePerInstanceConfigsReq {
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct InstanceGroupManagersListErrorsResponse {
-    /// Output only. \[Output Only\] The list of errors of the managed instance group.
+    /// Output only. The list of errors of the managed instance group.
     #[prost(message, repeated, tag = "100526016")]
     pub items: ::prost::alloc::vec::Vec<InstanceManagedByIgmError>,
-    /// Output only. \[Output Only\] This token allows you to get the next page of results for
-    /// list requests. If the number of results is larger thanmaxResults, use the nextPageToken as a value for
+    /// Output only. This token allows you to get the next page of results for list requests.
+    /// If the number of results is larger than maxResults
+    /// , then use the nextPageToken as a value for
     /// the query parameter pageToken in the next list request.
     /// Subsequent list requests will have their own nextPageToken to
     /// continue paging through the results.
@@ -38070,33 +39841,32 @@ pub struct InstanceListReferrers {
 }
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct InstanceManagedByIgmError {
-    /// Output only. \[Output Only\] Contents of the error.
+    /// Output only. Contents of the error.
     #[prost(message, optional, tag = "96784904")]
     pub error: ::core::option::Option<InstanceManagedByIgmErrorManagedInstanceError>,
-    /// Output only. \[Output Only\] Details of the instance action that triggered this error.
+    /// Output only. Details of the instance action that triggered this error.
     /// May be null, if the error was not caused by an action on an instance.
     /// This field is optional.
     #[prost(message, optional, tag = "292224547")]
     pub instance_action_details: ::core::option::Option<
         InstanceManagedByIgmErrorInstanceActionDetails,
     >,
-    /// Output only. \[Output Only\] The time that this error occurred.
-    /// This value is in RFC3339 text format.
+    /// Output only. The time that this error occurred. This value is in RFC3339 text format.
     #[prost(string, optional, tag = "55126294")]
     pub timestamp: ::core::option::Option<::prost::alloc::string::String>,
 }
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct InstanceManagedByIgmErrorInstanceActionDetails {
-    /// Output only. \[Output Only\] Action that managed instance group was executing on
-    /// the instance when the error occurred. Possible values:
+    /// Output only. Action that managed instance group was executing on the instance when the
+    /// error occurred. Possible values:
     /// Check the Action enum for the list of possible values.
     #[prost(string, optional, tag = "187661878")]
     pub action: ::core::option::Option<::prost::alloc::string::String>,
-    /// Output only. \[Output Only\] The URL of the instance.
-    /// The URL can be set even if the instance has not yet been created.
+    /// Output only. The URL of the instance. The URL can be set even if the instance has not
+    /// yet been created.
     #[prost(string, optional, tag = "18257045")]
     pub instance: ::core::option::Option<::prost::alloc::string::String>,
-    /// Output only. \[Output Only\] Version this instance was created from, or was being
+    /// Output only. Version this instance was created from, or was being
     /// created from, but the creation failed. Corresponds to one of the versions
     /// that were set on the Instance Group Manager resource at the time this
     /// instance was being created.
@@ -38105,8 +39875,8 @@ pub struct InstanceManagedByIgmErrorInstanceActionDetails {
 }
 /// Nested message and enum types in `InstanceManagedByIgmErrorInstanceActionDetails`.
 pub mod instance_managed_by_igm_error_instance_action_details {
-    /// Output only. \[Output Only\] Action that managed instance group was executing on
-    /// the instance when the error occurred. Possible values:
+    /// Output only. Action that managed instance group was executing on the instance when the
+    /// error occurred. Possible values:
     #[derive(
         Clone,
         Copy,
@@ -38214,10 +39984,10 @@ pub mod instance_managed_by_igm_error_instance_action_details {
 }
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct InstanceManagedByIgmErrorManagedInstanceError {
-    /// Output only. \[Output Only\] Error code.
+    /// Output only. Error code.
     #[prost(string, optional, tag = "3059181")]
     pub code: ::core::option::Option<::prost::alloc::string::String>,
-    /// Output only. \[Output Only\] Error message.
+    /// Output only. Error message.
     #[prost(string, optional, tag = "418054151")]
     pub message: ::core::option::Option<::prost::alloc::string::String>,
 }
@@ -38305,6 +40075,13 @@ pub struct InstanceProperties {
     #[prost(map = "string, string", tag = "500195327")]
     pub labels: ::std::collections::HashMap<
         ::prost::alloc::string::String,
+        ::prost::alloc::string::String,
+    >,
+    /// Specifies which method should be used for encrypting the
+    /// Local SSDs attached to the VM.
+    /// Check the LocalSsdEncryptionMode enum for the list of possible values.
+    #[prost(string, optional, tag = "121582032")]
+    pub local_ssd_encryption_mode: ::core::option::Option<
         ::prost::alloc::string::String,
     >,
     /// The machine type to use for instances that are created from these
@@ -38439,6 +40216,65 @@ pub mod instance_properties {
             }
         }
     }
+    /// Specifies which method should be used for encrypting the
+    /// Local SSDs attached to the VM.
+    #[derive(
+        Clone,
+        Copy,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash,
+        PartialOrd,
+        Ord,
+        ::prost::Enumeration
+    )]
+    #[repr(i32)]
+    pub enum LocalSsdEncryptionMode {
+        /// A value indicating that the enum field is not set.
+        UndefinedLocalSsdEncryptionMode = 0,
+        /// The given VM will opt-in for using ephemeral key for
+        /// encryption of Local SSDs.
+        /// The Local SSDs will not be able to recover data in case of VM
+        /// crash.
+        EphemeralKeyEncryption = 413047941,
+        /// The given VM will be encrypted using keys managed by the cloud
+        /// infrastructure and the keys will be deleted when the VM is
+        /// deleted.
+        Unspecified = 454655720,
+        /// The given VM will be encrypted using keys managed by the cloud
+        /// infrastructure and the keys will be deleted when the VM is
+        /// deleted.
+        StandardEncryption = 269392453,
+    }
+    impl LocalSsdEncryptionMode {
+        /// String value of the enum field names used in the ProtoBuf definition.
+        ///
+        /// The values are not transformed in any way and thus are considered stable
+        /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+        pub fn as_str_name(&self) -> &'static str {
+            match self {
+                Self::UndefinedLocalSsdEncryptionMode => {
+                    "UNDEFINED_LOCAL_SSD_ENCRYPTION_MODE"
+                }
+                Self::EphemeralKeyEncryption => "EPHEMERAL_KEY_ENCRYPTION",
+                Self::Unspecified => "LOCAL_SSD_ENCRYPTION_MODE_UNSPECIFIED",
+                Self::StandardEncryption => "STANDARD_ENCRYPTION",
+            }
+        }
+        /// Creates an enum from field names used in the ProtoBuf definition.
+        pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+            match value {
+                "UNDEFINED_LOCAL_SSD_ENCRYPTION_MODE" => {
+                    Some(Self::UndefinedLocalSsdEncryptionMode)
+                }
+                "EPHEMERAL_KEY_ENCRYPTION" => Some(Self::EphemeralKeyEncryption),
+                "LOCAL_SSD_ENCRYPTION_MODE_UNSPECIFIED" => Some(Self::Unspecified),
+                "STANDARD_ENCRYPTION" => Some(Self::StandardEncryption),
+                _ => None,
+            }
+        }
+    }
     /// The private IPv6 google access type for VMs.
     /// If not specified, use  INHERIT_FROM_SUBNETWORK as default.
     /// Note that for MachineImage, this is not supported yet.
@@ -38511,6 +40347,9 @@ pub mod instance_properties {
 /// Represents the change that you want to make to the instance properties.
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct InstancePropertiesPatch {
+    /// This optional flag exposes the hashed physical host ID.
+    #[prost(bool, optional, tag = "428530155")]
+    pub expose_host_topology: ::core::option::Option<bool>,
     /// The label key-value pairs that you want to patch onto the instance.
     #[prost(map = "string, string", tag = "500195327")]
     pub labels: ::std::collections::HashMap<
@@ -38748,6 +40587,8 @@ pub mod instance_with_named_ports {
         /// For Flex Start provisioning instance is waiting for available capacity
         /// from Dynamic Workload Scheduler (DWS).
         Pending = 35394935,
+        /// The instance is gracefully shutting down.
+        PendingStop = 362509770,
         /// Resources are being allocated for the instance.
         Provisioning = 290896621,
         /// The instance is in repair.
@@ -38779,6 +40620,7 @@ pub mod instance_with_named_ports {
                 Self::UndefinedStatus => "UNDEFINED_STATUS",
                 Self::Deprovisioning => "DEPROVISIONING",
                 Self::Pending => "PENDING",
+                Self::PendingStop => "PENDING_STOP",
                 Self::Provisioning => "PROVISIONING",
                 Self::Repairing => "REPAIRING",
                 Self::Running => "RUNNING",
@@ -38796,6 +40638,7 @@ pub mod instance_with_named_ports {
                 "UNDEFINED_STATUS" => Some(Self::UndefinedStatus),
                 "DEPROVISIONING" => Some(Self::Deprovisioning),
                 "PENDING" => Some(Self::Pending),
+                "PENDING_STOP" => Some(Self::PendingStop),
                 "PROVISIONING" => Some(Self::Provisioning),
                 "REPAIRING" => Some(Self::Repairing),
                 "RUNNING" => Some(Self::Running),
@@ -39690,6 +41533,11 @@ pub struct Interconnect {
     /// create the resource.
     #[prost(string, optional, tag = "422937596")]
     pub description: ::core::option::Option<::prost::alloc::string::String>,
+    /// Output only. URL of the InterconnectLocation object that represents where
+    /// this connection is to be provisioned. By default it will be the same as the
+    /// location field.
+    #[prost(string, optional, tag = "302355277")]
+    pub effective_location: ::core::option::Option<::prost::alloc::string::String>,
     /// Output only. \[Output Only\] A list of outages expected for this Interconnect.
     #[prost(message, repeated, tag = "264484123")]
     pub expected_outages: ::prost::alloc::vec::Vec<InterconnectOutageNotification>,
@@ -39849,6 +41697,9 @@ pub struct Interconnect {
     /// Output only. \[Output Only\] Server-defined URL for the resource.
     #[prost(string, optional, tag = "456214797")]
     pub self_link: ::core::option::Option<::prost::alloc::string::String>,
+    /// Output only. Server-defined URL for this resource with the resource id.
+    #[prost(string, optional, tag = "44520962")]
+    pub self_link_with_id: ::core::option::Option<::prost::alloc::string::String>,
     /// Output only. \[Output Only\] The current state of Interconnect functionality, which can
     /// take one of the following values:
     ///
@@ -43825,6 +45676,14 @@ pub struct InterconnectLocationCrossSiteInterconnectInfo {
     /// may match multiple InterconnectLocations.
     #[prost(string, optional, tag = "3053931")]
     pub city: ::core::option::Option<::prost::alloc::string::String>,
+    /// Output only. The maximum unmetered bandwidth for dynamic paths allowable per
+    /// WireGroup for this metro.
+    #[prost(int64, optional, tag = "378021355")]
+    pub max_dynamic_path_bandwidth_gbps: ::core::option::Option<i64>,
+    /// Output only. The maximum unmetered bandwidth for fixed paths allowable per WireGroup
+    /// for this metro.
+    #[prost(int64, optional, tag = "346138080")]
+    pub max_fixed_path_bandwidth_gbps: ::core::option::Option<i64>,
 }
 /// Response to the list request, and contains a list of interconnect locations.
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -44790,6 +46649,39 @@ pub struct InterconnectsGetMacsecConfigResponse {
     #[prost(message, optional, tag = "139315229")]
     pub result: ::core::option::Option<InterconnectMacsecConfig>,
 }
+/// Request to rename an interconnect.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct InterconnectsSetNameRequest {
+    /// The current name of the interconnect.
+    /// The name must be 1-63 characters long, and comply with RFC1035.
+    #[prost(string, optional, tag = "394983825")]
+    pub current_name: ::core::option::Option<::prost::alloc::string::String>,
+    /// The new name of the interconnect.
+    /// The name must be 1-63 characters long, and comply with RFC1035.
+    #[prost(string, optional, tag = "3373707")]
+    pub name: ::core::option::Option<::prost::alloc::string::String>,
+}
+/// Represents a time interval, encoded as a Timestamp start (inclusive) and a
+/// Timestamp end (exclusive).
+///
+/// The start must be less than or equal to the end.
+/// When the start equals the end, the interval is empty (matches no time).
+/// When both start and end are unspecified, the interval matches any time.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct Interval {
+    /// Optional. Exclusive end of the interval.
+    ///
+    /// If specified, a Timestamp matching this interval will have to be before the
+    /// end.
+    #[prost(string, optional, tag = "114938801")]
+    pub end_time: ::core::option::Option<::prost::alloc::string::String>,
+    /// Optional. Inclusive start of the interval.
+    ///
+    /// If specified, a Timestamp matching this interval will have to be the same
+    /// or after the start.
+    #[prost(string, optional, tag = "37467274")]
+    pub start_time: ::core::option::Option<::prost::alloc::string::String>,
+}
 /// A request message for UrlMaps.InvalidateCache. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct InvalidateCacheUrlMapRequest {
@@ -45245,14 +47137,6 @@ pub struct ListAcceleratorTypesRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The name of the zone for this request.
     #[prost(string, tag = "3744684")]
     pub zone: ::prost::alloc::string::String,
@@ -45355,14 +47239,6 @@ pub struct ListAddressesRequest {
     /// Name of the region for this request.
     #[prost(string, tag = "138946292")]
     pub region: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for FirewallPolicies.ListAssociations. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -45480,14 +47356,6 @@ pub struct ListAutoscalersRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// Name of the zone for this request.
     #[prost(string, tag = "3744684")]
     pub zone: ::prost::alloc::string::String,
@@ -45590,14 +47458,6 @@ pub struct ListAvailableFeaturesRegionSslPoliciesRequest {
     /// Name of the region scoping this request.
     #[prost(string, tag = "138946292")]
     pub region: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for SslPolicies.ListAvailableFeatures. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -45694,14 +47554,6 @@ pub struct ListAvailableFeaturesSslPoliciesRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for BackendBuckets.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -45798,14 +47650,6 @@ pub struct ListBackendBucketsRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for BackendServices.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -45902,14 +47746,6 @@ pub struct ListBackendServicesRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for Routers.ListBgpRoutes. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -46024,14 +47860,6 @@ pub struct ListBgpRoutesRoutersRequest {
     /// Name of the region for this request.
     #[prost(string, tag = "138946292")]
     pub region: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// (Required) limit results to this type of route (either LEARNED or
     /// ADVERTISED)
     /// Check the RouteType enum for the list of possible values.
@@ -46229,14 +48057,6 @@ pub struct ListCrossSiteNetworksRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for DiskTypes.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -46333,14 +48153,6 @@ pub struct ListDiskTypesRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The name of the zone for this request.
     #[prost(string, tag = "3744684")]
     pub zone: ::prost::alloc::string::String,
@@ -46440,14 +48252,6 @@ pub struct ListDisksRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The name of the zone for this request.
     #[prost(string, tag = "3744684")]
     pub zone: ::prost::alloc::string::String,
@@ -46547,14 +48351,6 @@ pub struct ListDisksStoragePoolsRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// Name of the storage pool to list disks of.
     #[prost(string, tag = "360473440")]
     pub storage_pool: ::prost::alloc::string::String,
@@ -46663,14 +48459,6 @@ pub struct ListErrorsInstanceGroupManagersRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The name of thezone where the managed
     /// instance group is located.
     /// It should conform to RFC1035.
@@ -46782,14 +48570,6 @@ pub struct ListErrorsRegionInstanceGroupManagersRequest {
     /// This should conform to RFC1035.
     #[prost(string, tag = "138946292")]
     pub region: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for ExternalVpnGateways.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -46886,14 +48666,6 @@ pub struct ListExternalVpnGatewaysRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for FirewallPolicies.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -46992,14 +48764,6 @@ pub struct ListFirewallPoliciesRequest {
     /// parent is an organization.
     #[prost(string, optional, tag = "459714768")]
     pub parent_id: ::core::option::Option<::prost::alloc::string::String>,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for Firewalls.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -47096,14 +48860,6 @@ pub struct ListFirewallsRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for ForwardingRules.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -47203,14 +48959,6 @@ pub struct ListForwardingRulesRequest {
     /// Name of the region scoping this request.
     #[prost(string, tag = "138946292")]
     pub region: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for FutureReservations.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -47307,14 +49055,6 @@ pub struct ListFutureReservationsRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// Name of the zone for this request. Name should conform to RFC1035.
     #[prost(string, tag = "3744684")]
     pub zone: ::prost::alloc::string::String,
@@ -47414,14 +49154,6 @@ pub struct ListGlobalAddressesRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for GlobalForwardingRules.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -47518,14 +49250,6 @@ pub struct ListGlobalForwardingRulesRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for GlobalNetworkEndpointGroups.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -47622,14 +49346,6 @@ pub struct ListGlobalNetworkEndpointGroupsRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for GlobalOperations.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -47726,14 +49442,6 @@ pub struct ListGlobalOperationsRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for GlobalOrganizationOperations.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -47830,14 +49538,6 @@ pub struct ListGlobalOrganizationOperationsRequest {
     /// Parent ID for this request.
     #[prost(string, optional, tag = "459714768")]
     pub parent_id: ::core::option::Option<::prost::alloc::string::String>,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for GlobalPublicDelegatedPrefixes.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -47934,14 +49634,6 @@ pub struct ListGlobalPublicDelegatedPrefixesRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for GlobalVmExtensionPolicies.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -48038,14 +49730,6 @@ pub struct ListGlobalVmExtensionPoliciesRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for HealthChecks.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -48142,14 +49826,211 @@ pub struct ListHealthChecksRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
+}
+/// A request message for Hosts.List. See the method description for details.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct ListHostsRequest {
+    /// The parent resource association for the Host. This field specifies the
+    /// hierarchical context (e.g., reservation, block, sub-block) when
+    /// accessing the host. For example, reservations/reservation_name,
+    /// reservations/reservation_name/reservationBlocks/reservation_block_name or
+    /// reservations/reservation_name/reservationBlocks/reservation_block_name/reservationSubBlocks/reservation_sub_block_name.
+    #[prost(string, tag = "449371265")]
+    pub association: ::prost::alloc::string::String,
+    /// A filter expression that filters resources listed in the response. Most
+    /// Compute resources support two types of filter expressions:
+    /// expressions that support regular expressions and expressions that follow
+    /// API improvement proposal AIP-160.
+    /// These two types of filter expressions cannot be mixed in one request.
     ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
+    /// If you want to use AIP-160, your expression must specify the field name, an
+    /// operator, and the value that you want to use for filtering. The value
+    /// must be a string, a number, or a boolean. The operator
+    /// must be either `=`, `!=`, `>`, `<`, `<=`, `>=` or `:`.
+    ///
+    /// For example, if you are filtering Compute Engine instances, you can
+    /// exclude instances named `example-instance` by specifying
+    /// `name != example-instance`.
+    ///
+    /// The `:*` comparison can be used to test whether a key has been defined.
+    /// For example, to find all objects with `owner` label use:
+    ///
+    /// ```text,
+    /// labels.owner:*
+    /// ```
+    ///
+    /// You can also filter nested fields. For example, you could specify
+    /// `scheduling.automaticRestart = false` to include instances only
+    /// if they are not scheduled for automatic restarts. You can use filtering
+    /// on nested fields to filter based onresource labels.
+    ///
+    /// To filter on multiple expressions, provide each separate expression within
+    /// parentheses. For example:
+    ///
+    /// ```text,
+    /// (scheduling.automaticRestart = true)
+    /// (cpuPlatform = "Intel Skylake")
+    /// ```
+    ///
+    /// By default, each expression is an `AND` expression. However, you
+    /// can include `AND` and `OR` expressions explicitly.
+    /// For example:
+    ///
+    /// ```text,
+    /// (cpuPlatform = "Intel Skylake") OR
+    /// (cpuPlatform = "Intel Broadwell") AND
+    /// (scheduling.automaticRestart = true)
+    /// ```
+    ///
+    /// If you want to use a regular expression, use the `eq` (equal) or `ne`
+    /// (not equal) operator against a single un-parenthesized expression with or
+    /// without quotes or against multiple parenthesized expressions. Examples:
+    ///
+    /// `fieldname eq unquoted literal`
+    /// `fieldname eq 'single quoted literal'`
+    /// `fieldname eq "double quoted literal"`
+    /// `(fieldname1 eq literal) (fieldname2 ne "literal")`
+    ///
+    /// The literal value is interpreted as a regular expression using GoogleRE2 library syntax.
+    /// The literal value must match the entire field.
+    ///
+    /// For example, to filter for instances that do not end with name "instance",
+    /// you would use `name ne .*instance`.
+    ///
+    /// You cannot combine constraints on multiple fields using regular
+    /// expressions.
+    #[prost(string, optional, tag = "336120696")]
+    pub filter: ::core::option::Option<::prost::alloc::string::String>,
+    /// The maximum number of results per page that should be returned.
+    /// If the number of available results is larger than `maxResults`,
+    /// Compute Engine returns a `nextPageToken` that can be used to get
+    /// the next page of results in subsequent list requests. Acceptable values are
+    /// `0` to `500`, inclusive. (Default: `500`)
+    #[prost(uint32, optional, tag = "54715419")]
+    pub max_results: ::core::option::Option<u32>,
+    /// Sorts list results by a certain order. By default, results
+    /// are returned in alphanumerical order based on the resource name.
+    ///
+    /// You can also sort results in descending order based on the creation
+    /// timestamp using `orderBy="creationTimestamp desc"`. This sorts
+    /// results based on the `creationTimestamp` field in
+    /// reverse chronological order (newest result first). Use this to sort
+    /// resources like operations so that the newest operation is returned first.
+    ///
+    /// Currently, only sorting by `name` or
+    /// `creationTimestamp desc` is supported.
+    #[prost(string, optional, tag = "160562920")]
+    pub order_by: ::core::option::Option<::prost::alloc::string::String>,
+    /// Specifies a page token to use. Set `pageToken` to the
+    /// `nextPageToken` returned by a previous list request to get
+    /// the next page of results.
+    #[prost(string, optional, tag = "19994697")]
+    pub page_token: ::core::option::Option<::prost::alloc::string::String>,
+    /// The project ID for this request.
+    #[prost(string, tag = "227560217")]
+    pub project: ::prost::alloc::string::String,
+    /// The name of the zone for this request, formatted as RFC1035.
+    #[prost(string, tag = "3744684")]
+    pub zone: ::prost::alloc::string::String,
+}
+/// A request message for ImageViews.List. See the method description for details.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct ListImageViewsRequest {
+    /// A filter expression that filters resources listed in the response. Most
+    /// Compute resources support two types of filter expressions:
+    /// expressions that support regular expressions and expressions that follow
+    /// API improvement proposal AIP-160.
+    /// These two types of filter expressions cannot be mixed in one request.
+    ///
+    /// If you want to use AIP-160, your expression must specify the field name, an
+    /// operator, and the value that you want to use for filtering. The value
+    /// must be a string, a number, or a boolean. The operator
+    /// must be either `=`, `!=`, `>`, `<`, `<=`, `>=` or `:`.
+    ///
+    /// For example, if you are filtering Compute Engine instances, you can
+    /// exclude instances named `example-instance` by specifying
+    /// `name != example-instance`.
+    ///
+    /// The `:*` comparison can be used to test whether a key has been defined.
+    /// For example, to find all objects with `owner` label use:
+    ///
+    /// ```text,
+    /// labels.owner:*
+    /// ```
+    ///
+    /// You can also filter nested fields. For example, you could specify
+    /// `scheduling.automaticRestart = false` to include instances only
+    /// if they are not scheduled for automatic restarts. You can use filtering
+    /// on nested fields to filter based onresource labels.
+    ///
+    /// To filter on multiple expressions, provide each separate expression within
+    /// parentheses. For example:
+    ///
+    /// ```text,
+    /// (scheduling.automaticRestart = true)
+    /// (cpuPlatform = "Intel Skylake")
+    /// ```
+    ///
+    /// By default, each expression is an `AND` expression. However, you
+    /// can include `AND` and `OR` expressions explicitly.
+    /// For example:
+    ///
+    /// ```text,
+    /// (cpuPlatform = "Intel Skylake") OR
+    /// (cpuPlatform = "Intel Broadwell") AND
+    /// (scheduling.automaticRestart = true)
+    /// ```
+    ///
+    /// If you want to use a regular expression, use the `eq` (equal) or `ne`
+    /// (not equal) operator against a single un-parenthesized expression with or
+    /// without quotes or against multiple parenthesized expressions. Examples:
+    ///
+    /// `fieldname eq unquoted literal`
+    /// `fieldname eq 'single quoted literal'`
+    /// `fieldname eq "double quoted literal"`
+    /// `(fieldname1 eq literal) (fieldname2 ne "literal")`
+    ///
+    /// The literal value is interpreted as a regular expression using GoogleRE2 library syntax.
+    /// The literal value must match the entire field.
+    ///
+    /// For example, to filter for instances that do not end with name "instance",
+    /// you would use `name ne .*instance`.
+    ///
+    /// You cannot combine constraints on multiple fields using regular
+    /// expressions.
+    #[prost(string, optional, tag = "336120696")]
+    pub filter: ::core::option::Option<::prost::alloc::string::String>,
+    /// The maximum number of results per page that should be returned.
+    /// If the number of available results is larger than `maxResults`,
+    /// Compute Engine returns a `nextPageToken` that can be used to get
+    /// the next page of results in subsequent list requests. Acceptable values are
+    /// `0` to `500`, inclusive. (Default: `500`)
+    #[prost(uint32, optional, tag = "54715419")]
+    pub max_results: ::core::option::Option<u32>,
+    /// Sorts list results by a certain order. By default, results
+    /// are returned in alphanumerical order based on the resource name.
+    ///
+    /// You can also sort results in descending order based on the creation
+    /// timestamp using `orderBy="creationTimestamp desc"`. This sorts
+    /// results based on the `creationTimestamp` field in
+    /// reverse chronological order (newest result first). Use this to sort
+    /// resources like operations so that the newest operation is returned first.
+    ///
+    /// Currently, only sorting by `name` or
+    /// `creationTimestamp desc` is supported.
+    #[prost(string, optional, tag = "160562920")]
+    pub order_by: ::core::option::Option<::prost::alloc::string::String>,
+    /// Specifies a page token to use. Set `pageToken` to the
+    /// `nextPageToken` returned by a previous list request to get
+    /// the next page of results.
+    #[prost(string, optional, tag = "19994697")]
+    pub page_token: ::core::option::Option<::prost::alloc::string::String>,
+    /// Required. Project ID for this request.
+    #[prost(string, tag = "227560217")]
+    pub project: ::prost::alloc::string::String,
+    /// Required. Name of the region for this request.
+    #[prost(string, tag = "138946292")]
+    pub region: ::prost::alloc::string::String,
 }
 /// A request message for Images.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -48246,14 +50127,6 @@ pub struct ListImagesRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for InstanceGroupManagerResizeRequests.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -48353,14 +50226,6 @@ pub struct ListInstanceGroupManagerResizeRequestsRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The name of thezone where the managed
     /// instance group is located. The name should conform to RFC1035.
     #[prost(string, tag = "3744684")]
@@ -48461,14 +50326,6 @@ pub struct ListInstanceGroupManagersRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The name of thezone where the managed
     /// instance group is located.
     #[prost(string, tag = "3744684")]
@@ -48569,14 +50426,6 @@ pub struct ListInstanceGroupsRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The name of thezone
     /// where the instance group is located.
     #[prost(string, tag = "3744684")]
@@ -48677,14 +50526,6 @@ pub struct ListInstanceTemplatesRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for InstanceGroups.ListInstances. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -48790,14 +50631,6 @@ pub struct ListInstancesInstanceGroupsRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The name of the zone
     /// where the instance group is located.
     #[prost(string, tag = "3744684")]
@@ -48910,14 +50743,6 @@ pub struct ListInstancesRegionInstanceGroupsRequest {
     pub region_instance_groups_list_instances_request_resource: ::core::option::Option<
         RegionInstanceGroupsListInstancesRequest,
     >,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for Instances.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -49014,14 +50839,6 @@ pub struct ListInstancesRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The name of the zone for this request.
     #[prost(string, tag = "3744684")]
     pub zone: ::prost::alloc::string::String,
@@ -49153,14 +50970,6 @@ pub struct ListInstantSnapshotGroupsRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The name of the zone for this request.
     #[prost(string, tag = "3744684")]
     pub zone: ::prost::alloc::string::String,
@@ -49260,14 +51069,6 @@ pub struct ListInstantSnapshotsRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The name of the zone for this request.
     #[prost(string, tag = "3744684")]
     pub zone: ::prost::alloc::string::String,
@@ -49367,14 +51168,6 @@ pub struct ListInterconnectAttachmentGroupsRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for InterconnectAttachments.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -49474,14 +51267,6 @@ pub struct ListInterconnectAttachmentsRequest {
     /// Name of the region for this request.
     #[prost(string, tag = "138946292")]
     pub region: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for InterconnectGroups.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -49578,14 +51363,6 @@ pub struct ListInterconnectGroupsRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for InterconnectLocations.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -49682,14 +51459,6 @@ pub struct ListInterconnectLocationsRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for InterconnectRemoteLocations.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -49786,14 +51555,6 @@ pub struct ListInterconnectRemoteLocationsRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for Interconnects.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -49890,14 +51651,6 @@ pub struct ListInterconnectsRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for Licenses.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -49994,14 +51747,6 @@ pub struct ListLicensesRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for MachineImages.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -50098,14 +51843,6 @@ pub struct ListMachineImagesRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for MachineTypes.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -50202,14 +51939,6 @@ pub struct ListMachineTypesRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The name of the zone for this request.
     #[prost(string, tag = "3744684")]
     pub zone: ::prost::alloc::string::String,
@@ -50312,14 +52041,6 @@ pub struct ListManagedInstancesInstanceGroupManagersRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The name of thezone where the managed
     /// instance group is located.
     #[prost(string, tag = "3744684")]
@@ -50426,14 +52147,205 @@ pub struct ListManagedInstancesRegionInstanceGroupManagersRequest {
     /// Name of the region scoping this request.
     #[prost(string, tag = "138946292")]
     pub region: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
+}
+/// A request message for ManagedRulesets.List. See the method description for details.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct ListManagedRulesetsRequest {
+    /// A filter expression that filters resources listed in the response. Most
+    /// Compute resources support two types of filter expressions:
+    /// expressions that support regular expressions and expressions that follow
+    /// API improvement proposal AIP-160.
+    /// These two types of filter expressions cannot be mixed in one request.
     ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
+    /// If you want to use AIP-160, your expression must specify the field name, an
+    /// operator, and the value that you want to use for filtering. The value
+    /// must be a string, a number, or a boolean. The operator
+    /// must be either `=`, `!=`, `>`, `<`, `<=`, `>=` or `:`.
+    ///
+    /// For example, if you are filtering Compute Engine instances, you can
+    /// exclude instances named `example-instance` by specifying
+    /// `name != example-instance`.
+    ///
+    /// The `:*` comparison can be used to test whether a key has been defined.
+    /// For example, to find all objects with `owner` label use:
+    ///
+    /// ```text,
+    /// labels.owner:*
+    /// ```
+    ///
+    /// You can also filter nested fields. For example, you could specify
+    /// `scheduling.automaticRestart = false` to include instances only
+    /// if they are not scheduled for automatic restarts. You can use filtering
+    /// on nested fields to filter based onresource labels.
+    ///
+    /// To filter on multiple expressions, provide each separate expression within
+    /// parentheses. For example:
+    ///
+    /// ```text,
+    /// (scheduling.automaticRestart = true)
+    /// (cpuPlatform = "Intel Skylake")
+    /// ```
+    ///
+    /// By default, each expression is an `AND` expression. However, you
+    /// can include `AND` and `OR` expressions explicitly.
+    /// For example:
+    ///
+    /// ```text,
+    /// (cpuPlatform = "Intel Skylake") OR
+    /// (cpuPlatform = "Intel Broadwell") AND
+    /// (scheduling.automaticRestart = true)
+    /// ```
+    ///
+    /// If you want to use a regular expression, use the `eq` (equal) or `ne`
+    /// (not equal) operator against a single un-parenthesized expression with or
+    /// without quotes or against multiple parenthesized expressions. Examples:
+    ///
+    /// `fieldname eq unquoted literal`
+    /// `fieldname eq 'single quoted literal'`
+    /// `fieldname eq "double quoted literal"`
+    /// `(fieldname1 eq literal) (fieldname2 ne "literal")`
+    ///
+    /// The literal value is interpreted as a regular expression using GoogleRE2 library syntax.
+    /// The literal value must match the entire field.
+    ///
+    /// For example, to filter for instances that do not end with name "instance",
+    /// you would use `name ne .*instance`.
+    ///
+    /// You cannot combine constraints on multiple fields using regular
+    /// expressions.
+    #[prost(string, optional, tag = "336120696")]
+    pub filter: ::core::option::Option<::prost::alloc::string::String>,
+    /// The maximum number of results per page that should be returned.
+    /// If the number of available results is larger than `maxResults`,
+    /// Compute Engine returns a `nextPageToken` that can be used to get
+    /// the next page of results in subsequent list requests. Acceptable values are
+    /// `0` to `500`, inclusive. (Default: `500`)
+    #[prost(uint32, optional, tag = "54715419")]
+    pub max_results: ::core::option::Option<u32>,
+    /// Sorts list results by a certain order. By default, results
+    /// are returned in alphanumerical order based on the resource name.
+    ///
+    /// You can also sort results in descending order based on the creation
+    /// timestamp using `orderBy="creationTimestamp desc"`. This sorts
+    /// results based on the `creationTimestamp` field in
+    /// reverse chronological order (newest result first). Use this to sort
+    /// resources like operations so that the newest operation is returned first.
+    ///
+    /// Currently, only sorting by `name` or
+    /// `creationTimestamp desc` is supported.
+    #[prost(string, optional, tag = "160562920")]
+    pub order_by: ::core::option::Option<::prost::alloc::string::String>,
+    /// Specifies a page token to use. Set `pageToken` to the
+    /// `nextPageToken` returned by a previous list request to get
+    /// the next page of results.
+    #[prost(string, optional, tag = "19994697")]
+    pub page_token: ::core::option::Option<::prost::alloc::string::String>,
+    /// Project ID for this request.
+    #[prost(string, tag = "227560217")]
+    pub project: ::prost::alloc::string::String,
+}
+/// A request message for Routers.ListNamedSets. See the method description for details.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct ListNamedSetsRoutersRequest {
+    /// A filter expression that filters resources listed in the response. Most
+    /// Compute resources support two types of filter expressions:
+    /// expressions that support regular expressions and expressions that follow
+    /// API improvement proposal AIP-160.
+    /// These two types of filter expressions cannot be mixed in one request.
+    ///
+    /// If you want to use AIP-160, your expression must specify the field name, an
+    /// operator, and the value that you want to use for filtering. The value
+    /// must be a string, a number, or a boolean. The operator
+    /// must be either `=`, `!=`, `>`, `<`, `<=`, `>=` or `:`.
+    ///
+    /// For example, if you are filtering Compute Engine instances, you can
+    /// exclude instances named `example-instance` by specifying
+    /// `name != example-instance`.
+    ///
+    /// The `:*` comparison can be used to test whether a key has been defined.
+    /// For example, to find all objects with `owner` label use:
+    ///
+    /// ```text,
+    /// labels.owner:*
+    /// ```
+    ///
+    /// You can also filter nested fields. For example, you could specify
+    /// `scheduling.automaticRestart = false` to include instances only
+    /// if they are not scheduled for automatic restarts. You can use filtering
+    /// on nested fields to filter based onresource labels.
+    ///
+    /// To filter on multiple expressions, provide each separate expression within
+    /// parentheses. For example:
+    ///
+    /// ```text,
+    /// (scheduling.automaticRestart = true)
+    /// (cpuPlatform = "Intel Skylake")
+    /// ```
+    ///
+    /// By default, each expression is an `AND` expression. However, you
+    /// can include `AND` and `OR` expressions explicitly.
+    /// For example:
+    ///
+    /// ```text,
+    /// (cpuPlatform = "Intel Skylake") OR
+    /// (cpuPlatform = "Intel Broadwell") AND
+    /// (scheduling.automaticRestart = true)
+    /// ```
+    ///
+    /// If you want to use a regular expression, use the `eq` (equal) or `ne`
+    /// (not equal) operator against a single un-parenthesized expression with or
+    /// without quotes or against multiple parenthesized expressions. Examples:
+    ///
+    /// `fieldname eq unquoted literal`
+    /// `fieldname eq 'single quoted literal'`
+    /// `fieldname eq "double quoted literal"`
+    /// `(fieldname1 eq literal) (fieldname2 ne "literal")`
+    ///
+    /// The literal value is interpreted as a regular expression using GoogleRE2 library syntax.
+    /// The literal value must match the entire field.
+    ///
+    /// For example, to filter for instances that do not end with name "instance",
+    /// you would use `name ne .*instance`.
+    ///
+    /// You cannot combine constraints on multiple fields using regular
+    /// expressions.
+    #[prost(string, optional, tag = "336120696")]
+    pub filter: ::core::option::Option<::prost::alloc::string::String>,
+    /// The maximum number of results per page that should be returned.
+    /// If the number of available results is larger than `maxResults`,
+    /// Compute Engine returns a `nextPageToken` that can be used to get
+    /// the next page of results in subsequent list requests. Acceptable values are
+    /// `0` to `500`, inclusive. (Default: `500`)
+    #[prost(uint32, optional, tag = "54715419")]
+    pub max_results: ::core::option::Option<u32>,
+    /// Sorts list results by a certain order. By default, results
+    /// are returned in alphanumerical order based on the resource name.
+    ///
+    /// You can also sort results in descending order based on the creation
+    /// timestamp using `orderBy="creationTimestamp desc"`. This sorts
+    /// results based on the `creationTimestamp` field in
+    /// reverse chronological order (newest result first). Use this to sort
+    /// resources like operations so that the newest operation is returned first.
+    ///
+    /// Currently, only sorting by `name` or
+    /// `creationTimestamp desc` is supported.
+    #[prost(string, optional, tag = "160562920")]
+    pub order_by: ::core::option::Option<::prost::alloc::string::String>,
+    /// Specifies a page token to use. Set `pageToken` to the
+    /// `nextPageToken` returned by a previous list request to get
+    /// the next page of results.
+    #[prost(string, optional, tag = "19994697")]
+    pub page_token: ::core::option::Option<::prost::alloc::string::String>,
+    /// Project ID for this request.
+    #[prost(string, tag = "227560217")]
+    pub project: ::prost::alloc::string::String,
+    /// Name of the region for this request.
+    #[prost(string, tag = "138946292")]
+    pub region: ::prost::alloc::string::String,
+    /// Name or id of the resource for this request.
+    /// Name should conform to RFC1035.
+    #[prost(string, tag = "148608841")]
+    pub router: ::prost::alloc::string::String,
 }
 /// A request message for NetworkAttachments.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -50533,14 +52445,6 @@ pub struct ListNetworkAttachmentsRequest {
     /// Name of the region of this request.
     #[prost(string, tag = "138946292")]
     pub region: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for NetworkEndpointGroups.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -50637,14 +52541,6 @@ pub struct ListNetworkEndpointGroupsRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The name of thezone
     /// where the network endpoint group is located. It should comply with RFC1035.
     #[prost(string, tag = "3744684")]
@@ -50749,14 +52645,6 @@ pub struct ListNetworkEndpointsGlobalNetworkEndpointGroupsRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for NetworkEndpointGroups.ListNetworkEndpoints. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -50862,14 +52750,6 @@ pub struct ListNetworkEndpointsNetworkEndpointGroupsRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The name of the zone where
     /// the network endpoint group is located. It should comply with RFC1035.
     #[prost(string, tag = "3744684")]
@@ -50978,14 +52858,6 @@ pub struct ListNetworkEndpointsRegionNetworkEndpointGroupsRequest {
     /// where the network endpoint group is located. It should comply with RFC1035.
     #[prost(string, tag = "138946292")]
     pub region: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for NetworkFirewallPolicies.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -51082,14 +52954,6 @@ pub struct ListNetworkFirewallPoliciesRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for NetworkProfiles.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -51186,14 +53050,6 @@ pub struct ListNetworkProfilesRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for Networks.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -51290,14 +53146,6 @@ pub struct ListNetworksRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for NodeGroups.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -51394,14 +53242,6 @@ pub struct ListNodeGroupsRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The name of the zone for this request.
     #[prost(string, tag = "3744684")]
     pub zone: ::prost::alloc::string::String,
@@ -51504,14 +53344,6 @@ pub struct ListNodeTemplatesRequest {
     /// The name of the region for this request.
     #[prost(string, tag = "138946292")]
     pub region: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for NodeTypes.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -51608,14 +53440,6 @@ pub struct ListNodeTypesRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The name of the zone for this request.
     #[prost(string, tag = "3744684")]
     pub zone: ::prost::alloc::string::String,
@@ -51718,14 +53542,6 @@ pub struct ListNodesNodeGroupsRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The name of the zone for this request.
     #[prost(string, tag = "3744684")]
     pub zone: ::prost::alloc::string::String,
@@ -51825,14 +53641,6 @@ pub struct ListOrganizationSecurityPoliciesRequest {
     /// Parent ID for this request.
     #[prost(string, optional, tag = "459714768")]
     pub parent_id: ::core::option::Option<::prost::alloc::string::String>,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for PacketMirrorings.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -51932,14 +53740,6 @@ pub struct ListPacketMirroringsRequest {
     /// Name of the region for this request.
     #[prost(string, tag = "138946292")]
     pub region: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for Networks.ListPeeringRoutes. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -52050,14 +53850,6 @@ pub struct ListPeeringRoutesNetworksRequest {
     /// static routes and dynamic routes in the region.
     #[prost(string, optional, tag = "138946292")]
     pub region: ::core::option::Option<::prost::alloc::string::String>,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// Nested message and enum types in `ListPeeringRoutesNetworksRequest`.
 pub mod list_peering_routes_networks_request {
@@ -52203,14 +53995,6 @@ pub struct ListPerInstanceConfigsInstanceGroupManagersRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The name of thezone
     /// where the managed instance group is located.
     /// It should conform to RFC1035.
@@ -52318,14 +54102,6 @@ pub struct ListPerInstanceConfigsRegionInstanceGroupManagersRequest {
     /// Name of the region scoping this request, should conform to RFC1035.
     #[prost(string, tag = "138946292")]
     pub region: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for OrganizationSecurityPolicies.ListPreconfiguredExpressionSets. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -52422,14 +54198,6 @@ pub struct ListPreconfiguredExpressionSetsOrganizationSecurityPoliciesRequest {
     /// Parent ID for this request.
     #[prost(string, optional, tag = "459714768")]
     pub parent_id: ::core::option::Option<::prost::alloc::string::String>,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for SecurityPolicies.ListPreconfiguredExpressionSets. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -52526,14 +54294,6 @@ pub struct ListPreconfiguredExpressionSetsSecurityPoliciesRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for PreviewFeatures.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -52630,14 +54390,6 @@ pub struct ListPreviewFeaturesRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for PublicAdvertisedPrefixes.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -52734,14 +54486,6 @@ pub struct ListPublicAdvertisedPrefixesRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for PublicDelegatedPrefixes.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -52841,14 +54585,6 @@ pub struct ListPublicDelegatedPrefixesRequest {
     /// Name of the region of this request.
     #[prost(string, tag = "138946292")]
     pub region: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for Instances.ListReferrers. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -52949,14 +54685,6 @@ pub struct ListReferrersInstancesRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The name of the zone for this request.
     #[prost(string, tag = "3744684")]
     pub zone: ::prost::alloc::string::String,
@@ -53059,14 +54787,6 @@ pub struct ListRegionAutoscalersRequest {
     /// Name of the region scoping this request.
     #[prost(string, tag = "138946292")]
     pub region: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for RegionBackendBuckets.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -53166,14 +54886,6 @@ pub struct ListRegionBackendBucketsRequest {
     /// Name of the region of this request.
     #[prost(string, tag = "138946292")]
     pub region: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for RegionBackendServices.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -53273,14 +54985,6 @@ pub struct ListRegionBackendServicesRequest {
     /// Name of the region scoping this request.
     #[prost(string, tag = "138946292")]
     pub region: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for RegionCommitments.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -53380,14 +55084,6 @@ pub struct ListRegionCommitmentsRequest {
     /// Name of the region for this request.
     #[prost(string, tag = "138946292")]
     pub region: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for RegionCompositeHealthChecks.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -53487,14 +55183,6 @@ pub struct ListRegionCompositeHealthChecksRequest {
     /// Name of the region scoping this request.
     #[prost(string, tag = "138946292")]
     pub region: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for RegionDiskTypes.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -53594,14 +55282,6 @@ pub struct ListRegionDiskTypesRequest {
     /// The name of the region for this request.
     #[prost(string, tag = "138946292")]
     pub region: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for RegionDisks.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -53701,14 +55381,6 @@ pub struct ListRegionDisksRequest {
     /// Name of the region for this request.
     #[prost(string, tag = "138946292")]
     pub region: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for RegionHealthAggregationPolicies.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -53808,14 +55480,6 @@ pub struct ListRegionHealthAggregationPoliciesRequest {
     /// Name of the region scoping this request.
     #[prost(string, tag = "138946292")]
     pub region: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for RegionHealthCheckServices.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -53915,14 +55579,6 @@ pub struct ListRegionHealthCheckServicesRequest {
     /// Name of the region scoping this request.
     #[prost(string, tag = "138946292")]
     pub region: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for RegionHealthChecks.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -54022,14 +55678,6 @@ pub struct ListRegionHealthChecksRequest {
     /// Name of the region scoping this request.
     #[prost(string, tag = "138946292")]
     pub region: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for RegionHealthSources.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -54129,14 +55777,6 @@ pub struct ListRegionHealthSourcesRequest {
     /// Name of the region scoping this request.
     #[prost(string, tag = "138946292")]
     pub region: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for RegionInstanceGroupManagerResizeRequests.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -54240,14 +55880,6 @@ pub struct ListRegionInstanceGroupManagerResizeRequestsRequest {
     /// scoping this request. Name should conform to RFC1035.
     #[prost(string, tag = "138946292")]
     pub region: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for RegionInstanceGroupManagers.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -54347,14 +55979,6 @@ pub struct ListRegionInstanceGroupManagersRequest {
     /// Name of the region scoping this request.
     #[prost(string, tag = "138946292")]
     pub region: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for RegionInstanceGroups.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -54454,14 +56078,6 @@ pub struct ListRegionInstanceGroupsRequest {
     /// Name of the region scoping this request.
     #[prost(string, tag = "138946292")]
     pub region: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for RegionInstanceTemplates.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -54561,14 +56177,6 @@ pub struct ListRegionInstanceTemplatesRequest {
     /// The name of the regions for this request.
     #[prost(string, tag = "138946292")]
     pub region: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for RegionInstantSnapshotGroups.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -54668,14 +56276,6 @@ pub struct ListRegionInstantSnapshotGroupsRequest {
     /// The name of the region for this request.
     #[prost(string, tag = "138946292")]
     pub region: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for RegionInstantSnapshots.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -54775,14 +56375,6 @@ pub struct ListRegionInstantSnapshotsRequest {
     /// The name of the region for this request.
     #[prost(string, tag = "138946292")]
     pub region: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for RegionNetworkEndpointGroups.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -54883,14 +56475,6 @@ pub struct ListRegionNetworkEndpointGroupsRequest {
     /// where the network endpoint group is located. It should comply with RFC1035.
     #[prost(string, tag = "138946292")]
     pub region: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for RegionNetworkFirewallPolicies.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -54990,14 +56574,6 @@ pub struct ListRegionNetworkFirewallPoliciesRequest {
     /// Name of the region scoping this request.
     #[prost(string, tag = "138946292")]
     pub region: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for RegionNotificationEndpoints.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -55097,14 +56673,6 @@ pub struct ListRegionNotificationEndpointsRequest {
     /// Name of the region scoping this request.
     #[prost(string, tag = "138946292")]
     pub region: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for RegionOperations.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -55204,14 +56772,6 @@ pub struct ListRegionOperationsRequest {
     /// Name of the region for this request.
     #[prost(string, tag = "138946292")]
     pub region: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for RegionSecurityPolicies.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -55311,14 +56871,6 @@ pub struct ListRegionSecurityPoliciesRequest {
     /// Name of the region scoping this request.
     #[prost(string, tag = "138946292")]
     pub region: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for RegionSnapshots.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -55418,14 +56970,6 @@ pub struct ListRegionSnapshotsRequest {
     /// Name of the region for this request.
     #[prost(string, tag = "138946292")]
     pub region: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for RegionSslCertificates.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -55525,14 +57069,6 @@ pub struct ListRegionSslCertificatesRequest {
     /// Name of the region scoping this request.
     #[prost(string, tag = "138946292")]
     pub region: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for RegionSslPolicies.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -55632,14 +57168,6 @@ pub struct ListRegionSslPoliciesRequest {
     /// Name of the region scoping this request.
     #[prost(string, tag = "138946292")]
     pub region: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for RegionTargetHttpProxies.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -55739,14 +57267,6 @@ pub struct ListRegionTargetHttpProxiesRequest {
     /// Name of the region scoping this request.
     #[prost(string, tag = "138946292")]
     pub region: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for RegionTargetHttpsProxies.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -55846,14 +57366,6 @@ pub struct ListRegionTargetHttpsProxiesRequest {
     /// Name of the region scoping this request.
     #[prost(string, tag = "138946292")]
     pub region: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for RegionTargetTcpProxies.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -55953,14 +57465,6 @@ pub struct ListRegionTargetTcpProxiesRequest {
     /// Name of the region scoping this request.
     #[prost(string, tag = "138946292")]
     pub region: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for RegionUrlMaps.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -56060,14 +57564,6 @@ pub struct ListRegionUrlMapsRequest {
     /// Name of the region scoping this request.
     #[prost(string, tag = "138946292")]
     pub region: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for RegionZones.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -56167,14 +57663,6 @@ pub struct ListRegionZonesRequest {
     /// Region for this request.
     #[prost(string, tag = "138946292")]
     pub region: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for Regions.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -56271,14 +57759,102 @@ pub struct ListRegionsRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
+}
+/// A request message for ReliabilityRisks.List. See the method description for details.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct ListReliabilityRisksRequest {
+    /// A filter expression that filters resources listed in the response. Most
+    /// Compute resources support two types of filter expressions:
+    /// expressions that support regular expressions and expressions that follow
+    /// API improvement proposal AIP-160.
+    /// These two types of filter expressions cannot be mixed in one request.
     ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
+    /// If you want to use AIP-160, your expression must specify the field name, an
+    /// operator, and the value that you want to use for filtering. The value
+    /// must be a string, a number, or a boolean. The operator
+    /// must be either `=`, `!=`, `>`, `<`, `<=`, `>=` or `:`.
+    ///
+    /// For example, if you are filtering Compute Engine instances, you can
+    /// exclude instances named `example-instance` by specifying
+    /// `name != example-instance`.
+    ///
+    /// The `:*` comparison can be used to test whether a key has been defined.
+    /// For example, to find all objects with `owner` label use:
+    ///
+    /// ```text,
+    /// labels.owner:*
+    /// ```
+    ///
+    /// You can also filter nested fields. For example, you could specify
+    /// `scheduling.automaticRestart = false` to include instances only
+    /// if they are not scheduled for automatic restarts. You can use filtering
+    /// on nested fields to filter based onresource labels.
+    ///
+    /// To filter on multiple expressions, provide each separate expression within
+    /// parentheses. For example:
+    ///
+    /// ```text,
+    /// (scheduling.automaticRestart = true)
+    /// (cpuPlatform = "Intel Skylake")
+    /// ```
+    ///
+    /// By default, each expression is an `AND` expression. However, you
+    /// can include `AND` and `OR` expressions explicitly.
+    /// For example:
+    ///
+    /// ```text,
+    /// (cpuPlatform = "Intel Skylake") OR
+    /// (cpuPlatform = "Intel Broadwell") AND
+    /// (scheduling.automaticRestart = true)
+    /// ```
+    ///
+    /// If you want to use a regular expression, use the `eq` (equal) or `ne`
+    /// (not equal) operator against a single un-parenthesized expression with or
+    /// without quotes or against multiple parenthesized expressions. Examples:
+    ///
+    /// `fieldname eq unquoted literal`
+    /// `fieldname eq 'single quoted literal'`
+    /// `fieldname eq "double quoted literal"`
+    /// `(fieldname1 eq literal) (fieldname2 ne "literal")`
+    ///
+    /// The literal value is interpreted as a regular expression using GoogleRE2 library syntax.
+    /// The literal value must match the entire field.
+    ///
+    /// For example, to filter for instances that do not end with name "instance",
+    /// you would use `name ne .*instance`.
+    ///
+    /// You cannot combine constraints on multiple fields using regular
+    /// expressions.
+    #[prost(string, optional, tag = "336120696")]
+    pub filter: ::core::option::Option<::prost::alloc::string::String>,
+    /// The maximum number of results per page that should be returned.
+    /// If the number of available results is larger than `maxResults`,
+    /// Compute Engine returns a `nextPageToken` that can be used to get
+    /// the next page of results in subsequent list requests. Acceptable values are
+    /// `0` to `500`, inclusive. (Default: `500`)
+    #[prost(uint32, optional, tag = "54715419")]
+    pub max_results: ::core::option::Option<u32>,
+    /// Sorts list results by a certain order. By default, results
+    /// are returned in alphanumerical order based on the resource name.
+    ///
+    /// You can also sort results in descending order based on the creation
+    /// timestamp using `orderBy="creationTimestamp desc"`. This sorts
+    /// results based on the `creationTimestamp` field in
+    /// reverse chronological order (newest result first). Use this to sort
+    /// resources like operations so that the newest operation is returned first.
+    ///
+    /// Currently, only sorting by `name` or
+    /// `creationTimestamp desc` is supported.
+    #[prost(string, optional, tag = "160562920")]
+    pub order_by: ::core::option::Option<::prost::alloc::string::String>,
+    /// Specifies a page token to use. Set `pageToken` to the
+    /// `nextPageToken` returned by a previous list request to get
+    /// the next page of results.
+    #[prost(string, optional, tag = "19994697")]
+    pub page_token: ::core::option::Option<::prost::alloc::string::String>,
+    /// Project ID for this request.
+    #[prost(string, tag = "227560217")]
+    pub project: ::prost::alloc::string::String,
 }
 /// A request message for ReservationBlocks.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -56379,14 +57955,6 @@ pub struct ListReservationBlocksRequest {
     /// Name should conform to RFC1035 or be a resource ID.
     #[prost(string, tag = "47530956")]
     pub reservation: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// Name of the zone for this request. Zone name should conform to RFC1035.
     #[prost(string, tag = "3744684")]
     pub zone: ::prost::alloc::string::String,
@@ -56490,14 +58058,6 @@ pub struct ListReservationSlotsRequest {
     /// The project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The name of the zone for this request, formatted as RFC1035.
     #[prost(string, tag = "3744684")]
     pub zone: ::prost::alloc::string::String,
@@ -56601,14 +58161,6 @@ pub struct ListReservationSubBlocksRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// Name of the zone for this request. Zone name should conform to RFC1035.
     #[prost(string, tag = "3744684")]
     pub zone: ::prost::alloc::string::String,
@@ -56708,14 +58260,6 @@ pub struct ListReservationsRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// Name of the zone for this request.
     #[prost(string, tag = "3744684")]
     pub zone: ::prost::alloc::string::String,
@@ -56818,14 +58362,6 @@ pub struct ListResourcePoliciesRequest {
     /// Name of the region for this request.
     #[prost(string, tag = "138946292")]
     pub region: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for RolloutPlans.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -56922,14 +58458,6 @@ pub struct ListRolloutPlansRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for Rollouts.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -57026,14 +58554,6 @@ pub struct ListRolloutsRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for Routers.ListRoutePolicies. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -57133,14 +58653,6 @@ pub struct ListRoutePoliciesRoutersRequest {
     /// Name of the region for this request.
     #[prost(string, tag = "138946292")]
     pub region: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// Name or id of the resource for this request.
     /// Name should conform to RFC1035.
     #[prost(string, tag = "148608841")]
@@ -57244,14 +58756,6 @@ pub struct ListRoutersRequest {
     /// Name of the region for this request.
     #[prost(string, tag = "138946292")]
     pub region: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for Routes.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -57348,14 +58852,6 @@ pub struct ListRoutesRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for SecurityPolicies.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -57452,14 +58948,6 @@ pub struct ListSecurityPoliciesRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for ServiceAttachments.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -57559,14 +59047,6 @@ pub struct ListServiceAttachmentsRequest {
     /// Name of the region of this request.
     #[prost(string, tag = "138946292")]
     pub region: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for Snapshots.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -57663,14 +59143,6 @@ pub struct ListSnapshotsRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for SslCertificates.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -57767,14 +59239,6 @@ pub struct ListSslCertificatesRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for SslPolicies.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -57871,14 +59335,6 @@ pub struct ListSslPoliciesRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for StoragePoolTypes.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -57975,14 +59431,6 @@ pub struct ListStoragePoolTypesRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The name of the zone for this request.
     #[prost(string, tag = "3744684")]
     pub zone: ::prost::alloc::string::String,
@@ -58082,14 +59530,6 @@ pub struct ListStoragePoolsRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The name of the zone for this request.
     #[prost(string, tag = "3744684")]
     pub zone: ::prost::alloc::string::String,
@@ -58192,14 +59632,6 @@ pub struct ListSubnetworksRequest {
     /// Name of the region scoping this request.
     #[prost(string, tag = "138946292")]
     pub region: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// Defines the extra views returned back in the subnetwork resource.
     /// Supported values:
     ///
@@ -58358,14 +59790,6 @@ pub struct ListTargetGrpcProxiesRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for TargetHttpProxies.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -58462,14 +59886,6 @@ pub struct ListTargetHttpProxiesRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for TargetHttpsProxies.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -58566,14 +59982,6 @@ pub struct ListTargetHttpsProxiesRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for TargetInstances.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -58670,14 +60078,6 @@ pub struct ListTargetInstancesRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// Name of the zone scoping this request.
     #[prost(string, tag = "3744684")]
     pub zone: ::prost::alloc::string::String,
@@ -58780,14 +60180,6 @@ pub struct ListTargetPoolsRequest {
     /// Name of the region scoping this request.
     #[prost(string, tag = "138946292")]
     pub region: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for TargetSslProxies.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -58884,14 +60276,6 @@ pub struct ListTargetSslProxiesRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for TargetTcpProxies.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -58988,14 +60372,6 @@ pub struct ListTargetTcpProxiesRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for TargetVpnGateways.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -59095,14 +60471,6 @@ pub struct ListTargetVpnGatewaysRequest {
     /// Name of the region for this request.
     #[prost(string, tag = "138946292")]
     pub region: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for UrlMaps.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -59199,14 +60567,6 @@ pub struct ListUrlMapsRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for BackendBuckets.ListUsable. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -59303,14 +60663,6 @@ pub struct ListUsableBackendBucketsRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for BackendServices.ListUsable. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -59407,14 +60759,6 @@ pub struct ListUsableBackendServicesRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for RegionBackendBuckets.ListUsable. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -59515,14 +60859,6 @@ pub struct ListUsableRegionBackendBucketsRequest {
     /// It must be a string that meets the requirements in RFC1035.
     #[prost(string, tag = "138946292")]
     pub region: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for RegionBackendServices.ListUsable. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -59623,14 +60959,6 @@ pub struct ListUsableRegionBackendServicesRequest {
     /// It must be a string that meets the requirements in RFC1035.
     #[prost(string, tag = "138946292")]
     pub region: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for Subnetworks.ListUsable. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -59727,14 +61055,6 @@ pub struct ListUsableSubnetworksRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// The project id or project number in which the subnetwork is intended to be
     /// used. Only applied for Shared VPC. See [Shared VPC
     /// documentation](<https://cloud.google.com/vpc/docs/shared-vpc/>)
@@ -59839,14 +61159,6 @@ pub struct ListVpnGatewaysRequest {
     /// Name of the region for this request.
     #[prost(string, tag = "138946292")]
     pub region: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for VpnTunnels.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -59946,14 +61258,6 @@ pub struct ListVpnTunnelsRequest {
     /// Name of the region for this request.
     #[prost(string, tag = "138946292")]
     pub region: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for WireGroups.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -60052,14 +61356,6 @@ pub struct ListWireGroupsRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for Projects.ListXpnHosts. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -60161,14 +61457,6 @@ pub struct ListXpnHostsProjectsRequest {
     pub projects_list_xpn_hosts_request_resource: ::core::option::Option<
         ProjectsListXpnHostsRequest,
     >,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 /// A request message for ZoneOperations.List. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -60265,14 +61553,6 @@ pub struct ListZoneOperationsRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// Name of the zone for request.
     #[prost(string, tag = "3744684")]
     pub zone: ::prost::alloc::string::String,
@@ -60372,14 +61652,6 @@ pub struct ListZoneVmExtensionPoliciesRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
     /// Name of the zone for this request.
     #[prost(string, tag = "3744684")]
     pub zone: ::prost::alloc::string::String,
@@ -60479,14 +61751,6 @@ pub struct ListZonesRequest {
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
-    /// Opt-in for partial success behavior which provides partial results in case
-    /// of failure. The default value is false.
-    ///
-    /// For example, when partial success behavior is enabled, aggregatedList for a
-    /// single zone scope either returns all resources in the zone or no resources,
-    /// with an error code.
-    #[prost(bool, optional, tag = "517198390")]
-    pub return_partial_success: ::core::option::Option<bool>,
 }
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct LocalDisk {
@@ -61157,6 +62421,19 @@ pub struct ManagedInstance {
     pub properties_from_flexibility_policy: ::core::option::Option<
         ManagedInstancePropertiesFromFlexibilityPolicy,
     >,
+    /// Output only. Information about the termination timestamp of the instance, if applicable.
+    #[prost(message, optional, tag = "386688404")]
+    pub scheduling: ::core::option::Option<ManagedInstanceScheduling>,
+    /// Output only. Specifies the graceful shutdown details if the instance is in
+    /// `PENDING_STOP` state or there is a programmed stop scheduled.
+    #[prost(message, optional, tag = "15198553")]
+    pub shutdown_details: ::core::option::Option<ManagedInstanceShutdownDetails>,
+    /// Output only. The eventual status of the instance. The instance group
+    /// manager will not be identified as stable till each managed instance reaches
+    /// its targetStatus.
+    /// Check the TargetStatus enum for the list of possible values.
+    #[prost(string, optional, tag = "307799648")]
+    pub target_status: ::core::option::Option<::prost::alloc::string::String>,
     /// Output only. \[Output Only\] Intended version of this instance.
     #[prost(message, optional, tag = "351608024")]
     pub version: ::core::option::Option<ManagedInstanceVersion>,
@@ -61293,9 +62570,6 @@ pub mod managed_instance {
     }
     /// Output only. \[Output Only\] The status of the instance. This field is empty when
     /// the instance does not exist.
-    /// Additional supported values which may be not listed in the enum directly due to technical reasons:
-    /// STOPPING
-    /// SUSPENDING
     #[derive(
         Clone,
         Copy,
@@ -61317,6 +62591,8 @@ pub mod managed_instance {
         /// For Flex Start provisioning instance is waiting for available capacity
         /// from Dynamic Workload Scheduler (DWS).
         Pending = 35394935,
+        /// The instance is gracefully shutting down.
+        PendingStop = 362509770,
         /// Resources are being allocated for the instance.
         Provisioning = 290896621,
         /// The instance is in repair.
@@ -61328,9 +62604,11 @@ pub mod managed_instance {
         Staging = 431072283,
         /// The instance has stopped successfully.
         Stopped = 444276141,
+        /// The instance is currently stopping (either being deleted or killed).
         Stopping = 350791796,
         /// The instance has suspended.
         Suspended = 51223995,
+        /// The instance is suspending.
         Suspending = 514206246,
         /// The instance has stopped (either by explicit action or underlying
         /// failure).
@@ -61346,6 +62624,7 @@ pub mod managed_instance {
                 Self::UndefinedInstanceStatus => "UNDEFINED_INSTANCE_STATUS",
                 Self::Deprovisioning => "DEPROVISIONING",
                 Self::Pending => "PENDING",
+                Self::PendingStop => "PENDING_STOP",
                 Self::Provisioning => "PROVISIONING",
                 Self::Repairing => "REPAIRING",
                 Self::Running => "RUNNING",
@@ -61363,6 +62642,7 @@ pub mod managed_instance {
                 "UNDEFINED_INSTANCE_STATUS" => Some(Self::UndefinedInstanceStatus),
                 "DEPROVISIONING" => Some(Self::Deprovisioning),
                 "PENDING" => Some(Self::Pending),
+                "PENDING_STOP" => Some(Self::PendingStop),
                 "PROVISIONING" => Some(Self::Provisioning),
                 "REPAIRING" => Some(Self::Repairing),
                 "RUNNING" => Some(Self::Running),
@@ -61372,6 +62652,60 @@ pub mod managed_instance {
                 "SUSPENDED" => Some(Self::Suspended),
                 "SUSPENDING" => Some(Self::Suspending),
                 "TERMINATED" => Some(Self::Terminated),
+                _ => None,
+            }
+        }
+    }
+    /// Output only. The eventual status of the instance. The instance group
+    /// manager will not be identified as stable till each managed instance reaches
+    /// its targetStatus.
+    /// Additional supported values which may be not listed in the enum directly due to technical reasons:
+    /// RUNNING
+    /// STOPPED
+    /// SUSPENDED
+    #[derive(
+        Clone,
+        Copy,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash,
+        PartialOrd,
+        Ord,
+        ::prost::Enumeration
+    )]
+    #[repr(i32)]
+    pub enum TargetStatus {
+        /// A value indicating that the enum field is not set.
+        UndefinedTargetStatus = 0,
+        /// The managed instance will eventually be ABANDONED, i.e. dissociated
+        /// from the managed instance group.
+        Abandoned = 81797556,
+        /// The managed instance will eventually be DELETED.
+        Deleted = 120962041,
+        /// Only present to map the STATUS_INVALID value.
+        Invalid = 530283991,
+    }
+    impl TargetStatus {
+        /// String value of the enum field names used in the ProtoBuf definition.
+        ///
+        /// The values are not transformed in any way and thus are considered stable
+        /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+        pub fn as_str_name(&self) -> &'static str {
+            match self {
+                Self::UndefinedTargetStatus => "UNDEFINED_TARGET_STATUS",
+                Self::Abandoned => "ABANDONED",
+                Self::Deleted => "DELETED",
+                Self::Invalid => "INVALID",
+            }
+        }
+        /// Creates an enum from field names used in the ProtoBuf definition.
+        pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+            match value {
+                "UNDEFINED_TARGET_STATUS" => Some(Self::UndefinedTargetStatus),
+                "ABANDONED" => Some(Self::Abandoned),
+                "DELETED" => Some(Self::Deleted),
+                "INVALID" => Some(Self::Invalid),
                 _ => None,
             }
         }
@@ -61471,11 +62805,44 @@ pub struct ManagedInstanceLastAttemptErrors {
     #[prost(message, repeated, tag = "315977579")]
     pub errors: ::prost::alloc::vec::Vec<Errors>,
 }
-#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+#[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ManagedInstancePropertiesFromFlexibilityPolicy {
+    /// List of disks to be attached to the instance.
+    #[prost(message, repeated, tag = "95594102")]
+    pub disks: ::prost::alloc::vec::Vec<AttachedDisk>,
     /// Output only. The machine type to be used for this instance.
     #[prost(string, optional, tag = "227711026")]
     pub machine_type: ::core::option::Option<::prost::alloc::string::String>,
+    /// Name of the minimum CPU platform to be used by this instance.
+    /// e.g. 'Intel Ice Lake'.
+    #[prost(string, optional, tag = "242912759")]
+    pub min_cpu_platform: ::core::option::Option<::prost::alloc::string::String>,
+}
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct ManagedInstanceScheduling {
+    /// Output only. The timestamp at which the underlying instance will be
+    /// triggered for graceful shutdown if it is configured. This is in RFC3339 text format.
+    #[prost(string, optional, tag = "403022375")]
+    pub graceful_shutdown_timestamp: ::core::option::Option<
+        ::prost::alloc::string::String,
+    >,
+    /// Output only. The timestamp at which the managed instance will be terminated. This is
+    /// in RFC3339 text
+    /// format.
+    #[prost(string, optional, tag = "364180891")]
+    pub termination_timestamp: ::core::option::Option<::prost::alloc::string::String>,
+}
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct ManagedInstanceShutdownDetails {
+    /// Output only. The duration for graceful shutdown. Only applicable when the instance is
+    /// in `PENDING_STOP` state.
+    #[prost(message, optional, tag = "39954959")]
+    pub max_duration: ::core::option::Option<Duration>,
+    /// Output only. Past timestamp indicating the beginning of `PENDING_STOP` state of
+    /// instance in RFC3339
+    /// text format.
+    #[prost(string, optional, tag = "521301862")]
+    pub request_timestamp: ::core::option::Option<::prost::alloc::string::String>,
 }
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct ManagedInstanceVersion {
@@ -61486,6 +62853,60 @@ pub struct ManagedInstanceVersion {
     /// Output only. \[Output Only\] Name of the version.
     #[prost(string, optional, tag = "3373707")]
     pub name: ::core::option::Option<::prost::alloc::string::String>,
+}
+/// Represents a ManagedRuleset resource.
+///
+/// Managed internally by Cloud Armor CLH for Managed Rules features.
+/// Customers can only view these resources to modify their Security Policies.
+/// For more information, see
+/// <https://cloud.google.com/armor/docs/.>
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct ManagedRuleset {
+    /// Output only. \[Output Only\] The change log for this managed ruleset.
+    #[prost(string, optional, tag = "15896117")]
+    pub change_log: ::core::option::Option<::prost::alloc::string::String>,
+    /// Output only. \[Output Only\] Creation timestamp in RFC3339 text format.
+    #[prost(string, optional, tag = "30525366")]
+    pub creation_timestamp: ::core::option::Option<::prost::alloc::string::String>,
+    /// \[Output Only\] An optional description of this resource.
+    #[prost(string, optional, tag = "422937596")]
+    pub description: ::core::option::Option<::prost::alloc::string::String>,
+    /// Output only. \[Output Only\] The unique identifier for the resource. This identifier is
+    /// defined by the server.
+    #[prost(uint64, optional, tag = "3355")]
+    pub id: ::core::option::Option<u64>,
+    /// Name of the resource. Generated internally when the resource is created.
+    /// The name must be 1-63 characters long, and comply withRFC1035.
+    /// Specifically, the name must be 1-63 characters long and match the regular
+    /// expression `[a-z](\[-a-z0-9\]*[a-z0-9])?` which means the first
+    /// character must be a lowercase letter, and all following characters must
+    /// be a dash, lowercase letter, or digit, except the last character, which
+    /// cannot be a dash.
+    #[prost(string, optional, tag = "3373707")]
+    pub name: ::core::option::Option<::prost::alloc::string::String>,
+    /// Output only. \[Output Only\] The list of managed rule IDs that are included in
+    /// this managed ruleset.
+    #[prost(string, repeated, tag = "226918133")]
+    pub rule_ids: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
+    /// Output only. \[Output Only\] The managed ruleset identifier that can be configured in
+    /// Security Policy rules.
+    #[prost(string, optional, tag = "131214356")]
+    pub ruleset_id: ::core::option::Option<::prost::alloc::string::String>,
+    /// Output only. \[Output Only\] Server-defined URL for the resource.
+    #[prost(string, optional, tag = "456214797")]
+    pub self_link: ::core::option::Option<::prost::alloc::string::String>,
+}
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct ManagedRulesetList {
+    #[prost(string, optional, tag = "3355")]
+    pub id: ::core::option::Option<::prost::alloc::string::String>,
+    /// The list of managed rulesets.
+    #[prost(message, repeated, tag = "100526016")]
+    pub items: ::prost::alloc::vec::Vec<ManagedRuleset>,
+    #[prost(string, optional, tag = "79797525")]
+    pub next_page_token: ::core::option::Option<::prost::alloc::string::String>,
+    #[prost(message, optional, tag = "50704284")]
+    pub warning: ::core::option::Option<Warning>,
 }
 /// A metadata key/value entry.
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -61630,6 +63051,25 @@ pub struct MetadataFilterLabelMatch {
     #[prost(string, optional, tag = "111972721")]
     pub value: ::core::option::Option<::prost::alloc::string::String>,
 }
+/// Represents an amount of money with its currency type.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct Money {
+    /// The three-letter currency code defined in ISO 4217.
+    #[prost(string, optional, tag = "34986331")]
+    pub currency_code: ::core::option::Option<::prost::alloc::string::String>,
+    /// Number of nano (10^-9) units of the amount.
+    /// The value must be between -999,999,999 and +999,999,999 inclusive.
+    /// If `units` is positive, `nanos` must be positive or zero.
+    /// If `units` is zero, `nanos` can be positive, zero, or negative.
+    /// If `units` is negative, `nanos` must be negative or zero.
+    /// For example $-1.75 is represented as `units`=-1 and `nanos`=-750,000,000.
+    #[prost(int32, optional, tag = "104586303")]
+    pub nanos: ::core::option::Option<i32>,
+    /// The whole units of the amount.
+    /// For example if `currencyCode` is `"USD"`, then 1 unit is one US dollar.
+    #[prost(int64, optional, tag = "111433583")]
+    pub units: ::core::option::Option<i64>,
+}
 /// A request message for Addresses.Move. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct MoveAddressRequest {
@@ -61697,8 +63137,8 @@ pub struct MoveFirewallPolicyRequest {
     /// The new parent of the firewall policy. The ID can be either be
     /// "folders/\[FOLDER_ID\]" if the parent is a folder or
     /// "organizations/\[ORGANIZATION_ID\]" if the parent is an organization.
-    #[prost(string, tag = "459714768")]
-    pub parent_id: ::prost::alloc::string::String,
+    #[prost(string, optional, tag = "459714768")]
+    pub parent_id: ::core::option::Option<::prost::alloc::string::String>,
     /// An optional request ID to identify requests. Specify a unique request ID so
     /// that if you must retry your request, the server will know to ignore the
     /// request if it has already been completed.
@@ -61805,6 +63245,81 @@ pub struct NamedPort {
     /// The port number, which can be a value between 1 and 65535.
     #[prost(int32, optional, tag = "3446913")]
     pub port: ::core::option::Option<i32>,
+}
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct NamedSet {
+    /// An optional description of named set.
+    #[prost(string, optional, tag = "422937596")]
+    pub description: ::core::option::Option<::prost::alloc::string::String>,
+    /// CEL expressions that are comparable to constructs of this set's type
+    /// (see Policy Language).
+    #[prost(message, repeated, tag = "528531703")]
+    pub elements: ::prost::alloc::vec::Vec<Expr>,
+    /// A fingerprint for the Named Set being applied to this Router, which is
+    /// essentially a hash of the Named Set used for optimistic locking.
+    /// The fingerprint is initially generated by Compute Engine and changes
+    /// after every request to modify or update the Named Set. You must always
+    /// provide an up-to-date fingerprint hash in order to update or change
+    /// labels.
+    ///
+    /// To see the latest fingerprint, make a getNamedSet() request
+    /// to retrieve a Named Set.
+    #[prost(string, optional, tag = "234678500")]
+    pub fingerprint: ::core::option::Option<::prost::alloc::string::String>,
+    /// This set's name, which must be a resource ID segment and unique within all
+    /// named sets owned by the Router. Name should conform to RFC1035.
+    #[prost(string, optional, tag = "3373707")]
+    pub name: ::core::option::Option<::prost::alloc::string::String>,
+    /// This named set's type
+    /// Check the Type enum for the list of possible values.
+    #[prost(string, optional, tag = "3575610")]
+    pub r#type: ::core::option::Option<::prost::alloc::string::String>,
+}
+/// Nested message and enum types in `NamedSet`.
+pub mod named_set {
+    /// This named set's type
+    #[derive(
+        Clone,
+        Copy,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash,
+        PartialOrd,
+        Ord,
+        ::prost::Enumeration
+    )]
+    #[repr(i32)]
+    pub enum Type {
+        /// A value indicating that the enum field is not set.
+        UndefinedType = 0,
+        /// The Named Set is a Community Named Set.
+        NamedSetTypeCommunity = 263444871,
+        /// The Named Set is a Prefix Named Set.
+        NamedSetTypePrefix = 228038036,
+    }
+    impl Type {
+        /// String value of the enum field names used in the ProtoBuf definition.
+        ///
+        /// The values are not transformed in any way and thus are considered stable
+        /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+        pub fn as_str_name(&self) -> &'static str {
+            match self {
+                Self::UndefinedType => "UNDEFINED_TYPE",
+                Self::NamedSetTypeCommunity => "NAMED_SET_TYPE_COMMUNITY",
+                Self::NamedSetTypePrefix => "NAMED_SET_TYPE_PREFIX",
+            }
+        }
+        /// Creates an enum from field names used in the ProtoBuf definition.
+        pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+            match value {
+                "UNDEFINED_TYPE" => Some(Self::UndefinedType),
+                "NAMED_SET_TYPE_COMMUNITY" => Some(Self::NamedSetTypeCommunity),
+                "NAMED_SET_TYPE_PREFIX" => Some(Self::NamedSetTypePrefix),
+                _ => None,
+            }
+        }
+    }
 }
 /// Contains NAT IP information of a NAT config (i.e. usage status, mode).
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -62141,12 +63656,14 @@ pub struct NetworkAttachment {
     /// to the same network as all the subnetworks.
     #[prost(string, optional, tag = "232872494")]
     pub network: ::core::option::Option<::prost::alloc::string::String>,
-    /// Projects that are allowed to connect to this network attachment.
-    /// The project can be specified using its id or number.
+    /// Projects or service class ids that are allowed to connect to this network
+    /// attachment. The project can be specified using its id or number. Service
+    /// class id can be specified as "serviceclasses/{service_class_id}".
     #[prost(string, repeated, tag = "202804523")]
     pub producer_accept_lists: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
-    /// Projects that are not allowed to connect to this network attachment.
-    /// The project can be specified using its id or number.
+    /// Projects or service class ids that are not allowed to connect to this
+    /// network attachment. The project can be specified using its id or number.
+    /// Service class id can be specified as "serviceclasses/{service_class_id}".
     #[prost(string, repeated, tag = "4112002")]
     pub producer_reject_lists: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
     /// Output only. \[Output Only\] URL of the region where the network attachment resides.
@@ -62599,7 +64116,11 @@ pub struct NetworkEndpointGroup {
     #[prost(string, optional, tag = "3373707")]
     pub name: ::core::option::Option<::prost::alloc::string::String>,
     /// The URL of the network to which all network endpoints in the NEG belong.
-    /// Uses default project network if unspecified.
+    /// For networkEndpointType GCE_VM_IP_PORT,GCE_VM_IP_PORTMAP or NON_GCP_PRIVATE_IP_PORT,
+    /// if this field is not specified, a default network will be used.
+    /// This field cannot be set for NEGs with networkEndpointType set toSERVERLESS or PRIVATE_SERVICE_CONNECT and for
+    /// global NEGs.
+    /// For all other network endpoint types, this field is required.
     #[prost(string, optional, tag = "232872494")]
     pub network: ::core::option::Option<::prost::alloc::string::String>,
     /// Type of network endpoints in this network endpoint group. Can be one ofGCE_VM_IP, GCE_VM_IP_PORT,NON_GCP_PRIVATE_IP_PORT, INTERNET_FQDN_PORT,INTERNET_IP_PORT, SERVERLESS,PRIVATE_SERVICE_CONNECT, GCE_VM_IP_PORTMAP.
@@ -62655,6 +64176,10 @@ pub mod network_endpoint_group {
         UndefinedNetworkEndpointType = 0,
         /// The network endpoint is represented by an IP address.
         GceVmIp = 401880793,
+        /// The network endpoint for targeting a specific network interface of a
+        /// VM instance in configurations with multiple network interfaces on the
+        /// same network.
+        GceVmIpDedicatedBackend = 321618974,
         /// The network endpoint is represented by IP address and port pair.
         GceVmIpPort = 501838375,
         /// The network endpoint is represented by an IP, Port and Client Destination
@@ -62684,6 +64209,7 @@ pub mod network_endpoint_group {
             match self {
                 Self::UndefinedNetworkEndpointType => "UNDEFINED_NETWORK_ENDPOINT_TYPE",
                 Self::GceVmIp => "GCE_VM_IP",
+                Self::GceVmIpDedicatedBackend => "GCE_VM_IP_DEDICATED_BACKEND",
                 Self::GceVmIpPort => "GCE_VM_IP_PORT",
                 Self::GceVmIpPortmap => "GCE_VM_IP_PORTMAP",
                 Self::InternetFqdnPort => "INTERNET_FQDN_PORT",
@@ -62700,6 +64226,7 @@ pub mod network_endpoint_group {
                     Some(Self::UndefinedNetworkEndpointType)
                 }
                 "GCE_VM_IP" => Some(Self::GceVmIp),
+                "GCE_VM_IP_DEDICATED_BACKEND" => Some(Self::GceVmIpDedicatedBackend),
                 "GCE_VM_IP_PORT" => Some(Self::GceVmIpPort),
                 "GCE_VM_IP_PORTMAP" => Some(Self::GceVmIpPortmap),
                 "INTERNET_FQDN_PORT" => Some(Self::InternetFqdnPort),
@@ -63128,6 +64655,10 @@ pub struct NetworkInterface {
     /// You can only specify this field for network interfaces in VPC networks.
     #[prost(message, repeated, tag = "165085631")]
     pub alias_ip_ranges: ::prost::alloc::vec::Vec<AliasIpRange>,
+    /// An array of alias IPv6 ranges for this network interface.
+    /// You can only specify this field for network interfaces in VPC networks.
+    #[prost(message, repeated, tag = "104028351")]
+    pub alias_ipv6_ranges: ::prost::alloc::vec::Vec<AliasIpRange>,
     /// Optional. If true, DNS resolution will be enabled over this interface. Only valid
     /// with network_attachment.
     #[prost(bool, optional, tag = "283425868")]
@@ -63317,7 +64848,6 @@ pub mod network_interface {
         External = 35607499,
         /// This network interface can have internal IPv6.
         Internal = 279295677,
-        UnspecifiedIpv6AccessType = 313080613,
     }
     impl Ipv6AccessType {
         /// String value of the enum field names used in the ProtoBuf definition.
@@ -63329,7 +64859,6 @@ pub mod network_interface {
                 Self::UndefinedIpv6AccessType => "UNDEFINED_IPV6_ACCESS_TYPE",
                 Self::External => "EXTERNAL",
                 Self::Internal => "INTERNAL",
-                Self::UnspecifiedIpv6AccessType => "UNSPECIFIED_IPV6_ACCESS_TYPE",
             }
         }
         /// Creates an enum from field names used in the ProtoBuf definition.
@@ -63338,7 +64867,6 @@ pub mod network_interface {
                 "UNDEFINED_IPV6_ACCESS_TYPE" => Some(Self::UndefinedIpv6AccessType),
                 "EXTERNAL" => Some(Self::External),
                 "INTERNAL" => Some(Self::Internal),
-                "UNSPECIFIED_IPV6_ACCESS_TYPE" => Some(Self::UnspecifiedIpv6AccessType),
                 _ => None,
             }
         }
@@ -63429,7 +64957,6 @@ pub mod network_interface {
         Ipv4Only = 22373798,
         /// The network interface will only be assigned IPv6 addresses.
         Ipv6Only = 79632100,
-        UnspecifiedStackType = 298084569,
     }
     impl StackType {
         /// String value of the enum field names used in the ProtoBuf definition.
@@ -63442,7 +64969,6 @@ pub mod network_interface {
                 Self::Ipv4Ipv6 => "IPV4_IPV6",
                 Self::Ipv4Only => "IPV4_ONLY",
                 Self::Ipv6Only => "IPV6_ONLY",
-                Self::UnspecifiedStackType => "UNSPECIFIED_STACK_TYPE",
             }
         }
         /// Creates an enum from field names used in the ProtoBuf definition.
@@ -63452,7 +64978,6 @@ pub mod network_interface {
                 "IPV4_IPV6" => Some(Self::Ipv4Ipv6),
                 "IPV4_ONLY" => Some(Self::Ipv4Only),
                 "IPV6_ONLY" => Some(Self::Ipv6Only),
-                "UNSPECIFIED_STACK_TYPE" => Some(Self::UnspecifiedStackType),
                 _ => None,
             }
         }
@@ -64113,8 +65638,6 @@ pub struct NetworkProfile {
     /// Output only. \[Output Only\] Server-defined URL for this resource with the resource id.
     #[prost(string, optional, tag = "44520962")]
     pub self_link_with_id: ::core::option::Option<::prost::alloc::string::String>,
-    #[prost(string, optional, tag = "3744684")]
-    pub zone: ::core::option::Option<::prost::alloc::string::String>,
 }
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct NetworkProfileLocation {
@@ -64341,8 +65864,6 @@ pub struct NetworkProfileNetworkFeatures {
 }
 /// Nested message and enum types in `NetworkProfileNetworkFeatures`.
 pub mod network_profile_network_features {
-    /// Additional supported values which may be not listed in the enum directly due to technical reasons:
-    /// PRIVATE_SERVICE_CONNECT
     #[derive(
         Clone,
         Copy,
@@ -64368,10 +65889,12 @@ pub mod network_profile_network_features {
         /// of subnet/route in the VPC network and its peering networks. After the
         /// VLAN attachment is created with the reserved IP address range, when
         /// creating a new VPN gateway, its interface IP address is allocated
-        /// from the associated VLAN attachment’s IP address range.
+        /// from the associated VLAN attachment's IP address range.
         IpsecInterconnect = 340437251,
         /// External IP automatically reserved for Cloud NAT.
         NatAuto = 163666477,
+        /// A private network IP address that can be used to configure Private
+        /// Service Connect. This purpose can be specified only forGLOBAL addresses of Type INTERNAL
         PrivateServiceConnect = 48134724,
         /// A regional internal IP address range reserved for Serverless.
         Serverless = 270492508,
@@ -66310,9 +67833,6 @@ pub mod network_routing_config {
     /// Allows to define a preferred approach for handling inter-region cost in
     /// the selection process when using the STANDARD BGP best path
     /// selection algorithm. Can be DEFAULT orADD_COST_TO_MED.
-    /// Additional supported values which may be not listed in the enum directly due to technical reasons:
-    /// ADD_COST_TO_MED
-    /// DEFAULT
     #[derive(
         Clone,
         Copy,
@@ -67758,6 +69278,11 @@ pub struct Operation {
     /// this field will be populated.
     #[prost(message, optional, tag = "96784904")]
     pub error: ::core::option::Option<Error>,
+    /// Output only. Metadata for GetHealth operations.
+    #[prost(message, optional, tag = "303911457")]
+    pub get_health_operation_metadata: ::core::option::Option<
+        GetHealthOperationMetadata,
+    >,
     #[prost(message, optional, tag = "173230167")]
     pub get_version_operation_metadata: ::core::option::Option<
         GetVersionOperationMetadata,
@@ -67877,8 +69402,11 @@ pub mod operation {
     pub enum Status {
         /// A value indicating that the enum field is not set.
         UndefinedStatus = 0,
+        /// The operation has completed processing successfully or with an error.
         Done = 2104194,
+        /// The operation is waiting to be processed.
         Pending = 35394935,
+        /// The operation is actively being processed.
         Running = 121282975,
     }
     impl Status {
@@ -68531,6 +70059,39 @@ pub struct PacketMirroringsScopedList {
     #[prost(message, optional, tag = "50704284")]
     pub warning: ::core::option::Option<Warning>,
 }
+/// A request message for RegionNetworkFirewallPolicies.PatchAssociation. See the method description for details.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct PatchAssociationRegionNetworkFirewallPolicyRequest {
+    /// Name of the firewall policy to update.
+    #[prost(string, tag = "498173265")]
+    pub firewall_policy: ::prost::alloc::string::String,
+    /// The body resource for this request
+    #[prost(message, optional, tag = "259546170")]
+    pub firewall_policy_association_resource: ::core::option::Option<
+        FirewallPolicyAssociation,
+    >,
+    /// Project ID for this request.
+    #[prost(string, tag = "227560217")]
+    pub project: ::prost::alloc::string::String,
+    /// Name of the region scoping this request.
+    #[prost(string, tag = "138946292")]
+    pub region: ::prost::alloc::string::String,
+    /// An optional request ID to identify requests. Specify a unique request ID so
+    /// that if you must retry your request, the server will know to ignore the
+    /// request if it has already been completed.
+    ///
+    /// For example, consider a situation where you make an initial request and
+    /// the request times out. If you make the request again with the same
+    /// request ID, the server can check if original operation with the same
+    /// request ID was received, and if so, will ignore the second request. This
+    /// prevents clients from accidentally creating duplicate commitments.
+    ///
+    /// The request ID must be
+    /// a valid UUID with the exception that zero UUID is not supported
+    /// (00000000-0000-0000-0000-000000000000).
+    #[prost(string, optional, tag = "37109963")]
+    pub request_id: ::core::option::Option<::prost::alloc::string::String>,
+}
 /// A request message for Autoscalers.Patch. See the method description for details.
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct PatchAutoscalerRequest {
@@ -68764,6 +70325,24 @@ pub struct PatchGlobalForwardingRuleRequest {
     /// (00000000-0000-0000-0000-000000000000).
     #[prost(string, optional, tag = "37109963")]
     pub request_id: ::core::option::Option<::prost::alloc::string::String>,
+}
+/// A request message for GlobalFrontendSettingsService.Patch. See the method description for details.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct PatchGlobalFrontendSettingRequest {
+    /// The body resource for this request
+    #[prost(message, optional, tag = "233377241")]
+    pub global_frontend_settings_resource: ::core::option::Option<
+        GlobalFrontendSettings,
+    >,
+    /// Required. Project ID for this request.
+    #[prost(string, tag = "227560217")]
+    pub project: ::prost::alloc::string::String,
+    /// An optional request ID to identify requests.
+    #[prost(string, optional, tag = "37109963")]
+    pub request_id: ::core::option::Option<::prost::alloc::string::String>,
+    /// Field mask to support patch. E.g., "type".
+    #[prost(string, optional, tag = "500079778")]
+    pub update_mask: ::core::option::Option<::prost::alloc::string::String>,
 }
 /// A request message for GlobalPublicDelegatedPrefixes.Patch. See the method description for details.
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -69036,6 +70615,37 @@ pub struct PatchInterconnectRequest {
     /// (00000000-0000-0000-0000-000000000000).
     #[prost(string, optional, tag = "37109963")]
     pub request_id: ::core::option::Option<::prost::alloc::string::String>,
+}
+/// A request message for Routers.PatchNamedSet. See the method description for details.
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct PatchNamedSetRouterRequest {
+    /// The body resource for this request
+    #[prost(message, optional, tag = "408608401")]
+    pub named_set_resource: ::core::option::Option<NamedSet>,
+    /// Project ID for this request.
+    #[prost(string, tag = "227560217")]
+    pub project: ::prost::alloc::string::String,
+    /// Name of the region for this request.
+    #[prost(string, tag = "138946292")]
+    pub region: ::prost::alloc::string::String,
+    /// An optional request ID to identify requests. Specify a unique request ID so
+    /// that if you must retry your request, the server will know to ignore the
+    /// request if it has already been completed.
+    ///
+    /// For example, consider a situation where you make an initial request and
+    /// the request times out. If you make the request again with the same
+    /// request ID, the server can check if original operation with the same
+    /// request ID was received, and if so, will ignore the second request. This
+    /// prevents clients from accidentally creating duplicate commitments.
+    ///
+    /// The request ID must be
+    /// a valid UUID with the exception that zero UUID is not supported
+    /// (00000000-0000-0000-0000-000000000000).
+    #[prost(string, optional, tag = "37109963")]
+    pub request_id: ::core::option::Option<::prost::alloc::string::String>,
+    /// Name of the Router resource where Named Set is defined.
+    #[prost(string, tag = "148608841")]
+    pub router: ::prost::alloc::string::String,
 }
 /// A request message for NetworkAttachments.Patch. See the method description for details.
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -70656,6 +72266,36 @@ pub struct PathRule {
     #[prost(message, optional, tag = "405147820")]
     pub url_redirect: ::core::option::Option<HttpRedirectAction>,
 }
+/// A request message for Rollouts.Pause. See the method description for details.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct PauseRolloutRequest {
+    /// The etag of the Rollout.
+    /// If this is provided, the request will only succeed if the etag matches
+    /// the current etag of the Rollout.
+    #[prost(string, optional, tag = "3123477")]
+    pub etag: ::core::option::Option<::prost::alloc::string::String>,
+    /// Required. Project ID for this request.
+    #[prost(string, tag = "227560217")]
+    pub project: ::prost::alloc::string::String,
+    /// An optional request ID to identify requests. Specify a unique request ID so
+    /// that if you must retry your request, the server will know to ignore the
+    /// request if it has already been completed.
+    ///
+    /// For example, consider a situation where you make an initial request and
+    /// the request times out. If you make the request again with the same
+    /// request ID, the server can check if original operation with the same
+    /// request ID was received, and if so, will ignore the second request. This
+    /// prevents clients from accidentally creating duplicate commitments.
+    ///
+    /// The request ID must be
+    /// a valid UUID with the exception that zero UUID is not supported
+    /// (00000000-0000-0000-0000-000000000000).
+    #[prost(string, optional, tag = "37109963")]
+    pub request_id: ::core::option::Option<::prost::alloc::string::String>,
+    /// Required. Name of the Rollout resource to pause.
+    #[prost(string, tag = "303366577")]
+    pub rollout: ::prost::alloc::string::String,
+}
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct PerInstanceConfig {
     /// Fingerprint of this per-instance config. This field can be used in
@@ -70919,6 +72559,144 @@ pub struct PerformMaintenanceReservationSubBlockRequest {
     #[prost(string, tag = "3744684")]
     pub zone: ::prost::alloc::string::String,
 }
+/// The periodic partial maintenance schedule includes 52 weeks worth of
+/// maintenance windows.
+/// LINT.IfChange(PeriodicPartialMaintenanceSchedule)
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct PeriodicPartialMaintenanceSchedule {
+    /// The maintenance type in which the zone is during the given window.
+    /// Check the SubType enum for the list of possible values.
+    #[prost(string, optional, tag = "67924441")]
+    pub sub_type: ::core::option::Option<::prost::alloc::string::String>,
+    /// The target resource that the maintenance window is for.
+    /// For example, "projects/my-project/zones/us-central1-a".
+    #[prost(string, optional, tag = "467318524")]
+    pub target_resource: ::core::option::Option<::prost::alloc::string::String>,
+    /// Check the Type enum for the list of possible values.
+    #[prost(string, optional, tag = "3575610")]
+    pub r#type: ::core::option::Option<::prost::alloc::string::String>,
+    /// The end civil timestamp of the window (not inclusive).
+    /// This contains a time zone.
+    #[prost(message, optional, tag = "271816480")]
+    pub window_end_time: ::core::option::Option<DateTime>,
+    /// The start civil timestamp of the window.
+    /// This contains a time zone.
+    #[prost(message, optional, tag = "473061433")]
+    pub window_start_time: ::core::option::Option<DateTime>,
+}
+/// Nested message and enum types in `PeriodicPartialMaintenanceSchedule`.
+pub mod periodic_partial_maintenance_schedule {
+    /// The maintenance type in which the zone is during the given window.
+    #[derive(
+        Clone,
+        Copy,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash,
+        PartialOrd,
+        Ord,
+        ::prost::Enumeration
+    )]
+    #[repr(i32)]
+    pub enum SubType {
+        /// A value indicating that the enum field is not set.
+        UndefinedSubType = 0,
+        /// Default value.
+        MaintenanceSubtypeUnspecified = 294853734,
+        /// A dedicated window for customers to perform their own maintenance. This
+        /// often runs concurrently with a DISRUPTIVE_UPGRADE.
+        MaintenanceTypeCustomerMaintenance = 431585707,
+        /// For disruptive updates, including host machine kernel or firmware
+        /// upgrades.
+        MaintenanceTypeDisruptiveUpgrade = 385079609,
+        /// A post-maintenance window for customers to conduct final testing and
+        /// performance validation before resuming full business operations.
+        MaintenanceTypeStable = 141316244,
+        /// For preliminary, non-disruptive tasks such as key rotations.
+        MaintenanceTypeTransition = 348575278,
+    }
+    impl SubType {
+        /// String value of the enum field names used in the ProtoBuf definition.
+        ///
+        /// The values are not transformed in any way and thus are considered stable
+        /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+        pub fn as_str_name(&self) -> &'static str {
+            match self {
+                Self::UndefinedSubType => "UNDEFINED_SUB_TYPE",
+                Self::MaintenanceSubtypeUnspecified => "MAINTENANCE_SUBTYPE_UNSPECIFIED",
+                Self::MaintenanceTypeCustomerMaintenance => {
+                    "MAINTENANCE_TYPE_CUSTOMER_MAINTENANCE"
+                }
+                Self::MaintenanceTypeDisruptiveUpgrade => {
+                    "MAINTENANCE_TYPE_DISRUPTIVE_UPGRADE"
+                }
+                Self::MaintenanceTypeStable => "MAINTENANCE_TYPE_STABLE",
+                Self::MaintenanceTypeTransition => "MAINTENANCE_TYPE_TRANSITION",
+            }
+        }
+        /// Creates an enum from field names used in the ProtoBuf definition.
+        pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+            match value {
+                "UNDEFINED_SUB_TYPE" => Some(Self::UndefinedSubType),
+                "MAINTENANCE_SUBTYPE_UNSPECIFIED" => {
+                    Some(Self::MaintenanceSubtypeUnspecified)
+                }
+                "MAINTENANCE_TYPE_CUSTOMER_MAINTENANCE" => {
+                    Some(Self::MaintenanceTypeCustomerMaintenance)
+                }
+                "MAINTENANCE_TYPE_DISRUPTIVE_UPGRADE" => {
+                    Some(Self::MaintenanceTypeDisruptiveUpgrade)
+                }
+                "MAINTENANCE_TYPE_STABLE" => Some(Self::MaintenanceTypeStable),
+                "MAINTENANCE_TYPE_TRANSITION" => Some(Self::MaintenanceTypeTransition),
+                _ => None,
+            }
+        }
+    }
+    #[derive(
+        Clone,
+        Copy,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash,
+        PartialOrd,
+        Ord,
+        ::prost::Enumeration
+    )]
+    #[repr(i32)]
+    pub enum Type {
+        /// A value indicating that the enum field is not set.
+        UndefinedType = 0,
+        /// Default value.
+        MaintenanceTypeUnspecified = 351550814,
+        /// The zone is in a private maintenance window.
+        PrivateZoneMaintenance = 55583292,
+    }
+    impl Type {
+        /// String value of the enum field names used in the ProtoBuf definition.
+        ///
+        /// The values are not transformed in any way and thus are considered stable
+        /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+        pub fn as_str_name(&self) -> &'static str {
+            match self {
+                Self::UndefinedType => "UNDEFINED_TYPE",
+                Self::MaintenanceTypeUnspecified => "MAINTENANCE_TYPE_UNSPECIFIED",
+                Self::PrivateZoneMaintenance => "PRIVATE_ZONE_MAINTENANCE",
+            }
+        }
+        /// Creates an enum from field names used in the ProtoBuf definition.
+        pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+            match value {
+                "UNDEFINED_TYPE" => Some(Self::UndefinedType),
+                "MAINTENANCE_TYPE_UNSPECIFIED" => Some(Self::MaintenanceTypeUnspecified),
+                "PRIVATE_ZONE_MAINTENANCE" => Some(Self::PrivateZoneMaintenance),
+                _ => None,
+            }
+        }
+    }
+}
 /// An Identity and Access Management (IAM) policy, which specifies access
 /// controls for Google Cloud resources.
 ///
@@ -71020,8 +72798,6 @@ pub struct Policy {
     /// the conditions in the version `3` policy are lost.
     #[prost(string, optional, tag = "3123477")]
     pub etag: ::core::option::Option<::prost::alloc::string::String>,
-    #[prost(bool, optional, tag = "450566203")]
-    pub iam_owned: ::core::option::Option<bool>,
     /// Specifies the format of the policy.
     ///
     /// Valid values are `0`, `1`, and `3`. Requests that specify an invalid value
@@ -71834,6 +73610,21 @@ pub mod project {
             }
         }
     }
+}
+/// Represents a ProjectView resource.
+///
+/// A ProjectView resource contains read-only project data which is available
+/// globally.
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct ProjectView {
+    /// The project data.
+    /// The returned Project data does not contain regional or zonal quota
+    /// usage data. Global quota limits are present. For accurate, real-time quota
+    /// usage numbers, query the global
+    /// [projects.get](<https://cloud.google.com/compute/docs/reference/rest/v1/projects/get>)
+    /// endpoint.
+    #[prost(message, optional, tag = "227560217")]
+    pub project: ::core::option::Option<Project>,
 }
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct ProjectsDisableXpnResourceRequest {
@@ -73781,7 +75572,7 @@ pub struct QuotaStatusWarning {
     /// {
     /// "key": "scope",
     /// "value": "zones/us-east1-d"
-    /// }
+    /// }\]
     #[prost(message, repeated, tag = "3076010")]
     pub data: ::prost::alloc::vec::Vec<Data>,
     /// \[Output Only\] A human-readable description of the warning code.
@@ -74069,6 +75860,10 @@ pub struct RecreateInstancesInstanceGroupManagerRequest {
     pub instance_group_managers_recreate_instances_request_resource: ::core::option::Option<
         InstanceGroupManagersRecreateInstancesRequest,
     >,
+    /// When set, graceful shutdown is skipped for instance recreation even if it's
+    /// configured for the instances.
+    #[prost(bool, optional, tag = "336255890")]
+    pub no_graceful_shutdown: ::core::option::Option<bool>,
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
@@ -74098,6 +75893,10 @@ pub struct RecreateInstancesRegionInstanceGroupManagerRequest {
     /// Name of the managed instance group.
     #[prost(string, tag = "249363395")]
     pub instance_group_manager: ::prost::alloc::string::String,
+    /// When set, graceful shutdown is skipped for instance recreation even if it's
+    /// configured for the instances.
+    #[prost(bool, optional, tag = "336255890")]
+    pub no_graceful_shutdown: ::core::option::Option<bool>,
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
@@ -74146,6 +75945,41 @@ pub struct Reference {
     /// URL of the resource to which this reference points.
     #[prost(string, optional, tag = "192835985")]
     pub target: ::core::option::Option<::prost::alloc::string::String>,
+}
+/// The spec for modifying the path using a regular expression.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct RegexRewrite {
+    /// Required. The regular expression used to match against the URL path.
+    /// It uses RE2 syntax with the following constraints:
+    ///
+    /// ```text
+    ///   - Any single character operators
+    ///   - Groups are allowed to have only submatch operator inside
+    ///   - Groups are allowed only without any char repetition, e.g.
+    ///   .*
+    ///   - Any char repetition, e.g. .*, is
+    ///   only allowed to be used in a single regex together with:
+    ///
+    ///
+    ///          - Empty string operators
+    ///          - Other repetitions
+    ///          - Ranges
+    ///          - Repetitions of ranges
+    ///
+    ///
+    ///   - Ranges are only allowed to have:
+    ///
+    ///
+    ///          - Character range
+    ///          - Digits range
+    ///          - Symbols listed in characters allowed for ranges
+    /// ```
+    #[prost(string, optional, tag = "316473718")]
+    pub path_pattern: ::core::option::Option<::prost::alloc::string::String>,
+    /// Required. Required when path pattern is specified. Used to rewrite matching parts of
+    /// the path.
+    #[prost(string, optional, tag = "268020951")]
+    pub path_substitution: ::core::option::Option<::prost::alloc::string::String>,
 }
 /// Represents a Region resource.
 ///
@@ -74492,7 +76326,7 @@ pub struct RegionInstanceGroupManagersAbandonInstancesRequest {
 /// RegionInstanceGroupManagers.applyUpdatesToInstances
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct RegionInstanceGroupManagersApplyUpdatesRequest {
-    /// Flag to update all instances instead of specified list of “instances”.
+    /// Flag to update all instances instead of specified list of "instances".
     /// If the flag is set to true then the instances may not be specified
     /// in the request.
     #[prost(bool, optional, tag = "403676512")]
@@ -75079,6 +76913,72 @@ pub struct RegionUrlMapsValidateRequest {
     /// Content of the UrlMap to be validated.
     #[prost(message, optional, tag = "195806222")]
     pub resource: ::core::option::Option<UrlMap>,
+}
+/// Represents a ReliabilityRisk resource.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct ReliabilityRisk {
+    /// Output only. \[Output Only\] Creation timestamp in RFC3339
+    /// text format.
+    #[prost(string, optional, tag = "30525366")]
+    pub creation_timestamp: ::core::option::Option<::prost::alloc::string::String>,
+    /// An optional textual description of the resource; provided when the
+    /// resource is created.
+    #[prost(string, optional, tag = "422937596")]
+    pub description: ::core::option::Option<::prost::alloc::string::String>,
+    /// \[Output Only\] Details of the reliability risk resource
+    #[prost(message, optional, tag = "483979842")]
+    pub details: ::core::option::Option<RiskDetails>,
+    /// \[Output Only\] The unique identifier for the resource. This identifier is
+    /// defined by the server.
+    #[prost(uint64, optional, tag = "3355")]
+    pub id: ::core::option::Option<u64>,
+    /// Output only. \[Output Only\] Type of resource. Always compute#reliabilityRisk
+    /// for reliability risks.
+    #[prost(string, optional, tag = "3292052")]
+    pub kind: ::core::option::Option<::prost::alloc::string::String>,
+    /// Name of the resource. The name must be 1-63 characters long and
+    /// comply with RFC1035.
+    #[prost(string, optional, tag = "3373707")]
+    pub name: ::core::option::Option<::prost::alloc::string::String>,
+    /// The recommendation to mitigate the risk.
+    #[prost(message, optional, tag = "45105081")]
+    pub recommendation: ::core::option::Option<RiskRecommendation>,
+    /// Output only. \[Output Only\] Server-defined URL for the resource.
+    #[prost(string, optional, tag = "456214797")]
+    pub self_link: ::core::option::Option<::prost::alloc::string::String>,
+    /// Output only. \[Output Only\] Server-defined URL for this resource with the resource id.
+    #[prost(string, optional, tag = "44520962")]
+    pub self_link_with_id: ::core::option::Option<::prost::alloc::string::String>,
+}
+/// Response message for the List method of ReliabilityRisksService.
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct ReliabilityRisksListResponse {
+    /// \[Output Only\] An ETag of the resource.
+    #[prost(string, optional, tag = "3123477")]
+    pub etag: ::core::option::Option<::prost::alloc::string::String>,
+    /// \[Output Only\] Unique identifier for the resource; defined by the server.
+    #[prost(string, optional, tag = "3355")]
+    pub id: ::core::option::Option<::prost::alloc::string::String>,
+    /// A list of ReliabilityRisk resources.
+    #[prost(message, repeated, tag = "100526016")]
+    pub items: ::prost::alloc::vec::Vec<ReliabilityRisk>,
+    /// \[Output Only\] This token allows you to get the next page of results for
+    /// list requests. If the number of results is larger thanmaxResults, use the nextPageToken as a value for
+    /// the query parameter pageToken in the next list request.
+    /// Subsequent list requests will have their own nextPageToken to
+    /// continue paging through the results.
+    #[prost(string, optional, tag = "79797525")]
+    pub next_page_token: ::core::option::Option<::prost::alloc::string::String>,
+    /// Output only. \[Output Only\] Server-defined URL for this resource.
+    #[prost(string, optional, tag = "456214797")]
+    pub self_link: ::core::option::Option<::prost::alloc::string::String>,
+    /// Output only. \[Output Only\] Unreachable resources.
+    /// end_interface: MixerListResponseWithEtagBuilder
+    #[prost(string, repeated, tag = "243372063")]
+    pub unreachables: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
+    /// \[Output Only\] Informational warning message.
+    #[prost(message, optional, tag = "50704284")]
+    pub warning: ::core::option::Option<Warning>,
 }
 /// A request message for FirewallPolicies.RemoveAssociation. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -75798,6 +77698,13 @@ pub struct Reservation {
     pub reservation_sharing_policy: ::core::option::Option<
         AllocationReservationSharingPolicy,
     >,
+    /// Output only. \[Output Only\] Contains standard resource metadata for an Allocation
+    /// resource. It is populated for each instance of the Allocation
+    /// resource, and includes the api_version the
+    /// instance was retrieved through, and its canonical
+    /// resource_type name.
+    #[prost(message, optional, tag = "99063872")]
+    pub resource_metadata: ::core::option::Option<ResourceMetadata>,
     /// Resource policies to be added to this reservation. The key is defined by
     /// user, and the value is resource policy url. This is to define placement
     /// policy with reservation.
@@ -75869,6 +77776,8 @@ pub mod reservation {
     pub enum ConfidentialComputeType {
         /// A value indicating that the enum field is not set.
         UndefinedConfidentialComputeType = 0,
+        /// Bare Metal Secure AI.
+        Bmsai = 103738250,
         /// Intel Trust Domain Extensions.
         Tdx = 301241954,
         Unspecified = 42227601,
@@ -75883,6 +77792,7 @@ pub mod reservation {
                 Self::UndefinedConfidentialComputeType => {
                     "UNDEFINED_CONFIDENTIAL_COMPUTE_TYPE"
                 }
+                Self::Bmsai => "CONFIDENTIAL_COMPUTE_TYPE_BMSAI",
                 Self::Tdx => "CONFIDENTIAL_COMPUTE_TYPE_TDX",
                 Self::Unspecified => "CONFIDENTIAL_COMPUTE_TYPE_UNSPECIFIED",
             }
@@ -75893,6 +77803,7 @@ pub mod reservation {
                 "UNDEFINED_CONFIDENTIAL_COMPUTE_TYPE" => {
                     Some(Self::UndefinedConfidentialComputeType)
                 }
+                "CONFIDENTIAL_COMPUTE_TYPE_BMSAI" => Some(Self::Bmsai),
                 "CONFIDENTIAL_COMPUTE_TYPE_TDX" => Some(Self::Tdx),
                 "CONFIDENTIAL_COMPUTE_TYPE_UNSPECIFIED" => Some(Self::Unspecified),
                 _ => None,
@@ -77265,6 +79176,12 @@ pub mod reservation_sub_blocks_report_faulty_request_fault_reason {
         FaultBehaviorUnspecified = 447660743,
         /// The subBlock experienced a GPU error.
         GpuError = 198817909,
+        /// The subBlock experienced an NVSwitch controller error.
+        NvswitchFaultControllerError = 250941637,
+        /// The subBlock experienced NVSwitch degraded bandwidth.
+        NvswitchFaultDegradedBandwidth = 202741248,
+        /// The subBlock experienced an NVSwitch switch error.
+        NvswitchFaultSwitchError = 287636061,
         /// The subBlock experienced performance issues.
         Performance = 135701520,
         /// The subBlock experienced silent data corruption.
@@ -77282,6 +79199,11 @@ pub mod reservation_sub_blocks_report_faulty_request_fault_reason {
                 Self::UndefinedBehavior => "UNDEFINED_BEHAVIOR",
                 Self::FaultBehaviorUnspecified => "FAULT_BEHAVIOR_UNSPECIFIED",
                 Self::GpuError => "GPU_ERROR",
+                Self::NvswitchFaultControllerError => "NVSWITCH_FAULT_CONTROLLER_ERROR",
+                Self::NvswitchFaultDegradedBandwidth => {
+                    "NVSWITCH_FAULT_DEGRADED_BANDWIDTH"
+                }
+                Self::NvswitchFaultSwitchError => "NVSWITCH_FAULT_SWITCH_ERROR",
                 Self::Performance => "PERFORMANCE",
                 Self::SilentDataCorruption => "SILENT_DATA_CORRUPTION",
                 Self::SwitchFailure => "SWITCH_FAILURE",
@@ -77293,6 +79215,13 @@ pub mod reservation_sub_blocks_report_faulty_request_fault_reason {
                 "UNDEFINED_BEHAVIOR" => Some(Self::UndefinedBehavior),
                 "FAULT_BEHAVIOR_UNSPECIFIED" => Some(Self::FaultBehaviorUnspecified),
                 "GPU_ERROR" => Some(Self::GpuError),
+                "NVSWITCH_FAULT_CONTROLLER_ERROR" => {
+                    Some(Self::NvswitchFaultControllerError)
+                }
+                "NVSWITCH_FAULT_DEGRADED_BANDWIDTH" => {
+                    Some(Self::NvswitchFaultDegradedBandwidth)
+                }
+                "NVSWITCH_FAULT_SWITCH_ERROR" => Some(Self::NvswitchFaultSwitchError),
                 "PERFORMANCE" => Some(Self::Performance),
                 "SILENT_DATA_CORRUPTION" => Some(Self::SilentDataCorruption),
                 "SWITCH_FAILURE" => Some(Self::SwitchFailure),
@@ -77745,6 +79674,19 @@ pub struct ResourceGroupReference {
     /// listed in the backend service.
     #[prost(string, optional, tag = "98629247")]
     pub group: ::core::option::Option<::prost::alloc::string::String>,
+}
+/// Standardized resource metadata common to all compute resources.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct ResourceMetadata {
+    /// The version of the API interface that this resource was retrieved through.
+    /// For example, `"2025-01-01"` or `"2025-01-01-preview"`.
+    #[prost(string, optional, tag = "476021683")]
+    pub api_version: ::core::option::Option<::prost::alloc::string::String>,
+    /// The canonical resource type name in the format of a resource type
+    /// as defined by [AIP-123](<https://google.aip.dev/123>).
+    /// For example, `"compute.googleapis.com/Instance"`.
+    #[prost(string, optional, tag = "442752203")]
+    pub resource_type: ::core::option::Option<::prost::alloc::string::String>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ResourcePoliciesScopedList {
@@ -78537,7 +80479,7 @@ pub mod resource_policy_workload_policy {
 /// Contains output only fields.
 /// Use this sub-message for actual values set on Instance attributes as compared
 /// to the value requested by the user (intent) in their instance CRUD calls.
-#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+#[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ResourceStatus {
     /// Output only. \[Output Only\] Effective metadata is a field that consolidates project,
     /// zonal instance settings, and instance-level predefined metadata keys to
@@ -78565,6 +80507,9 @@ pub struct ResourceStatus {
     >,
     #[prost(message, optional, tag = "386688404")]
     pub scheduling: ::core::option::Option<ResourceStatusScheduling>,
+    /// Output only. \[Output Only\] Details about the instance stopping state.
+    #[prost(message, optional, tag = "15198553")]
+    pub shutdown_details: ::core::option::Option<ResourceStatusShutdownDetails>,
     #[prost(message, optional, tag = "227348592")]
     pub upcoming_maintenance: ::core::option::Option<UpcomingMaintenance>,
 }
@@ -78603,8 +80548,13 @@ pub struct ResourceStatusEffectiveInstanceMetadata {
 }
 /// Represents the physical host topology of the host on which the VM is
 /// running.
-#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+#[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ResourceStatusPhysicalHostTopology {
+    /// Output only. \[Output Only\] Additional location information of the running instance.
+    #[prost(message, optional, tag = "74463343")]
+    pub additional_attributes: ::core::option::Option<
+        ResourceStatusPhysicalHostTopologyAdditionalAttributes,
+    >,
     /// \[Output Only\] The ID of the block in which the running instance is
     /// located. Instances within the same block experience low network latency.
     #[prost(string, optional, tag = "93832333")]
@@ -78624,6 +80574,19 @@ pub struct ResourceStatusPhysicalHostTopology {
     #[prost(string, optional, tag = "70446669")]
     pub subblock: ::core::option::Option<::prost::alloc::string::String>,
 }
+/// Additional location information of the running instance.
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct ResourceStatusPhysicalHostTopologyAdditionalAttributes {
+    /// Output only. The IDs of the accelerator topologies the instance belongs to. For
+    /// example
+    /// The key will be topologies like "4x4", "2x2x2" and the value will be
+    /// the location ID of the topologies.
+    #[prost(map = "string, string", tag = "338216508")]
+    pub accelerator_topology_ids: ::std::collections::HashMap<
+        ::prost::alloc::string::String,
+        ::prost::alloc::string::String,
+    >,
+}
 /// Reservation consumption information that the instance is consuming from.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct ResourceStatusReservationConsumptionInfo {
@@ -78631,14 +80594,144 @@ pub struct ResourceStatusReservationConsumptionInfo {
     /// instance is consuming from.
     #[prost(string, optional, tag = "318474741")]
     pub consumed_reservation: ::core::option::Option<::prost::alloc::string::String>,
+    /// Output only. \[Output Only\] The full resource name of the reservation block that this
+    /// instance is consuming from.
+    #[prost(string, optional, tag = "142321091")]
+    pub consumed_reservation_block: ::core::option::Option<
+        ::prost::alloc::string::String,
+    >,
+    /// Output only. \[Output Only\] The full resource name of the reservation sub-block that
+    /// this instance is consuming from.
+    #[prost(string, optional, tag = "461540356")]
+    pub consumed_reservation_sub_block: ::core::option::Option<
+        ::prost::alloc::string::String,
+    >,
 }
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct ResourceStatusScheduling {
     /// Specifies the availability domain to place the instance in. The value
     /// must be a number between 1 and the number of availability domains
     /// specified in the spread placement policy attached to the instance.
     #[prost(int32, optional, tag = "252514344")]
     pub availability_domain: ::core::option::Option<i32>,
+    /// Output only. Specifies the timestamp, when the instance will start graceful shutdown
+    /// process, in RFC3339 text format.
+    #[prost(string, optional, tag = "403022375")]
+    pub graceful_shutdown_timestamp: ::core::option::Option<
+        ::prost::alloc::string::String,
+    >,
+    /// Time in future when the instance will be terminated inRFC3339 text format.
+    #[prost(string, optional, tag = "364180891")]
+    pub termination_timestamp: ::core::option::Option<::prost::alloc::string::String>,
+}
+/// Specifies if the instance is in `PENDING_STOP` state or there is a
+/// programmed stop scheduled.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct ResourceStatusShutdownDetails {
+    /// The duration for graceful shutdown. Only applicable when
+    /// `stop_state=PENDING_STOP`.
+    #[prost(message, optional, tag = "39954959")]
+    pub max_duration: ::core::option::Option<Duration>,
+    /// Past timestamp indicating the beginning of current `stopState` in RFC3339 text format.
+    #[prost(string, optional, tag = "521301862")]
+    pub request_timestamp: ::core::option::Option<::prost::alloc::string::String>,
+    /// Current stopping state of the instance.
+    /// Check the StopState enum for the list of possible values.
+    #[prost(string, optional, tag = "67347988")]
+    pub stop_state: ::core::option::Option<::prost::alloc::string::String>,
+    /// Target instance state.
+    /// Check the TargetState enum for the list of possible values.
+    #[prost(string, optional, tag = "338978915")]
+    pub target_state: ::core::option::Option<::prost::alloc::string::String>,
+}
+/// Nested message and enum types in `ResourceStatusShutdownDetails`.
+pub mod resource_status_shutdown_details {
+    /// Current stopping state of the instance.
+    #[derive(
+        Clone,
+        Copy,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash,
+        PartialOrd,
+        Ord,
+        ::prost::Enumeration
+    )]
+    #[repr(i32)]
+    pub enum StopState {
+        /// A value indicating that the enum field is not set.
+        UndefinedStopState = 0,
+        /// The instance is gracefully shutting down.
+        PendingStop = 362509770,
+        /// The instance is stopping.
+        Stopping = 350791796,
+    }
+    impl StopState {
+        /// String value of the enum field names used in the ProtoBuf definition.
+        ///
+        /// The values are not transformed in any way and thus are considered stable
+        /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+        pub fn as_str_name(&self) -> &'static str {
+            match self {
+                Self::UndefinedStopState => "UNDEFINED_STOP_STATE",
+                Self::PendingStop => "PENDING_STOP",
+                Self::Stopping => "STOPPING",
+            }
+        }
+        /// Creates an enum from field names used in the ProtoBuf definition.
+        pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+            match value {
+                "UNDEFINED_STOP_STATE" => Some(Self::UndefinedStopState),
+                "PENDING_STOP" => Some(Self::PendingStop),
+                "STOPPING" => Some(Self::Stopping),
+                _ => None,
+            }
+        }
+    }
+    /// Target instance state.
+    #[derive(
+        Clone,
+        Copy,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash,
+        PartialOrd,
+        Ord,
+        ::prost::Enumeration
+    )]
+    #[repr(i32)]
+    pub enum TargetState {
+        /// A value indicating that the enum field is not set.
+        UndefinedTargetState = 0,
+        /// The instance will be deleted.
+        Deleted = 120962041,
+        /// The instance will be stopped.
+        Stopped = 444276141,
+    }
+    impl TargetState {
+        /// String value of the enum field names used in the ProtoBuf definition.
+        ///
+        /// The values are not transformed in any way and thus are considered stable
+        /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+        pub fn as_str_name(&self) -> &'static str {
+            match self {
+                Self::UndefinedTargetState => "UNDEFINED_TARGET_STATE",
+                Self::Deleted => "DELETED",
+                Self::Stopped => "STOPPED",
+            }
+        }
+        /// Creates an enum from field names used in the ProtoBuf definition.
+        pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+            match value {
+                "UNDEFINED_TARGET_STATE" => Some(Self::UndefinedTargetState),
+                "DELETED" => Some(Self::Deleted),
+                "STOPPED" => Some(Self::Stopped),
+                _ => None,
+            }
+        }
+    }
 }
 /// A request message for Instances.Resume. See the method description for details.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -78735,6 +80828,185 @@ pub struct ResumeInstancesRegionInstanceGroupManagerRequest {
     #[prost(string, optional, tag = "37109963")]
     pub request_id: ::core::option::Option<::prost::alloc::string::String>,
 }
+/// A request message for Rollouts.Resume. See the method description for details.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct ResumeRolloutRequest {
+    /// The etag of the Rollout.
+    /// If this is provided, the request will only succeed if the etag matches
+    /// the current etag of the Rollout.
+    #[prost(string, optional, tag = "3123477")]
+    pub etag: ::core::option::Option<::prost::alloc::string::String>,
+    /// Required. Project ID for this request.
+    #[prost(string, tag = "227560217")]
+    pub project: ::prost::alloc::string::String,
+    /// An optional request ID to identify requests. Specify a unique request ID so
+    /// that if you must retry your request, the server will know to ignore the
+    /// request if it has already been completed.
+    ///
+    /// For example, consider a situation where you make an initial request and
+    /// the request times out. If you make the request again with the same
+    /// request ID, the server can check if original operation with the same
+    /// request ID was received, and if so, will ignore the second request. This
+    /// prevents clients from accidentally creating duplicate commitments.
+    ///
+    /// The request ID must be
+    /// a valid UUID with the exception that zero UUID is not supported
+    /// (00000000-0000-0000-0000-000000000000).
+    #[prost(string, optional, tag = "37109963")]
+    pub request_id: ::core::option::Option<::prost::alloc::string::String>,
+    /// Required. Name of the Rollout resource to resume.
+    #[prost(string, tag = "303366577")]
+    pub rollout: ::prost::alloc::string::String,
+}
+/// Detailed insights and metrics about a detected reliability risk.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct RiskDetails {
+    /// The duration of the risk since it was detected.
+    #[prost(string, optional, tag = "155471252")]
+    pub duration: ::core::option::Option<::prost::alloc::string::String>,
+    /// Insight details for global DNS risk.
+    #[prost(message, optional, tag = "514929638")]
+    pub global_dns_insight: ::core::option::Option<RiskDetailsGlobalDnsInsight>,
+    /// The last time the risk was updated.
+    #[prost(string, optional, tag = "12338089")]
+    pub last_update_timestamp: ::core::option::Option<::prost::alloc::string::String>,
+    /// The severity of the risk.
+    /// Check the Severity enum for the list of possible values.
+    #[prost(string, optional, tag = "404558589")]
+    pub severity: ::core::option::Option<::prost::alloc::string::String>,
+    /// The type of risk.
+    /// Check the Type enum for the list of possible values.
+    #[prost(string, optional, tag = "3575610")]
+    pub r#type: ::core::option::Option<::prost::alloc::string::String>,
+}
+/// Nested message and enum types in `RiskDetails`.
+pub mod risk_details {
+    /// The severity of the risk.
+    #[derive(
+        Clone,
+        Copy,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash,
+        PartialOrd,
+        Ord,
+        ::prost::Enumeration
+    )]
+    #[repr(i32)]
+    pub enum Severity {
+        /// A value indicating that the enum field is not set.
+        UndefinedSeverity = 0,
+        /// Critical severity.
+        Critical = 50423711,
+        /// High severity.
+        High = 2217378,
+        /// Low severity.
+        Low = 75572,
+        /// Medium severity.
+        Medium = 122782581,
+        /// No severity specified. The default value.
+        Unspecified = 304082133,
+    }
+    impl Severity {
+        /// String value of the enum field names used in the ProtoBuf definition.
+        ///
+        /// The values are not transformed in any way and thus are considered stable
+        /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+        pub fn as_str_name(&self) -> &'static str {
+            match self {
+                Self::UndefinedSeverity => "UNDEFINED_SEVERITY",
+                Self::Critical => "CRITICAL",
+                Self::High => "HIGH",
+                Self::Low => "LOW",
+                Self::Medium => "MEDIUM",
+                Self::Unspecified => "SEVERITY_UNSPECIFIED",
+            }
+        }
+        /// Creates an enum from field names used in the ProtoBuf definition.
+        pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+            match value {
+                "UNDEFINED_SEVERITY" => Some(Self::UndefinedSeverity),
+                "CRITICAL" => Some(Self::Critical),
+                "HIGH" => Some(Self::High),
+                "LOW" => Some(Self::Low),
+                "MEDIUM" => Some(Self::Medium),
+                "SEVERITY_UNSPECIFIED" => Some(Self::Unspecified),
+                _ => None,
+            }
+        }
+    }
+    /// The type of risk.
+    #[derive(
+        Clone,
+        Copy,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash,
+        PartialOrd,
+        Ord,
+        ::prost::Enumeration
+    )]
+    #[repr(i32)]
+    pub enum Type {
+        /// A value indicating that the enum field is not set.
+        UndefinedType = 0,
+        /// Risk type related to global DNS.
+        GlobalDns = 164472429,
+        /// Default value. This value is unused.
+        RiskTypeUnspecified = 71308546,
+    }
+    impl Type {
+        /// String value of the enum field names used in the ProtoBuf definition.
+        ///
+        /// The values are not transformed in any way and thus are considered stable
+        /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+        pub fn as_str_name(&self) -> &'static str {
+            match self {
+                Self::UndefinedType => "UNDEFINED_TYPE",
+                Self::GlobalDns => "GLOBAL_DNS",
+                Self::RiskTypeUnspecified => "RISK_TYPE_UNSPECIFIED",
+            }
+        }
+        /// Creates an enum from field names used in the ProtoBuf definition.
+        pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+            match value {
+                "UNDEFINED_TYPE" => Some(Self::UndefinedType),
+                "GLOBAL_DNS" => Some(Self::GlobalDns),
+                "RISK_TYPE_UNSPECIFIED" => Some(Self::RiskTypeUnspecified),
+                _ => None,
+            }
+        }
+    }
+}
+/// Detailed insights for a global DNS reliability risk.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct RiskDetailsGlobalDnsInsight {
+    /// Indicates whether the project's default DNS setting is global DNS.
+    #[prost(bool, optional, tag = "366337694")]
+    pub project_default_is_global_dns: ::core::option::Option<bool>,
+    /// The observation window for the query counts.
+    #[prost(string, optional, tag = "511008826")]
+    pub query_observation_window: ::core::option::Option<::prost::alloc::string::String>,
+    /// The number of queries that are risky. This is always less than or
+    /// equal to total_query_count.
+    #[prost(int64, optional, tag = "351692195")]
+    pub risky_query_count: ::core::option::Option<i64>,
+    /// The total number of queries in the observation window.
+    #[prost(int64, optional, tag = "171936349")]
+    pub total_query_count: ::core::option::Option<i64>,
+}
+/// Recommendation for mitigating a reliability risk, including a reference URL.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct RiskRecommendation {
+    /// Mitigation guide for the risk.
+    #[prost(string, optional, tag = "414659705")]
+    pub content: ::core::option::Option<::prost::alloc::string::String>,
+    /// URL referencing a more detailed mitigation guide.
+    #[prost(string, optional, tag = "527537787")]
+    pub reference_url: ::core::option::Option<::prost::alloc::string::String>,
+}
 /// Rollout resource.
 ///
 /// A Rollout is a specific instance of a RolloutPlan. It represents a single
@@ -78781,6 +81053,12 @@ pub struct Rollout {
     /// the last character, which cannot be a dash.
     #[prost(string, optional, tag = "3373707")]
     pub name: ::core::option::Option<::prost::alloc::string::String>,
+    /// Output only. The timestamp at which the Rollout was paused.
+    #[prost(string, optional, tag = "489697142")]
+    pub pause_time: ::core::option::Option<::prost::alloc::string::String>,
+    /// Output only. The timestamp at which the Rollout was resumed.
+    #[prost(string, optional, tag = "457856927")]
+    pub resume_time: ::core::option::Option<::prost::alloc::string::String>,
     /// Required. The resource being rolled out.
     #[prost(message, optional, tag = "70633009")]
     pub rollout_entity: ::core::option::Option<RolloutRolloutEntity>,
@@ -80078,6 +82356,9 @@ pub struct Router {
     /// A list of NAT services created in this router.
     #[prost(message, repeated, tag = "3373938")]
     pub nats: ::prost::alloc::vec::Vec<RouterNat>,
+    /// URI of the ncc_gateway to which this router associated.
+    #[prost(string, optional, tag = "174876755")]
+    pub ncc_gateway: ::core::option::Option<::prost::alloc::string::String>,
     /// URI of the network to which this router belongs.
     #[prost(string, optional, tag = "232872494")]
     pub network: ::core::option::Option<::prost::alloc::string::String>,
@@ -80957,6 +83238,12 @@ pub struct RouterNat {
     /// These IPs should be used for updating/patching a NAT only.
     #[prost(string, repeated, tag = "504078535")]
     pub drain_nat_ips: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
+    /// Output only. Effective timeout (in seconds) for TCP connections that are in TIME_WAIT
+    /// state. This value is equal to tcp_time_wait_timeout_sec.
+    /// If tcp_time_wait_timeout_sec isn't set, the effective timeout is 30s or
+    /// 120s. The field is output only.
+    #[prost(int32, optional, tag = "248089957")]
+    pub effective_tcp_time_wait_timeout_sec: ::core::option::Option<i32>,
     /// Enable Dynamic Port Allocation.
     ///
     /// If not specified, it is disabled by default.
@@ -81554,9 +83841,15 @@ pub struct RouterNatRule {
     ///
     /// `destination.ip == '1.1.0.1' || destination.ip == '8.8.8.8'`
     ///
-    /// The following example is a valid match expression for private NAT:
+    /// The following examples are valid match expressions for private NAT:
     ///
+    /// (NAT 44)
     /// `nexthop.hub ==  '//networkconnectivity.googleapis.com/projects/my-project/locations/global/hubs/hub-1'`
+    ///
+    /// `nexthop.is_hybrid`
+    ///
+    /// (NAT 64)
+    /// `isIPv6(source.ip)`
     #[prost(string, optional, tag = "103668165")]
     pub r#match: ::core::option::Option<::prost::alloc::string::String>,
     /// An integer uniquely identifying a rule in the list. The rule number
@@ -81726,6 +84019,9 @@ pub struct RouterStatus {
     pub bgp_peer_status: ::prost::alloc::vec::Vec<RouterStatusBgpPeerStatus>,
     #[prost(message, repeated, tag = "63098064")]
     pub nat_status: ::prost::alloc::vec::Vec<RouterStatusNatStatus>,
+    /// URI of the ncc_gateway to which this router associated.
+    #[prost(string, optional, tag = "174876755")]
+    pub ncc_gateway: ::core::option::Option<::prost::alloc::string::String>,
     /// URI of the network to which this router belongs.
     #[prost(string, optional, tag = "232872494")]
     pub network: ::core::option::Option<::prost::alloc::string::String>,
@@ -81991,6 +84287,14 @@ pub struct RouterStatusResponse {
     pub result: ::core::option::Option<RouterStatus>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
+pub struct RoutersGetNamedSetResponse {
+    /// end_interface: MixerGetResponseWithEtagBuilder
+    #[prost(string, optional, tag = "3123477")]
+    pub etag: ::core::option::Option<::prost::alloc::string::String>,
+    #[prost(message, optional, tag = "195806222")]
+    pub resource: ::core::option::Option<NamedSet>,
+}
+#[derive(Clone, PartialEq, ::prost::Message)]
 pub struct RoutersGetRoutePolicyResponse {
     #[prost(message, optional, tag = "195806222")]
     pub resource: ::core::option::Option<RoutePolicy>,
@@ -82016,6 +84320,37 @@ pub struct RoutersListBgpRoutes {
     /// \[Output Only\] A list of bgp routes.
     #[prost(message, repeated, tag = "139315229")]
     pub result: ::prost::alloc::vec::Vec<BgpRoute>,
+    /// Output only. \[Output Only\] Server-defined URL for this resource.
+    #[prost(string, optional, tag = "456214797")]
+    pub self_link: ::core::option::Option<::prost::alloc::string::String>,
+    /// Output only. \[Output Only\] Unreachable resources.
+    #[prost(string, repeated, tag = "243372063")]
+    pub unreachables: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
+    /// \[Output Only\] Informational warning message.
+    #[prost(message, optional, tag = "50704284")]
+    pub warning: ::core::option::Option<Warning>,
+}
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct RoutersListNamedSets {
+    #[prost(string, optional, tag = "3123477")]
+    pub etag: ::core::option::Option<::prost::alloc::string::String>,
+    /// \[Output Only\] The unique identifier for the resource. This identifier is
+    /// defined by the server.
+    #[prost(string, optional, tag = "3355")]
+    pub id: ::core::option::Option<::prost::alloc::string::String>,
+    /// Output only. \[Output Only\] Type of resource. Alwayscompute#routersListNamedSets for lists of named sets.
+    #[prost(string, optional, tag = "3292052")]
+    pub kind: ::core::option::Option<::prost::alloc::string::String>,
+    /// \[Output Only\] This token allows you to get the next page of results for
+    /// list requests. If the number of results is larger thanmaxResults, use the nextPageToken as a value for
+    /// the query parameter pageToken in the next list request.
+    /// Subsequent list requests will have their own nextPageToken to
+    /// continue paging through the results.
+    #[prost(string, optional, tag = "79797525")]
+    pub next_page_token: ::core::option::Option<::prost::alloc::string::String>,
+    /// \[Output Only\] A list of named sets.
+    #[prost(message, repeated, tag = "139315229")]
+    pub result: ::prost::alloc::vec::Vec<NamedSet>,
     /// Output only. \[Output Only\] Server-defined URL for this resource.
     #[prost(string, optional, tag = "456214797")]
     pub self_link: ::core::option::Option<::prost::alloc::string::String>,
@@ -82710,6 +85045,12 @@ pub struct Scheduling {
     /// specified in the spread placement policy attached to the instance.
     #[prost(int32, optional, tag = "252514344")]
     pub availability_domain: ::core::option::Option<i32>,
+    /// This optional flag exposes the hashed physical host ID in the
+    /// ResourceStatus resource of the VM.
+    #[prost(bool, optional, tag = "428530155")]
+    pub expose_host_topology: ::core::option::Option<bool>,
+    #[prost(message, optional, tag = "226325136")]
+    pub graceful_shutdown: ::core::option::Option<SchedulingGracefulShutdown>,
     /// Specify the time in seconds for host error detection, the value must be
     /// within the range of \[90, 330\] with the increment of 30, if unset, the
     /// default behavior of host error recovery will be used.
@@ -82763,6 +85104,11 @@ pub struct Scheduling {
     /// Cycle for more information on the possible instance states.
     #[prost(bool, optional, tag = "324203169")]
     pub preemptible: ::core::option::Option<bool>,
+    /// Specifies the Metadata Service preemption notice duration before the GCE ACPI G2
+    /// Soft Off signal is triggered for Spot VMs only. If not specified,
+    /// there will be no wait before the G2 Soft Off signal is triggered.
+    #[prost(message, optional, tag = "486176437")]
+    pub preemption_notice_duration: ::core::option::Option<Duration>,
     /// Specifies the provisioning model of the instance.
     /// Check the ProvisioningModel enum for the list of possible values.
     #[prost(string, optional, tag = "494423")]
@@ -82935,6 +85281,18 @@ pub mod scheduling {
             }
         }
     }
+}
+/// The configuration for gracefully shutting down the instance.
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct SchedulingGracefulShutdown {
+    /// Opts-in for graceful shutdown.
+    #[prost(bool, optional, tag = "1018689")]
+    pub enabled: ::core::option::Option<bool>,
+    /// The time allotted for the instance to gracefully shut down. If the
+    /// graceful shutdown isn't complete after this time, then the instance
+    /// transitions to the STOPPING state.
+    #[prost(message, optional, tag = "39954959")]
+    pub max_duration: ::core::option::Option<Duration>,
 }
 /// Node Affinity: the configuration of desired nodes onto which this Instance
 /// could be scheduled.
@@ -83620,14 +85978,89 @@ pub struct SecurityPolicyAssociation {
     #[prost(string, optional, tag = "492051566")]
     pub short_name: ::core::option::Option<::prost::alloc::string::String>,
 }
-#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+#[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SecurityPolicyDdosProtectionConfig {
+    /// Check the DdosAdaptiveProtection enum for the list of possible values.
+    #[prost(string, optional, tag = "96895463")]
+    pub ddos_adaptive_protection: ::core::option::Option<::prost::alloc::string::String>,
+    /// DDoS Protection for Network Load Balancers (and VMs with public IPs)
+    /// builds DDoS mitigations that minimize collateral damage. It quantifies
+    /// this as the fraction of a non-abuse baseline that's inadvertently
+    /// blocked.
+    ///
+    /// Rules whose collateral damage exceeds ddosImpactedBaselineThreshold will
+    /// not be deployed. Using a lower value will prioritize keeping collateral
+    /// damage low, possibly at the cost of its effectiveness in rate limiting
+    /// some or all of the attack. It should typically be unset, so Advanced DDoS
+    /// (and Adaptive Protection) uses the best mitigation it can find. Setting
+    /// the threshold is advised if there are logs for false positive detections
+    /// with high collateral damage, and will cause Advanced DDoS to attempt to
+    /// find a less aggressive rule that satisfies the constraint. If a suitable
+    /// rule cannot be found, the system falls back to either no mitigation for
+    /// smaller attacks or broader network throttles for larger ones.
+    #[prost(float, optional, tag = "192689584")]
+    pub ddos_impacted_baseline_threshold: ::core::option::Option<f32>,
     /// Check the DdosProtection enum for the list of possible values.
     #[prost(string, optional, tag = "275173268")]
     pub ddos_protection: ::core::option::Option<::prost::alloc::string::String>,
 }
 /// Nested message and enum types in `SecurityPolicyDdosProtectionConfig`.
 pub mod security_policy_ddos_protection_config {
+    #[derive(
+        Clone,
+        Copy,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash,
+        PartialOrd,
+        Ord,
+        ::prost::Enumeration
+    )]
+    #[repr(i32)]
+    pub enum DdosAdaptiveProtection {
+        /// A value indicating that the enum field is not set.
+        UndefinedDdosAdaptiveProtection = 0,
+        Unspecified = 314527935,
+        Disabled = 516696700,
+        Enabled = 182130465,
+        Preview = 399798184,
+        UnspecifiedAdaptiveProtection = 86330138,
+    }
+    impl DdosAdaptiveProtection {
+        /// String value of the enum field names used in the ProtoBuf definition.
+        ///
+        /// The values are not transformed in any way and thus are considered stable
+        /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+        pub fn as_str_name(&self) -> &'static str {
+            match self {
+                Self::UndefinedDdosAdaptiveProtection => {
+                    "UNDEFINED_DDOS_ADAPTIVE_PROTECTION"
+                }
+                Self::Unspecified => "DDOS_ADAPTIVE_PROTECTION_UNSPECIFIED",
+                Self::Disabled => "DISABLED",
+                Self::Enabled => "ENABLED",
+                Self::Preview => "PREVIEW",
+                Self::UnspecifiedAdaptiveProtection => "UNSPECIFIED_ADAPTIVE_PROTECTION",
+            }
+        }
+        /// Creates an enum from field names used in the ProtoBuf definition.
+        pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+            match value {
+                "UNDEFINED_DDOS_ADAPTIVE_PROTECTION" => {
+                    Some(Self::UndefinedDdosAdaptiveProtection)
+                }
+                "DDOS_ADAPTIVE_PROTECTION_UNSPECIFIED" => Some(Self::Unspecified),
+                "DISABLED" => Some(Self::Disabled),
+                "ENABLED" => Some(Self::Enabled),
+                "PREVIEW" => Some(Self::Preview),
+                "UNSPECIFIED_ADAPTIVE_PROTECTION" => {
+                    Some(Self::UnspecifiedAdaptiveProtection)
+                }
+                _ => None,
+            }
+        }
+    }
     #[derive(
         Clone,
         Copy,
@@ -84017,6 +86450,12 @@ pub struct SecurityPolicyRulePreconfiguredWafConfig {
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SecurityPolicyRulePreconfiguredWafConfigExclusion {
+    /// A list of request body fields to be excluded from inspection during
+    /// preconfigured WAF evaluation.
+    #[prost(message, repeated, tag = "60453445")]
+    pub request_bodies_to_exclude: ::prost::alloc::vec::Vec<
+        SecurityPolicyRulePreconfiguredWafConfigExclusionFieldParams,
+    >,
     /// A list of request cookie names whose value will be excluded from
     /// inspection during preconfigured WAF evaluation.
     #[prost(message, repeated, tag = "156757878")]
@@ -84181,14 +86620,16 @@ pub struct SecurityPolicyRuleRateLimitOptions {
     /// which is resolved based on "userIpRequestHeaders" configured with the
     /// security policy. If there is no "userIpRequestHeaders" configuration or
     /// an IP address cannot be resolved from it, the key type defaults toIP.
+    /// - ASN: The autonomous system number of the originating
+    /// client. If not available, the key type defaults toALL.
+    /// - TLS_JA4_FINGERPRINT: JA4 TLS/SSL fingerprint if the
+    /// client connects using HTTPS, HTTP/2 or HTTP/3. If not available, the
+    /// key type defaults to ALL.
     /// ```
     ///
-    /// * TLS_JA4_FINGERPRINT: JA4 TLS/SSL fingerprint if the
-    ///   client connects using HTTPS, HTTP/2 or HTTP/3. If not available, the
-    ///   key type defaults to ALL.
-    ///   For "fairshare" action, this value is limited to ALL i.e. a single rate
-    ///   limit threshold is enforced for all the requests matching the rule.
-    ///   Check the EnforceOnKey enum for the list of possible values.
+    /// For "fairshare" action, this value is limited to ALL i.e. a single rate
+    /// limit threshold is enforced for all the requests matching the rule.
+    /// Check the EnforceOnKey enum for the list of possible values.
     #[prost(string, optional, tag = "416648956")]
     pub enforce_on_key: ::core::option::Option<::prost::alloc::string::String>,
     /// If specified, any combination of values of
@@ -84271,13 +86712,15 @@ pub mod security_policy_rule_rate_limit_options {
     /// which is resolved based on "userIpRequestHeaders" configured with the
     /// security policy. If there is no "userIpRequestHeaders" configuration or
     /// an IP address cannot be resolved from it, the key type defaults toIP.
+    /// - ASN: The autonomous system number of the originating
+    /// client. If not available, the key type defaults toALL.
+    /// - TLS_JA4_FINGERPRINT: JA4 TLS/SSL fingerprint if the
+    /// client connects using HTTPS, HTTP/2 or HTTP/3. If not available, the
+    /// key type defaults to ALL.
     /// ```
     ///
-    /// * TLS_JA4_FINGERPRINT: JA4 TLS/SSL fingerprint if the
-    ///   client connects using HTTPS, HTTP/2 or HTTP/3. If not available, the
-    ///   key type defaults to ALL.
-    ///   For "fairshare" action, this value is limited to ALL i.e. a single rate
-    ///   limit threshold is enforced for all the requests matching the rule.
+    /// For "fairshare" action, this value is limited to ALL i.e. a single rate
+    /// limit threshold is enforced for all the requests matching the rule.
     #[derive(
         Clone,
         Copy,
@@ -84294,6 +86737,7 @@ pub mod security_policy_rule_rate_limit_options {
         /// A value indicating that the enum field is not set.
         UndefinedEnforceOnKey = 0,
         All = 64897,
+        Asn = 65116,
         HttpCookie = 494981627,
         HttpHeader = 91597348,
         HttpPath = 311503228,
@@ -84314,6 +86758,7 @@ pub mod security_policy_rule_rate_limit_options {
             match self {
                 Self::UndefinedEnforceOnKey => "UNDEFINED_ENFORCE_ON_KEY",
                 Self::All => "ALL",
+                Self::Asn => "ASN",
                 Self::HttpCookie => "HTTP_COOKIE",
                 Self::HttpHeader => "HTTP_HEADER",
                 Self::HttpPath => "HTTP_PATH",
@@ -84331,6 +86776,7 @@ pub mod security_policy_rule_rate_limit_options {
             match value {
                 "UNDEFINED_ENFORCE_ON_KEY" => Some(Self::UndefinedEnforceOnKey),
                 "ALL" => Some(Self::All),
+                "ASN" => Some(Self::Asn),
                 "HTTP_COOKIE" => Some(Self::HttpCookie),
                 "HTTP_HEADER" => Some(Self::HttpHeader),
                 "HTTP_PATH" => Some(Self::HttpPath),
@@ -84391,12 +86837,14 @@ pub struct SecurityPolicyRuleRateLimitOptionsEnforceOnKeyConfig {
     /// which is resolved based on "userIpRequestHeaders" configured with the
     /// security policy. If there is no "userIpRequestHeaders" configuration
     /// or an IP address cannot be resolved from it, the key type defaults toIP.
+    /// - ASN: The autonomous system number of the originating
+    /// client. If not available, the key type defaults toALL.
+    /// - TLS_JA4_FINGERPRINT: JA4 TLS/SSL fingerprint if the
+    /// client connects using HTTPS, HTTP/2 or HTTP/3. If not available, the
+    /// key type defaults to ALL.
     /// ```
     ///
-    /// * TLS_JA4_FINGERPRINT: JA4 TLS/SSL fingerprint if the
-    ///   client connects using HTTPS, HTTP/2 or HTTP/3. If not available, the
-    ///   key type defaults to ALL.
-    ///   Check the EnforceOnKeyType enum for the list of possible values.
+    /// Check the EnforceOnKeyType enum for the list of possible values.
     #[prost(string, optional, tag = "132757149")]
     pub enforce_on_key_type: ::core::option::Option<::prost::alloc::string::String>,
 }
@@ -84439,11 +86887,12 @@ pub mod security_policy_rule_rate_limit_options_enforce_on_key_config {
     /// which is resolved based on "userIpRequestHeaders" configured with the
     /// security policy. If there is no "userIpRequestHeaders" configuration
     /// or an IP address cannot be resolved from it, the key type defaults toIP.
+    /// - ASN: The autonomous system number of the originating
+    /// client. If not available, the key type defaults toALL.
+    /// - TLS_JA4_FINGERPRINT: JA4 TLS/SSL fingerprint if the
+    /// client connects using HTTPS, HTTP/2 or HTTP/3. If not available, the
+    /// key type defaults to ALL.
     /// ```
-    ///
-    /// * TLS_JA4_FINGERPRINT: JA4 TLS/SSL fingerprint if the
-    ///   client connects using HTTPS, HTTP/2 or HTTP/3. If not available, the
-    ///   key type defaults to ALL.
     #[derive(
         Clone,
         Copy,
@@ -84460,6 +86909,7 @@ pub mod security_policy_rule_rate_limit_options_enforce_on_key_config {
         /// A value indicating that the enum field is not set.
         UndefinedEnforceOnKeyType = 0,
         All = 64897,
+        Asn = 65116,
         HttpCookie = 494981627,
         HttpHeader = 91597348,
         HttpPath = 311503228,
@@ -84480,6 +86930,7 @@ pub mod security_policy_rule_rate_limit_options_enforce_on_key_config {
             match self {
                 Self::UndefinedEnforceOnKeyType => "UNDEFINED_ENFORCE_ON_KEY_TYPE",
                 Self::All => "ALL",
+                Self::Asn => "ASN",
                 Self::HttpCookie => "HTTP_COOKIE",
                 Self::HttpHeader => "HTTP_HEADER",
                 Self::HttpPath => "HTTP_PATH",
@@ -84497,6 +86948,7 @@ pub mod security_policy_rule_rate_limit_options_enforce_on_key_config {
             match value {
                 "UNDEFINED_ENFORCE_ON_KEY_TYPE" => Some(Self::UndefinedEnforceOnKeyType),
                 "ALL" => Some(Self::All),
+                "ASN" => Some(Self::Asn),
                 "HTTP_COOKIE" => Some(Self::HttpCookie),
                 "HTTP_HEADER" => Some(Self::HttpHeader),
                 "HTTP_PATH" => Some(Self::HttpPath),
@@ -84925,6 +87377,10 @@ pub struct ServiceAttachment {
     /// cannot be a dash.
     #[prost(string, optional, tag = "3373707")]
     pub name: ::core::option::Option<::prost::alloc::string::String>,
+    /// The number of NAT IP addresses to be allocated per connected endpoint.
+    /// If not specified, the default value is 1.
+    #[prost(uint32, optional, tag = "371459848")]
+    pub nat_ips_per_endpoint: ::core::option::Option<u32>,
     /// An array of URLs where each entry is the URL of a subnet provided
     /// by the service producer to use for NAT in this service attachment.
     #[prost(string, repeated, tag = "374785944")]
@@ -86981,6 +89437,36 @@ pub struct SetNameInstanceRequest {
     #[prost(string, tag = "3744684")]
     pub zone: ::prost::alloc::string::String,
 }
+/// A request message for Interconnects.SetName. See the method description for details.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct SetNameInterconnectRequest {
+    /// Name of the interconnect to update.
+    #[prost(string, tag = "224601230")]
+    pub interconnect: ::prost::alloc::string::String,
+    /// The body resource for this request
+    #[prost(message, optional, tag = "316267707")]
+    pub interconnects_set_name_request_resource: ::core::option::Option<
+        InterconnectsSetNameRequest,
+    >,
+    /// Project ID for this request.
+    #[prost(string, tag = "227560217")]
+    pub project: ::prost::alloc::string::String,
+    /// An optional request ID to identify requests. Specify a unique request ID
+    /// so that if you must retry your request, the server will know to ignore
+    /// the request if it has already been completed.
+    ///
+    /// For example, consider a situation where you make an initial request and
+    /// the request times out. If you make the request again with the same
+    /// request ID, the server can check if original operation with the same
+    /// request ID was received, and if so, will ignore the second request. This
+    /// prevents clients from accidentally creating duplicate commitments.
+    ///
+    /// The request ID must be
+    /// a valid UUID with the exception that zero UUID is not supported
+    /// (00000000-0000-0000-0000-000000000000).
+    #[prost(string, optional, tag = "37109963")]
+    pub request_id: ::core::option::Option<::prost::alloc::string::String>,
+}
 /// A request message for InstanceGroups.SetNamedPorts. See the method description for details.
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SetNamedPortsInstanceGroupRequest {
@@ -88359,11 +90845,13 @@ pub struct Snapshot {
     /// creation/deletion.
     #[prost(int64, optional, tag = "424631719")]
     pub storage_bytes: ::core::option::Option<i64>,
-    /// Output only. \[Output Only\] An indicator whether storageBytes is in a
+    /// Output only. \[Deprecated\] Instead, check the storageBytes field. After
+    /// snapshot creation, the storageBytesStatus field is alwaysUP_TO_DATE.
+    /// \[Output Only\] An indicator whether storageBytes is in a
     /// stable state or it is being adjusted as a result of shared storage
-    /// reallocation. This status can either be UPDATING, meaning
-    /// the size of the snapshot is being updated, or UP_TO_DATE,
-    /// meaning the size of the snapshot is up-to-date.
+    /// reallocation. This status can either be unset, meaning the snapshot is
+    /// being created, or UP_TO_DATE, meaning the size of the snapshot
+    /// is up-to-date.
     /// Check the StorageBytesStatus enum for the list of possible values.
     #[prost(string, optional, tag = "490739082")]
     pub storage_bytes_status: ::core::option::Option<::prost::alloc::string::String>,
@@ -88518,11 +91006,13 @@ pub mod snapshot {
             }
         }
     }
-    /// Output only. \[Output Only\] An indicator whether storageBytes is in a
+    /// Output only. \[Deprecated\] Instead, check the storageBytes field. After
+    /// snapshot creation, the storageBytesStatus field is alwaysUP_TO_DATE.
+    /// \[Output Only\] An indicator whether storageBytes is in a
     /// stable state or it is being adjusted as a result of shared storage
-    /// reallocation. This status can either be UPDATING, meaning
-    /// the size of the snapshot is being updated, or UP_TO_DATE,
-    /// meaning the size of the snapshot is up-to-date.
+    /// reallocation. This status can either be unset, meaning the snapshot is
+    /// being created, or UP_TO_DATE, meaning the size of the snapshot
+    /// is up-to-date.
     #[derive(
         Clone,
         Copy,
@@ -89698,8 +92188,6 @@ pub mod ssl_policy {
 }
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct SslPolicyReference {
-    /// URL of the SSL policy resource. Set this to empty string to clear any
-    /// existing SSL policy associated with the target proxy resource.
     #[prost(string, optional, tag = "295190213")]
     pub ssl_policy: ::core::option::Option<::prost::alloc::string::String>,
 }
@@ -90203,6 +92691,9 @@ pub struct StopInstanceRequest {
     /// Name of the instance resource to stop.
     #[prost(string, tag = "18257045")]
     pub instance: ::prost::alloc::string::String,
+    /// If set to true, Graceful Shutdown is skipped.
+    #[prost(bool, optional, tag = "336255890")]
+    pub no_graceful_shutdown: ::core::option::Option<bool>,
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
@@ -90236,6 +92727,10 @@ pub struct StopInstancesInstanceGroupManagerRequest {
     pub instance_group_managers_stop_instances_request_resource: ::core::option::Option<
         InstanceGroupManagersStopInstancesRequest,
     >,
+    /// When set, graceful shutdown is skipped for instance stopping even if it's
+    /// configured for the instances.
+    #[prost(bool, optional, tag = "336255890")]
+    pub no_graceful_shutdown: ::core::option::Option<bool>,
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
@@ -90265,6 +92760,10 @@ pub struct StopInstancesRegionInstanceGroupManagerRequest {
     /// The name of the managed instance group.
     #[prost(string, tag = "249363395")]
     pub instance_group_manager: ::prost::alloc::string::String,
+    /// When set, graceful shutdown is skipped for instance stopping even if it's
+    /// configured for the instances.
+    #[prost(bool, optional, tag = "336255890")]
+    pub no_graceful_shutdown: ::core::option::Option<bool>,
     /// Project ID for this request.
     #[prost(string, tag = "227560217")]
     pub project: ::prost::alloc::string::String,
@@ -90309,7 +92808,7 @@ pub struct StoragePool {
     /// create the resource.
     #[prost(string, optional, tag = "422937596")]
     pub description: ::core::option::Option<::prost::alloc::string::String>,
-    /// Output only. \[Output Only\] Provisioned capacities for each SKU for this Exapool in GiB
+    /// Provisioned capacities for each SKU for this Exapool in GiB
     #[prost(message, optional, tag = "345174240")]
     pub exapool_provisioned_capacity_gb: ::core::option::Option<
         StoragePoolExapoolProvisionedCapacityGb,
@@ -90381,6 +92880,9 @@ pub struct StoragePool {
     /// Output only. \[Output Only\] Server-defined URL for this resource's resource id.
     #[prost(string, optional, tag = "44520962")]
     pub self_link_with_id: ::core::option::Option<::prost::alloc::string::String>,
+    /// Share settings for the storage pool.
+    #[prost(message, optional, tag = "266668163")]
+    pub share_settings: ::core::option::Option<StoragePoolShareSettings>,
     /// Output only. \[Output Only\] The status of storage pool creation.
     ///
     /// ```text
@@ -90843,6 +93345,24 @@ pub struct StoragePoolResourceStatus {
     #[prost(int64, optional, tag = "447677830")]
     pub total_provisioned_disk_throughput: ::core::option::Option<i64>,
 }
+/// Share settings for the storage pool.
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct StoragePoolShareSettings {
+    /// A map of project id and project config.
+    #[prost(map = "string, message", tag = "134212406")]
+    pub project_map: ::std::collections::HashMap<
+        ::prost::alloc::string::String,
+        StoragePoolShareSettingsProjectConfig,
+    >,
+}
+/// Config for each project in the share settings.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct StoragePoolShareSettingsProjectConfig {
+    /// The project ID, should be same as the key of this project config in the
+    /// parent map.
+    #[prost(string, optional, tag = "177513473")]
+    pub project_id: ::core::option::Option<::prost::alloc::string::String>,
+}
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct StoragePoolType {
     /// \[Output Only\] Creation timestamp inRFC3339
@@ -91229,7 +93749,6 @@ pub mod subnetwork {
         /// VMs on this subnet will be assigned IPv6 addresses that are only
         /// accessible over the VPC network.
         Internal = 279295677,
-        UnspecifiedIpv6AccessType = 313080613,
     }
     impl Ipv6AccessType {
         /// String value of the enum field names used in the ProtoBuf definition.
@@ -91241,7 +93760,6 @@ pub mod subnetwork {
                 Self::UndefinedIpv6AccessType => "UNDEFINED_IPV6_ACCESS_TYPE",
                 Self::External => "EXTERNAL",
                 Self::Internal => "INTERNAL",
-                Self::UnspecifiedIpv6AccessType => "UNSPECIFIED_IPV6_ACCESS_TYPE",
             }
         }
         /// Creates an enum from field names used in the ProtoBuf definition.
@@ -91250,7 +93768,6 @@ pub mod subnetwork {
                 "UNDEFINED_IPV6_ACCESS_TYPE" => Some(Self::UndefinedIpv6AccessType),
                 "EXTERNAL" => Some(Self::External),
                 "INTERNAL" => Some(Self::Internal),
-                "UNSPECIFIED_IPV6_ACCESS_TYPE" => Some(Self::UnspecifiedIpv6AccessType),
                 _ => None,
             }
         }
@@ -91455,6 +93972,15 @@ pub mod subnetwork {
         UndefinedResolveSubnetMask = 0,
         /// All ranges assigned to the VM NIC will respond to ARP.
         ArpAllRanges = 445655380,
+        /// VMs will receive an ARP response from a VM instance owning the target IP
+        /// address within the subnetwork's primary CIDR range, if such a VM instance
+        /// exists and is running.
+        ArpBroadcastPrimaryRange = 123887458,
+        /// Combines ARP_BROADCAST_PRIMARY_RANGE with MAC learning. Enables cache
+        /// mapping between IP addresses and custom MAC addresses of instances and
+        /// use of it to set the correct destination MAC address. If this option is
+        /// chosen, the subnetwork must have /24 or a smaller CIDR range.
+        ArpBroadcastPrimaryRangeWithLearning = 425592922,
         /// Only the primary range of the VM NIC will respond to ARP.
         ArpPrimaryRange = 120210048,
     }
@@ -91467,6 +93993,10 @@ pub mod subnetwork {
             match self {
                 Self::UndefinedResolveSubnetMask => "UNDEFINED_RESOLVE_SUBNET_MASK",
                 Self::ArpAllRanges => "ARP_ALL_RANGES",
+                Self::ArpBroadcastPrimaryRange => "ARP_BROADCAST_PRIMARY_RANGE",
+                Self::ArpBroadcastPrimaryRangeWithLearning => {
+                    "ARP_BROADCAST_PRIMARY_RANGE_WITH_LEARNING"
+                }
                 Self::ArpPrimaryRange => "ARP_PRIMARY_RANGE",
             }
         }
@@ -91475,6 +94005,10 @@ pub mod subnetwork {
             match value {
                 "UNDEFINED_RESOLVE_SUBNET_MASK" => Some(Self::UndefinedResolveSubnetMask),
                 "ARP_ALL_RANGES" => Some(Self::ArpAllRanges),
+                "ARP_BROADCAST_PRIMARY_RANGE" => Some(Self::ArpBroadcastPrimaryRange),
+                "ARP_BROADCAST_PRIMARY_RANGE_WITH_LEARNING" => {
+                    Some(Self::ArpBroadcastPrimaryRangeWithLearning)
+                }
                 "ARP_PRIMARY_RANGE" => Some(Self::ArpPrimaryRange),
                 _ => None,
             }
@@ -91554,7 +94088,6 @@ pub mod subnetwork {
         Ipv4Only = 22373798,
         /// New VMs in this subnet will only  be assigned IPv6 addresses.
         Ipv6Only = 79632100,
-        UnspecifiedStackType = 298084569,
     }
     impl StackType {
         /// String value of the enum field names used in the ProtoBuf definition.
@@ -91567,7 +94100,6 @@ pub mod subnetwork {
                 Self::Ipv4Ipv6 => "IPV4_IPV6",
                 Self::Ipv4Only => "IPV4_ONLY",
                 Self::Ipv6Only => "IPV6_ONLY",
-                Self::UnspecifiedStackType => "UNSPECIFIED_STACK_TYPE",
             }
         }
         /// Creates an enum from field names used in the ProtoBuf definition.
@@ -91577,7 +94109,6 @@ pub mod subnetwork {
                 "IPV4_IPV6" => Some(Self::Ipv4Ipv6),
                 "IPV4_ONLY" => Some(Self::Ipv4Only),
                 "IPV6_ONLY" => Some(Self::Ipv6Only),
-                "UNSPECIFIED_STACK_TYPE" => Some(Self::UnspecifiedStackType),
                 _ => None,
             }
         }
@@ -91884,6 +94415,18 @@ pub struct SubnetworkSecondaryRange {
     /// field.
     #[prost(string, optional, tag = "98117322")]
     pub ip_cidr_range: ::core::option::Option<::prost::alloc::string::String>,
+    /// Reference to a Public Delegated Prefix (PDP) for BYOIP.
+    /// This field should be specified for configuring BYOGUA internal IPv6
+    /// secondary range.
+    /// When specified along with the ip_cidr_range, the ip_cidr_range must lie
+    /// within the PDP referenced by the `ipCollection` field.
+    /// When specified without the ip_cidr_range, the range is auto-allocated
+    /// from the PDP referenced by the `ipCollection` field.
+    #[prost(string, optional, tag = "176818358")]
+    pub ip_collection: ::core::option::Option<::prost::alloc::string::String>,
+    /// Check the IpVersion enum for the list of possible values.
+    #[prost(string, optional, tag = "294959552")]
+    pub ip_version: ::core::option::Option<::prost::alloc::string::String>,
     /// The name associated with this subnetwork secondary range, used when adding
     /// an alias IP/IPv6 range to a VM instance.
     /// The name must be 1-63 characters long, and comply withRFC1035.
@@ -91893,6 +94436,53 @@ pub struct SubnetworkSecondaryRange {
     /// The URL of the reserved internal range. Only IPv4 is supported.
     #[prost(string, optional, tag = "286248754")]
     pub reserved_internal_range: ::core::option::Option<::prost::alloc::string::String>,
+}
+/// Nested message and enum types in `SubnetworkSecondaryRange`.
+pub mod subnetwork_secondary_range {
+    #[derive(
+        Clone,
+        Copy,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash,
+        PartialOrd,
+        Ord,
+        ::prost::Enumeration
+    )]
+    #[repr(i32)]
+    pub enum IpVersion {
+        /// A value indicating that the enum field is not set.
+        UndefinedIpVersion = 0,
+        Ipv4 = 2254341,
+        Ipv6 = 2254343,
+        /// Treated as IPV4 for backward-compatibility.
+        Unspecified = 92360440,
+    }
+    impl IpVersion {
+        /// String value of the enum field names used in the ProtoBuf definition.
+        ///
+        /// The values are not transformed in any way and thus are considered stable
+        /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+        pub fn as_str_name(&self) -> &'static str {
+            match self {
+                Self::UndefinedIpVersion => "UNDEFINED_IP_VERSION",
+                Self::Ipv4 => "IPV4",
+                Self::Ipv6 => "IPV6",
+                Self::Unspecified => "IP_VERSION_UNSPECIFIED",
+            }
+        }
+        /// Creates an enum from field names used in the ProtoBuf definition.
+        pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+            match value {
+                "UNDEFINED_IP_VERSION" => Some(Self::UndefinedIpVersion),
+                "IPV4" => Some(Self::Ipv4),
+                "IPV6" => Some(Self::Ipv6),
+                "IP_VERSION_UNSPECIFIED" => Some(Self::Unspecified),
+                _ => None,
+            }
+        }
+    }
 }
 /// The current IP utilization of all subnetwork ranges. Contains the total
 /// number of allocated and free IPs in each range.
@@ -93288,7 +95878,8 @@ pub struct TargetPool {
     /// The server-defined URL for the resource. This field is applicable only when
     /// the containing target pool is serving a forwarding rule as the primary
     /// pool, and its failoverRatio field is properly set to a value
-    /// between \[0, 1\].backupPool and failoverRatio together define
+    /// between \[0, 1\].
+    /// backupPool and failoverRatio together define
     /// the fallback behavior of the primary target pool: if the ratio of the
     /// healthy instances in the primary pool is at or belowfailoverRatio, traffic arriving at the load-balanced
     /// IP will be directed to the backup pool.
@@ -93899,6 +96490,10 @@ pub struct TargetTcpProxy {
     /// Output only. \[Output Only\] Type of the resource. Alwayscompute#targetTcpProxy for target TCP proxies.
     #[prost(string, optional, tag = "3292052")]
     pub kind: ::core::option::Option<::prost::alloc::string::String>,
+    /// Specifies the type of load balancing scheme used by this target proxy.
+    /// Check the LoadBalancingScheme enum for the list of possible values.
+    #[prost(string, optional, tag = "363890244")]
+    pub load_balancing_scheme: ::core::option::Option<::prost::alloc::string::String>,
     /// Name of the resource. Provided by the client when the resource is created.
     /// The name must be 1-63 characters long, and comply withRFC1035.
     /// Specifically, the name must be 1-63 characters long and match the regular
@@ -93940,6 +96535,55 @@ pub struct TargetTcpProxy {
 }
 /// Nested message and enum types in `TargetTcpProxy`.
 pub mod target_tcp_proxy {
+    /// Specifies the type of load balancing scheme used by this target proxy.
+    #[derive(
+        Clone,
+        Copy,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash,
+        PartialOrd,
+        Ord,
+        ::prost::Enumeration
+    )]
+    #[repr(i32)]
+    pub enum LoadBalancingScheme {
+        /// A value indicating that the enum field is not set.
+        UndefinedLoadBalancingScheme = 0,
+        External = 35607499,
+        ExternalManaged = 512006923,
+        InternalManaged = 37350397,
+        Unspecified = 526507452,
+    }
+    impl LoadBalancingScheme {
+        /// String value of the enum field names used in the ProtoBuf definition.
+        ///
+        /// The values are not transformed in any way and thus are considered stable
+        /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+        pub fn as_str_name(&self) -> &'static str {
+            match self {
+                Self::UndefinedLoadBalancingScheme => "UNDEFINED_LOAD_BALANCING_SCHEME",
+                Self::External => "EXTERNAL",
+                Self::ExternalManaged => "EXTERNAL_MANAGED",
+                Self::InternalManaged => "INTERNAL_MANAGED",
+                Self::Unspecified => "LOAD_BALANCING_SCHEME_UNSPECIFIED",
+            }
+        }
+        /// Creates an enum from field names used in the ProtoBuf definition.
+        pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+            match value {
+                "UNDEFINED_LOAD_BALANCING_SCHEME" => {
+                    Some(Self::UndefinedLoadBalancingScheme)
+                }
+                "EXTERNAL" => Some(Self::External),
+                "EXTERNAL_MANAGED" => Some(Self::ExternalManaged),
+                "INTERNAL_MANAGED" => Some(Self::InternalManaged),
+                "LOAD_BALANCING_SCHEME_UNSPECIFIED" => Some(Self::Unspecified),
+                _ => None,
+            }
+        }
+    }
     /// Specifies the type of proxy header to append before sending data to the
     /// backend, either NONE or PROXY_V1. The default
     /// is NONE.
@@ -95283,6 +97927,17 @@ pub struct TestPermissionsResponse {
     #[prost(string, repeated, tag = "59962500")]
     pub permissions: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
 }
+/// Represents a time zone from the
+/// [IANA Time Zone Database](<https://www.iana.org/time-zones>).
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct TimeZone {
+    /// IANA Time Zone Database time zone. For example "America/New_York".
+    #[prost(string, optional, tag = "3355")]
+    pub id: ::core::option::Option<::prost::alloc::string::String>,
+    /// Optional. IANA Time Zone Database version number. For example "2019a".
+    #[prost(string, optional, tag = "351608024")]
+    pub version: ::core::option::Option<::prost::alloc::string::String>,
+}
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct Uint128 {
     #[prost(uint64, optional, tag = "3202466")]
@@ -96155,6 +98810,37 @@ pub struct UpdateLicenseRequest {
     /// update_mask indicates fields to be updated as part of this request.
     #[prost(string, optional, tag = "500079778")]
     pub update_mask: ::core::option::Option<::prost::alloc::string::String>,
+}
+/// A request message for Routers.UpdateNamedSet. See the method description for details.
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct UpdateNamedSetRouterRequest {
+    /// The body resource for this request
+    #[prost(message, optional, tag = "408608401")]
+    pub named_set_resource: ::core::option::Option<NamedSet>,
+    /// Project ID for this request.
+    #[prost(string, tag = "227560217")]
+    pub project: ::prost::alloc::string::String,
+    /// Name of the region for this request.
+    #[prost(string, tag = "138946292")]
+    pub region: ::prost::alloc::string::String,
+    /// An optional request ID to identify requests. Specify a unique request ID so
+    /// that if you must retry your request, the server will know to ignore the
+    /// request if it has already been completed.
+    ///
+    /// For example, consider a situation where you make an initial request and
+    /// the request times out. If you make the request again with the same
+    /// request ID, the server can check if original operation with the same
+    /// request ID was received, and if so, will ignore the second request. This
+    /// prevents clients from accidentally creating duplicate commitments.
+    ///
+    /// The request ID must be
+    /// a valid UUID with the exception that zero UUID is not supported
+    /// (00000000-0000-0000-0000-000000000000).
+    #[prost(string, optional, tag = "37109963")]
+    pub request_id: ::core::option::Option<::prost::alloc::string::String>,
+    /// Name of the Router resource where Named Set is defined.
+    #[prost(string, tag = "148608841")]
+    pub router: ::prost::alloc::string::String,
 }
 /// A request message for Instances.UpdateNetworkInterface. See the method description for details.
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -97204,6 +99890,9 @@ pub struct UrlRewrite {
     /// Only one of path_prefix_rewrite orpath_template_rewrite may be specified.
     #[prost(string, optional, tag = "423409569")]
     pub path_template_rewrite: ::core::option::Option<::prost::alloc::string::String>,
+    /// The regex rewrite to be applied to the URL. Only one ofpathPrefixRewrite, pathTemplateRewrite, orregexRewrite may be specified.
+    #[prost(message, optional, tag = "380801428")]
+    pub regex_rewrite: ::core::option::Option<RegexRewrite>,
 }
 /// Subnetwork which the current user has compute.subnetworks.use permission on.
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -98885,7 +101574,6 @@ pub struct WaitZoneOperationRequest {
     #[prost(string, tag = "3744684")]
     pub zone: ::prost::alloc::string::String,
 }
-/// Informational warning message.
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Warning {
     /// \[Output Only\] A warning code, if applicable. For example, Compute
@@ -98901,7 +101589,7 @@ pub struct Warning {
     /// {
     /// "key": "scope",
     /// "value": "zones/us-east1-d"
-    /// }
+    /// }\]
     #[prost(message, repeated, tag = "3076010")]
     pub data: ::prost::alloc::vec::Vec<Data>,
     /// \[Output Only\] A human-readable description of the warning code.
@@ -99115,7 +101803,7 @@ pub struct Warnings {
     /// {
     /// "key": "scope",
     /// "value": "zones/us-east1-d"
-    /// }
+    /// }\]
     #[prost(message, repeated, tag = "3076010")]
     pub data: ::prost::alloc::vec::Vec<Data>,
     /// \[Output Only\] A human-readable description of the warning code.
@@ -99857,7 +102545,7 @@ pub mod xpn_resource_id {
 /// A zone is a deployment area. These deployment areas are subsets of a region.
 /// For example the zone us-east1-b is located in theus-east1 region. For more information, readRegions and
 /// Zones.
-#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+#[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Zone {
     /// \[Output Only\] Available cpu/platform selections for the zone.
     #[prost(string, repeated, tag = "175536531")]
@@ -99888,6 +102576,8 @@ pub struct Zone {
     /// \[Output Only\] Full URL reference to the region which hosts the zone.
     #[prost(string, optional, tag = "138946292")]
     pub region: ::core::option::Option<::prost::alloc::string::String>,
+    #[prost(message, optional, tag = "249429315")]
+    pub resource_status: ::core::option::Option<ZoneResourceStatus>,
     /// \[Output Only\] Server-defined URL for the resource.
     #[prost(string, optional, tag = "456214797")]
     pub self_link: ::core::option::Option<::prost::alloc::string::String>,
@@ -99968,6 +102658,14 @@ pub struct ZoneList {
     /// \[Output Only\] Informational warning message.
     #[prost(message, optional, tag = "50704284")]
     pub warning: ::core::option::Option<Warning>,
+}
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct ZoneResourceStatus {
+    /// Output only. \[Output Only\] The upcoming maintenance schedule.
+    #[prost(message, repeated, tag = "68484611")]
+    pub upcoming_maintenances: ::prost::alloc::vec::Vec<
+        PeriodicPartialMaintenanceSchedule,
+    >,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ZoneSetLabelsRequest {
@@ -100617,6 +103315,60 @@ pub mod advice_client {
             req.extensions_mut()
                 .insert(
                     GrpcMethod::new("google.cloud.compute.v1.Advice", "CalendarMode"),
+                );
+            self.inner.unary(req, path, codec).await
+        }
+        /// Advice on making real-time decisions (such as choosing zone or
+        /// machine types) during deployment to maximize your chances of obtaining
+        /// capacity.
+        pub async fn capacity(
+            &mut self,
+            request: impl tonic::IntoRequest<super::CapacityAdviceRpcRequest>,
+        ) -> std::result::Result<
+            tonic::Response<super::CapacityAdviceResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::unknown(
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic_prost::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/google.cloud.compute.v1.Advice/Capacity",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(GrpcMethod::new("google.cloud.compute.v1.Advice", "Capacity"));
+            self.inner.unary(req, path, codec).await
+        }
+        /// Gets the capacity history.
+        pub async fn capacity_history(
+            &mut self,
+            request: impl tonic::IntoRequest<super::CapacityHistoryAdviceRequest>,
+        ) -> std::result::Result<
+            tonic::Response<super::CapacityHistoryResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::unknown(
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic_prost::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/google.cloud.compute.v1.Advice/CapacityHistory",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(
+                    GrpcMethod::new("google.cloud.compute.v1.Advice", "CapacityHistory"),
                 );
             self.inner.unary(req, path, codec).await
         }
@@ -101792,7 +104544,10 @@ pub mod backend_services_client {
                 );
             self.inner.unary(req, path, codec).await
         }
-        /// Retrieves a list of all usable backend services in the specified project.
+        /// Retrieves a list of all usable backend services for Application Load
+        /// Balancers and Proxy Network Load Balancers in the specified project.
+        /// Backend services for external and internal passthrough Network Load
+        /// Balancers are not included in the response.
         pub async fn list_usable(
             &mut self,
             request: impl tonic::IntoRequest<super::ListUsableBackendServicesRequest>,
@@ -105307,6 +108062,162 @@ pub mod global_forwarding_rules_client {
     }
 }
 /// Generated client implementations.
+pub mod global_frontend_settings_service_client {
+    #![allow(
+        unused_variables,
+        dead_code,
+        missing_docs,
+        clippy::wildcard_imports,
+        clippy::let_unit_value,
+    )]
+    use tonic::codegen::*;
+    use tonic::codegen::http::Uri;
+    /// The GlobalFrontendSettings API.
+    #[derive(Debug, Clone)]
+    pub struct GlobalFrontendSettingsServiceClient<T> {
+        inner: tonic::client::Grpc<T>,
+    }
+    impl GlobalFrontendSettingsServiceClient<tonic::transport::Channel> {
+        /// Attempt to create a new client by connecting to a given endpoint.
+        pub async fn connect<D>(dst: D) -> Result<Self, tonic::transport::Error>
+        where
+            D: TryInto<tonic::transport::Endpoint>,
+            D::Error: Into<StdError>,
+        {
+            let conn = tonic::transport::Endpoint::new(dst)?.connect().await?;
+            Ok(Self::new(conn))
+        }
+    }
+    impl<T> GlobalFrontendSettingsServiceClient<T>
+    where
+        T: tonic::client::GrpcService<tonic::body::Body>,
+        T::Error: Into<StdError>,
+        T::ResponseBody: Body<Data = Bytes> + std::marker::Send + 'static,
+        <T::ResponseBody as Body>::Error: Into<StdError> + std::marker::Send,
+    {
+        pub fn new(inner: T) -> Self {
+            let inner = tonic::client::Grpc::new(inner);
+            Self { inner }
+        }
+        pub fn with_origin(inner: T, origin: Uri) -> Self {
+            let inner = tonic::client::Grpc::with_origin(inner, origin);
+            Self { inner }
+        }
+        pub fn with_interceptor<F>(
+            inner: T,
+            interceptor: F,
+        ) -> GlobalFrontendSettingsServiceClient<InterceptedService<T, F>>
+        where
+            F: tonic::service::Interceptor,
+            T::ResponseBody: Default,
+            T: tonic::codegen::Service<
+                http::Request<tonic::body::Body>,
+                Response = http::Response<
+                    <T as tonic::client::GrpcService<tonic::body::Body>>::ResponseBody,
+                >,
+            >,
+            <T as tonic::codegen::Service<
+                http::Request<tonic::body::Body>,
+            >>::Error: Into<StdError> + std::marker::Send + std::marker::Sync,
+        {
+            GlobalFrontendSettingsServiceClient::new(
+                InterceptedService::new(inner, interceptor),
+            )
+        }
+        /// Compress requests with the given encoding.
+        ///
+        /// This requires the server to support it otherwise it might respond with an
+        /// error.
+        #[must_use]
+        pub fn send_compressed(mut self, encoding: CompressionEncoding) -> Self {
+            self.inner = self.inner.send_compressed(encoding);
+            self
+        }
+        /// Enable decompressing responses.
+        #[must_use]
+        pub fn accept_compressed(mut self, encoding: CompressionEncoding) -> Self {
+            self.inner = self.inner.accept_compressed(encoding);
+            self
+        }
+        /// Limits the maximum size of a decoded message.
+        ///
+        /// Default: `4MB`
+        #[must_use]
+        pub fn max_decoding_message_size(mut self, limit: usize) -> Self {
+            self.inner = self.inner.max_decoding_message_size(limit);
+            self
+        }
+        /// Limits the maximum size of an encoded message.
+        ///
+        /// Default: `usize::MAX`
+        #[must_use]
+        pub fn max_encoding_message_size(mut self, limit: usize) -> Self {
+            self.inner = self.inner.max_encoding_message_size(limit);
+            self
+        }
+        /// Gets the Global Frontend Billing Bundle Settings for a project.
+        pub async fn get(
+            &mut self,
+            request: impl tonic::IntoRequest<super::GetGlobalFrontendSettingRequest>,
+        ) -> std::result::Result<
+            tonic::Response<super::GlobalFrontendSettings>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::unknown(
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic_prost::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/google.cloud.compute.v1.GlobalFrontendSettingsService/Get",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(
+                    GrpcMethod::new(
+                        "google.cloud.compute.v1.GlobalFrontendSettingsService",
+                        "Get",
+                    ),
+                );
+            self.inner.unary(req, path, codec).await
+        }
+        /// Updates the Global Frontend Billing Bundle Settings for a project.
+        pub async fn patch(
+            &mut self,
+            request: impl tonic::IntoRequest<super::PatchGlobalFrontendSettingRequest>,
+        ) -> std::result::Result<
+            tonic::Response<super::GlobalFrontendSettingsPatchResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::unknown(
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic_prost::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/google.cloud.compute.v1.GlobalFrontendSettingsService/Patch",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(
+                    GrpcMethod::new(
+                        "google.cloud.compute.v1.GlobalFrontendSettingsService",
+                        "Patch",
+                    ),
+                );
+            self.inner.unary(req, path, codec).await
+        }
+    }
+}
+/// Generated client implementations.
 pub mod global_network_endpoint_groups_client {
     #![allow(
         unused_variables,
@@ -106901,6 +109812,169 @@ pub mod health_checks_client {
     }
 }
 /// Generated client implementations.
+pub mod hosts_client {
+    #![allow(
+        unused_variables,
+        dead_code,
+        missing_docs,
+        clippy::wildcard_imports,
+        clippy::let_unit_value,
+    )]
+    use tonic::codegen::*;
+    use tonic::codegen::http::Uri;
+    /// The Hosts API.
+    #[derive(Debug, Clone)]
+    pub struct HostsClient<T> {
+        inner: tonic::client::Grpc<T>,
+    }
+    impl HostsClient<tonic::transport::Channel> {
+        /// Attempt to create a new client by connecting to a given endpoint.
+        pub async fn connect<D>(dst: D) -> Result<Self, tonic::transport::Error>
+        where
+            D: TryInto<tonic::transport::Endpoint>,
+            D::Error: Into<StdError>,
+        {
+            let conn = tonic::transport::Endpoint::new(dst)?.connect().await?;
+            Ok(Self::new(conn))
+        }
+    }
+    impl<T> HostsClient<T>
+    where
+        T: tonic::client::GrpcService<tonic::body::Body>,
+        T::Error: Into<StdError>,
+        T::ResponseBody: Body<Data = Bytes> + std::marker::Send + 'static,
+        <T::ResponseBody as Body>::Error: Into<StdError> + std::marker::Send,
+    {
+        pub fn new(inner: T) -> Self {
+            let inner = tonic::client::Grpc::new(inner);
+            Self { inner }
+        }
+        pub fn with_origin(inner: T, origin: Uri) -> Self {
+            let inner = tonic::client::Grpc::with_origin(inner, origin);
+            Self { inner }
+        }
+        pub fn with_interceptor<F>(
+            inner: T,
+            interceptor: F,
+        ) -> HostsClient<InterceptedService<T, F>>
+        where
+            F: tonic::service::Interceptor,
+            T::ResponseBody: Default,
+            T: tonic::codegen::Service<
+                http::Request<tonic::body::Body>,
+                Response = http::Response<
+                    <T as tonic::client::GrpcService<tonic::body::Body>>::ResponseBody,
+                >,
+            >,
+            <T as tonic::codegen::Service<
+                http::Request<tonic::body::Body>,
+            >>::Error: Into<StdError> + std::marker::Send + std::marker::Sync,
+        {
+            HostsClient::new(InterceptedService::new(inner, interceptor))
+        }
+        /// Compress requests with the given encoding.
+        ///
+        /// This requires the server to support it otherwise it might respond with an
+        /// error.
+        #[must_use]
+        pub fn send_compressed(mut self, encoding: CompressionEncoding) -> Self {
+            self.inner = self.inner.send_compressed(encoding);
+            self
+        }
+        /// Enable decompressing responses.
+        #[must_use]
+        pub fn accept_compressed(mut self, encoding: CompressionEncoding) -> Self {
+            self.inner = self.inner.accept_compressed(encoding);
+            self
+        }
+        /// Limits the maximum size of a decoded message.
+        ///
+        /// Default: `4MB`
+        #[must_use]
+        pub fn max_decoding_message_size(mut self, limit: usize) -> Self {
+            self.inner = self.inner.max_decoding_message_size(limit);
+            self
+        }
+        /// Limits the maximum size of an encoded message.
+        ///
+        /// Default: `usize::MAX`
+        #[must_use]
+        pub fn max_encoding_message_size(mut self, limit: usize) -> Self {
+            self.inner = self.inner.max_encoding_message_size(limit);
+            self
+        }
+        /// Retrieves information about the specified host.
+        pub async fn get(
+            &mut self,
+            request: impl tonic::IntoRequest<super::GetHostRequest>,
+        ) -> std::result::Result<tonic::Response<super::Host>, tonic::Status> {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::unknown(
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic_prost::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/google.cloud.compute.v1.Hosts/Get",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(GrpcMethod::new("google.cloud.compute.v1.Hosts", "Get"));
+            self.inner.unary(req, path, codec).await
+        }
+        /// Allows customers to get SBOM versions of a host.
+        pub async fn get_version(
+            &mut self,
+            request: impl tonic::IntoRequest<super::GetVersionHostRequest>,
+        ) -> std::result::Result<tonic::Response<super::Operation>, tonic::Status> {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::unknown(
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic_prost::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/google.cloud.compute.v1.Hosts/GetVersion",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(GrpcMethod::new("google.cloud.compute.v1.Hosts", "GetVersion"));
+            self.inner.unary(req, path, codec).await
+        }
+        /// Retrieves a list of hosts.
+        pub async fn list(
+            &mut self,
+            request: impl tonic::IntoRequest<super::ListHostsRequest>,
+        ) -> std::result::Result<
+            tonic::Response<super::HostsListResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::unknown(
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic_prost::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/google.cloud.compute.v1.Hosts/List",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(GrpcMethod::new("google.cloud.compute.v1.Hosts", "List"));
+            self.inner.unary(req, path, codec).await
+        }
+    }
+}
+/// Generated client implementations.
 pub mod image_family_views_client {
     #![allow(
         unused_variables,
@@ -107018,6 +110092,149 @@ pub mod image_family_views_client {
                 .insert(
                     GrpcMethod::new("google.cloud.compute.v1.ImageFamilyViews", "Get"),
                 );
+            self.inner.unary(req, path, codec).await
+        }
+    }
+}
+/// Generated client implementations.
+pub mod image_views_client {
+    #![allow(
+        unused_variables,
+        dead_code,
+        missing_docs,
+        clippy::wildcard_imports,
+        clippy::let_unit_value,
+    )]
+    use tonic::codegen::*;
+    use tonic::codegen::http::Uri;
+    /// The ImageViews API.
+    #[derive(Debug, Clone)]
+    pub struct ImageViewsClient<T> {
+        inner: tonic::client::Grpc<T>,
+    }
+    impl ImageViewsClient<tonic::transport::Channel> {
+        /// Attempt to create a new client by connecting to a given endpoint.
+        pub async fn connect<D>(dst: D) -> Result<Self, tonic::transport::Error>
+        where
+            D: TryInto<tonic::transport::Endpoint>,
+            D::Error: Into<StdError>,
+        {
+            let conn = tonic::transport::Endpoint::new(dst)?.connect().await?;
+            Ok(Self::new(conn))
+        }
+    }
+    impl<T> ImageViewsClient<T>
+    where
+        T: tonic::client::GrpcService<tonic::body::Body>,
+        T::Error: Into<StdError>,
+        T::ResponseBody: Body<Data = Bytes> + std::marker::Send + 'static,
+        <T::ResponseBody as Body>::Error: Into<StdError> + std::marker::Send,
+    {
+        pub fn new(inner: T) -> Self {
+            let inner = tonic::client::Grpc::new(inner);
+            Self { inner }
+        }
+        pub fn with_origin(inner: T, origin: Uri) -> Self {
+            let inner = tonic::client::Grpc::with_origin(inner, origin);
+            Self { inner }
+        }
+        pub fn with_interceptor<F>(
+            inner: T,
+            interceptor: F,
+        ) -> ImageViewsClient<InterceptedService<T, F>>
+        where
+            F: tonic::service::Interceptor,
+            T::ResponseBody: Default,
+            T: tonic::codegen::Service<
+                http::Request<tonic::body::Body>,
+                Response = http::Response<
+                    <T as tonic::client::GrpcService<tonic::body::Body>>::ResponseBody,
+                >,
+            >,
+            <T as tonic::codegen::Service<
+                http::Request<tonic::body::Body>,
+            >>::Error: Into<StdError> + std::marker::Send + std::marker::Sync,
+        {
+            ImageViewsClient::new(InterceptedService::new(inner, interceptor))
+        }
+        /// Compress requests with the given encoding.
+        ///
+        /// This requires the server to support it otherwise it might respond with an
+        /// error.
+        #[must_use]
+        pub fn send_compressed(mut self, encoding: CompressionEncoding) -> Self {
+            self.inner = self.inner.send_compressed(encoding);
+            self
+        }
+        /// Enable decompressing responses.
+        #[must_use]
+        pub fn accept_compressed(mut self, encoding: CompressionEncoding) -> Self {
+            self.inner = self.inner.accept_compressed(encoding);
+            self
+        }
+        /// Limits the maximum size of a decoded message.
+        ///
+        /// Default: `4MB`
+        #[must_use]
+        pub fn max_decoding_message_size(mut self, limit: usize) -> Self {
+            self.inner = self.inner.max_decoding_message_size(limit);
+            self
+        }
+        /// Limits the maximum size of an encoded message.
+        ///
+        /// Default: `usize::MAX`
+        #[must_use]
+        pub fn max_encoding_message_size(mut self, limit: usize) -> Self {
+            self.inner = self.inner.max_encoding_message_size(limit);
+            self
+        }
+        /// Returns the specified global ImageView resource, with a regional
+        /// context.
+        pub async fn get(
+            &mut self,
+            request: impl tonic::IntoRequest<super::GetImageViewRequest>,
+        ) -> std::result::Result<tonic::Response<super::ImageView>, tonic::Status> {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::unknown(
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic_prost::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/google.cloud.compute.v1.ImageViews/Get",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(GrpcMethod::new("google.cloud.compute.v1.ImageViews", "Get"));
+            self.inner.unary(req, path, codec).await
+        }
+        /// Returns a list of global ImageView resources, with a regional
+        /// context.
+        pub async fn list(
+            &mut self,
+            request: impl tonic::IntoRequest<super::ListImageViewsRequest>,
+        ) -> std::result::Result<
+            tonic::Response<super::ImageViewsListResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::unknown(
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic_prost::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/google.cloud.compute.v1.ImageViews/List",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(GrpcMethod::new("google.cloud.compute.v1.ImageViews", "List"));
             self.inner.unary(req, path, codec).await
         }
     }
@@ -113382,6 +116599,30 @@ pub mod interconnects_client {
                 );
             self.inner.unary(req, path, codec).await
         }
+        /// Sets name of an interconnect.
+        pub async fn set_name(
+            &mut self,
+            request: impl tonic::IntoRequest<super::SetNameInterconnectRequest>,
+        ) -> std::result::Result<tonic::Response<super::Operation>, tonic::Status> {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::unknown(
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic_prost::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/google.cloud.compute.v1.Interconnects/SetName",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(
+                    GrpcMethod::new("google.cloud.compute.v1.Interconnects", "SetName"),
+                );
+            self.inner.unary(req, path, codec).await
+        }
     }
 }
 /// Generated client implementations.
@@ -114396,6 +117637,151 @@ pub mod machine_types_client {
             let mut req = request.into_request();
             req.extensions_mut()
                 .insert(GrpcMethod::new("google.cloud.compute.v1.MachineTypes", "List"));
+            self.inner.unary(req, path, codec).await
+        }
+    }
+}
+/// Generated client implementations.
+pub mod managed_rulesets_client {
+    #![allow(
+        unused_variables,
+        dead_code,
+        missing_docs,
+        clippy::wildcard_imports,
+        clippy::let_unit_value,
+    )]
+    use tonic::codegen::*;
+    use tonic::codegen::http::Uri;
+    /// The ManagedRulesets API.
+    #[derive(Debug, Clone)]
+    pub struct ManagedRulesetsClient<T> {
+        inner: tonic::client::Grpc<T>,
+    }
+    impl ManagedRulesetsClient<tonic::transport::Channel> {
+        /// Attempt to create a new client by connecting to a given endpoint.
+        pub async fn connect<D>(dst: D) -> Result<Self, tonic::transport::Error>
+        where
+            D: TryInto<tonic::transport::Endpoint>,
+            D::Error: Into<StdError>,
+        {
+            let conn = tonic::transport::Endpoint::new(dst)?.connect().await?;
+            Ok(Self::new(conn))
+        }
+    }
+    impl<T> ManagedRulesetsClient<T>
+    where
+        T: tonic::client::GrpcService<tonic::body::Body>,
+        T::Error: Into<StdError>,
+        T::ResponseBody: Body<Data = Bytes> + std::marker::Send + 'static,
+        <T::ResponseBody as Body>::Error: Into<StdError> + std::marker::Send,
+    {
+        pub fn new(inner: T) -> Self {
+            let inner = tonic::client::Grpc::new(inner);
+            Self { inner }
+        }
+        pub fn with_origin(inner: T, origin: Uri) -> Self {
+            let inner = tonic::client::Grpc::with_origin(inner, origin);
+            Self { inner }
+        }
+        pub fn with_interceptor<F>(
+            inner: T,
+            interceptor: F,
+        ) -> ManagedRulesetsClient<InterceptedService<T, F>>
+        where
+            F: tonic::service::Interceptor,
+            T::ResponseBody: Default,
+            T: tonic::codegen::Service<
+                http::Request<tonic::body::Body>,
+                Response = http::Response<
+                    <T as tonic::client::GrpcService<tonic::body::Body>>::ResponseBody,
+                >,
+            >,
+            <T as tonic::codegen::Service<
+                http::Request<tonic::body::Body>,
+            >>::Error: Into<StdError> + std::marker::Send + std::marker::Sync,
+        {
+            ManagedRulesetsClient::new(InterceptedService::new(inner, interceptor))
+        }
+        /// Compress requests with the given encoding.
+        ///
+        /// This requires the server to support it otherwise it might respond with an
+        /// error.
+        #[must_use]
+        pub fn send_compressed(mut self, encoding: CompressionEncoding) -> Self {
+            self.inner = self.inner.send_compressed(encoding);
+            self
+        }
+        /// Enable decompressing responses.
+        #[must_use]
+        pub fn accept_compressed(mut self, encoding: CompressionEncoding) -> Self {
+            self.inner = self.inner.accept_compressed(encoding);
+            self
+        }
+        /// Limits the maximum size of a decoded message.
+        ///
+        /// Default: `4MB`
+        #[must_use]
+        pub fn max_decoding_message_size(mut self, limit: usize) -> Self {
+            self.inner = self.inner.max_decoding_message_size(limit);
+            self
+        }
+        /// Limits the maximum size of an encoded message.
+        ///
+        /// Default: `usize::MAX`
+        #[must_use]
+        pub fn max_encoding_message_size(mut self, limit: usize) -> Self {
+            self.inner = self.inner.max_encoding_message_size(limit);
+            self
+        }
+        /// Gets the details for the specified managed ruleset name.
+        pub async fn get(
+            &mut self,
+            request: impl tonic::IntoRequest<super::GetManagedRulesetRequest>,
+        ) -> std::result::Result<tonic::Response<super::ManagedRuleset>, tonic::Status> {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::unknown(
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic_prost::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/google.cloud.compute.v1.ManagedRulesets/Get",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(
+                    GrpcMethod::new("google.cloud.compute.v1.ManagedRulesets", "Get"),
+                );
+            self.inner.unary(req, path, codec).await
+        }
+        /// Retrieves the list of all the managed rulesets available.
+        pub async fn list(
+            &mut self,
+            request: impl tonic::IntoRequest<super::ListManagedRulesetsRequest>,
+        ) -> std::result::Result<
+            tonic::Response<super::ManagedRulesetList>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::unknown(
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic_prost::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/google.cloud.compute.v1.ManagedRulesets/List",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(
+                    GrpcMethod::new("google.cloud.compute.v1.ManagedRulesets", "List"),
+                );
             self.inner.unary(req, path, codec).await
         }
     }
@@ -118762,6 +122148,129 @@ pub mod preview_features_client {
     }
 }
 /// Generated client implementations.
+pub mod project_views_client {
+    #![allow(
+        unused_variables,
+        dead_code,
+        missing_docs,
+        clippy::wildcard_imports,
+        clippy::let_unit_value,
+    )]
+    use tonic::codegen::*;
+    use tonic::codegen::http::Uri;
+    /// The ProjectViews API.
+    #[derive(Debug, Clone)]
+    pub struct ProjectViewsClient<T> {
+        inner: tonic::client::Grpc<T>,
+    }
+    impl ProjectViewsClient<tonic::transport::Channel> {
+        /// Attempt to create a new client by connecting to a given endpoint.
+        pub async fn connect<D>(dst: D) -> Result<Self, tonic::transport::Error>
+        where
+            D: TryInto<tonic::transport::Endpoint>,
+            D::Error: Into<StdError>,
+        {
+            let conn = tonic::transport::Endpoint::new(dst)?.connect().await?;
+            Ok(Self::new(conn))
+        }
+    }
+    impl<T> ProjectViewsClient<T>
+    where
+        T: tonic::client::GrpcService<tonic::body::Body>,
+        T::Error: Into<StdError>,
+        T::ResponseBody: Body<Data = Bytes> + std::marker::Send + 'static,
+        <T::ResponseBody as Body>::Error: Into<StdError> + std::marker::Send,
+    {
+        pub fn new(inner: T) -> Self {
+            let inner = tonic::client::Grpc::new(inner);
+            Self { inner }
+        }
+        pub fn with_origin(inner: T, origin: Uri) -> Self {
+            let inner = tonic::client::Grpc::with_origin(inner, origin);
+            Self { inner }
+        }
+        pub fn with_interceptor<F>(
+            inner: T,
+            interceptor: F,
+        ) -> ProjectViewsClient<InterceptedService<T, F>>
+        where
+            F: tonic::service::Interceptor,
+            T::ResponseBody: Default,
+            T: tonic::codegen::Service<
+                http::Request<tonic::body::Body>,
+                Response = http::Response<
+                    <T as tonic::client::GrpcService<tonic::body::Body>>::ResponseBody,
+                >,
+            >,
+            <T as tonic::codegen::Service<
+                http::Request<tonic::body::Body>,
+            >>::Error: Into<StdError> + std::marker::Send + std::marker::Sync,
+        {
+            ProjectViewsClient::new(InterceptedService::new(inner, interceptor))
+        }
+        /// Compress requests with the given encoding.
+        ///
+        /// This requires the server to support it otherwise it might respond with an
+        /// error.
+        #[must_use]
+        pub fn send_compressed(mut self, encoding: CompressionEncoding) -> Self {
+            self.inner = self.inner.send_compressed(encoding);
+            self
+        }
+        /// Enable decompressing responses.
+        #[must_use]
+        pub fn accept_compressed(mut self, encoding: CompressionEncoding) -> Self {
+            self.inner = self.inner.accept_compressed(encoding);
+            self
+        }
+        /// Limits the maximum size of a decoded message.
+        ///
+        /// Default: `4MB`
+        #[must_use]
+        pub fn max_decoding_message_size(mut self, limit: usize) -> Self {
+            self.inner = self.inner.max_decoding_message_size(limit);
+            self
+        }
+        /// Limits the maximum size of an encoded message.
+        ///
+        /// Default: `usize::MAX`
+        #[must_use]
+        pub fn max_encoding_message_size(mut self, limit: usize) -> Self {
+            self.inner = self.inner.max_encoding_message_size(limit);
+            self
+        }
+        /// Returns the specified global ProjectViews resource, with a regional
+        /// context.
+        /// This regional API endpoint reads resource metadata from regional
+        /// read-only replicas. Because changes are copied to these regional replicas
+        /// asynchronously, for real-time resource reads or any write operations
+        /// (creating, updating, or deleting resources), use the global
+        /// [projects.get](https://cloud.google.com/compute/docs/reference/rest/v1/projects/get)
+        /// endpoint.
+        pub async fn get(
+            &mut self,
+            request: impl tonic::IntoRequest<super::GetProjectViewRequest>,
+        ) -> std::result::Result<tonic::Response<super::ProjectView>, tonic::Status> {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::unknown(
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic_prost::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/google.cloud.compute.v1.ProjectViews/Get",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(GrpcMethod::new("google.cloud.compute.v1.ProjectViews", "Get"));
+            self.inner.unary(req, path, codec).await
+        }
+    }
+}
+/// Generated client implementations.
 pub mod projects_client {
     #![allow(
         unused_variables,
@@ -120804,8 +124313,10 @@ pub mod region_backend_services_client {
                 );
             self.inner.unary(req, path, codec).await
         }
-        /// Retrieves a list of all usable backend services in the specified project in
-        /// the given region.
+        /// Retrieves a list of all usable backend services for Application Load
+        /// Balancers and Proxy Network Load Balancers in the specified project in the
+        /// given region. Backend services for external and internal passthrough
+        /// Network Load Balancers are not included in the response.
         pub async fn list_usable(
             &mut self,
             request: impl tonic::IntoRequest<
@@ -126780,6 +130291,35 @@ pub mod region_network_firewall_policies_client {
                 );
             self.inner.unary(req, path, codec).await
         }
+        /// Updates an association for the specified network firewall policy.
+        pub async fn patch_association(
+            &mut self,
+            request: impl tonic::IntoRequest<
+                super::PatchAssociationRegionNetworkFirewallPolicyRequest,
+            >,
+        ) -> std::result::Result<tonic::Response<super::Operation>, tonic::Status> {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::unknown(
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic_prost::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/google.cloud.compute.v1.RegionNetworkFirewallPolicies/PatchAssociation",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(
+                    GrpcMethod::new(
+                        "google.cloud.compute.v1.RegionNetworkFirewallPolicies",
+                        "PatchAssociation",
+                    ),
+                );
+            self.inner.unary(req, path, codec).await
+        }
         /// Patches a rule of the specified priority.
         pub async fn patch_rule(
             &mut self,
@@ -130084,6 +133624,154 @@ pub mod regions_client {
     }
 }
 /// Generated client implementations.
+pub mod reliability_risks_client {
+    #![allow(
+        unused_variables,
+        dead_code,
+        missing_docs,
+        clippy::wildcard_imports,
+        clippy::let_unit_value,
+    )]
+    use tonic::codegen::*;
+    use tonic::codegen::http::Uri;
+    /// The ReliabilityRisks API.
+    #[derive(Debug, Clone)]
+    pub struct ReliabilityRisksClient<T> {
+        inner: tonic::client::Grpc<T>,
+    }
+    impl ReliabilityRisksClient<tonic::transport::Channel> {
+        /// Attempt to create a new client by connecting to a given endpoint.
+        pub async fn connect<D>(dst: D) -> Result<Self, tonic::transport::Error>
+        where
+            D: TryInto<tonic::transport::Endpoint>,
+            D::Error: Into<StdError>,
+        {
+            let conn = tonic::transport::Endpoint::new(dst)?.connect().await?;
+            Ok(Self::new(conn))
+        }
+    }
+    impl<T> ReliabilityRisksClient<T>
+    where
+        T: tonic::client::GrpcService<tonic::body::Body>,
+        T::Error: Into<StdError>,
+        T::ResponseBody: Body<Data = Bytes> + std::marker::Send + 'static,
+        <T::ResponseBody as Body>::Error: Into<StdError> + std::marker::Send,
+    {
+        pub fn new(inner: T) -> Self {
+            let inner = tonic::client::Grpc::new(inner);
+            Self { inner }
+        }
+        pub fn with_origin(inner: T, origin: Uri) -> Self {
+            let inner = tonic::client::Grpc::with_origin(inner, origin);
+            Self { inner }
+        }
+        pub fn with_interceptor<F>(
+            inner: T,
+            interceptor: F,
+        ) -> ReliabilityRisksClient<InterceptedService<T, F>>
+        where
+            F: tonic::service::Interceptor,
+            T::ResponseBody: Default,
+            T: tonic::codegen::Service<
+                http::Request<tonic::body::Body>,
+                Response = http::Response<
+                    <T as tonic::client::GrpcService<tonic::body::Body>>::ResponseBody,
+                >,
+            >,
+            <T as tonic::codegen::Service<
+                http::Request<tonic::body::Body>,
+            >>::Error: Into<StdError> + std::marker::Send + std::marker::Sync,
+        {
+            ReliabilityRisksClient::new(InterceptedService::new(inner, interceptor))
+        }
+        /// Compress requests with the given encoding.
+        ///
+        /// This requires the server to support it otherwise it might respond with an
+        /// error.
+        #[must_use]
+        pub fn send_compressed(mut self, encoding: CompressionEncoding) -> Self {
+            self.inner = self.inner.send_compressed(encoding);
+            self
+        }
+        /// Enable decompressing responses.
+        #[must_use]
+        pub fn accept_compressed(mut self, encoding: CompressionEncoding) -> Self {
+            self.inner = self.inner.accept_compressed(encoding);
+            self
+        }
+        /// Limits the maximum size of a decoded message.
+        ///
+        /// Default: `4MB`
+        #[must_use]
+        pub fn max_decoding_message_size(mut self, limit: usize) -> Self {
+            self.inner = self.inner.max_decoding_message_size(limit);
+            self
+        }
+        /// Limits the maximum size of an encoded message.
+        ///
+        /// Default: `usize::MAX`
+        #[must_use]
+        pub fn max_encoding_message_size(mut self, limit: usize) -> Self {
+            self.inner = self.inner.max_encoding_message_size(limit);
+            self
+        }
+        /// Returns the specified ReliabilityRisk resource.
+        pub async fn get(
+            &mut self,
+            request: impl tonic::IntoRequest<super::GetReliabilityRiskRequest>,
+        ) -> std::result::Result<
+            tonic::Response<super::ReliabilityRisk>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::unknown(
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic_prost::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/google.cloud.compute.v1.ReliabilityRisks/Get",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(
+                    GrpcMethod::new("google.cloud.compute.v1.ReliabilityRisks", "Get"),
+                );
+            self.inner.unary(req, path, codec).await
+        }
+        /// Retrieves the list of reliabilityRisks available in the specified project.
+        pub async fn list(
+            &mut self,
+            request: impl tonic::IntoRequest<super::ListReliabilityRisksRequest>,
+        ) -> std::result::Result<
+            tonic::Response<super::ReliabilityRisksListResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::unknown(
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic_prost::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/google.cloud.compute.v1.ReliabilityRisks/List",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(
+                    GrpcMethod::new("google.cloud.compute.v1.ReliabilityRisks", "List"),
+                );
+            self.inner.unary(req, path, codec).await
+        }
+    }
+}
+/// Generated client implementations.
 pub mod reservation_blocks_client {
     #![allow(
         unused_variables,
@@ -130464,6 +134152,33 @@ pub mod reservation_slots_client {
             req.extensions_mut()
                 .insert(
                     GrpcMethod::new("google.cloud.compute.v1.ReservationSlots", "Get"),
+                );
+            self.inner.unary(req, path, codec).await
+        }
+        /// Get health info on a reservation slot.
+        pub async fn get_health(
+            &mut self,
+            request: impl tonic::IntoRequest<super::GetHealthReservationSlotRequest>,
+        ) -> std::result::Result<tonic::Response<super::Operation>, tonic::Status> {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::unknown(
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic_prost::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/google.cloud.compute.v1.ReservationSlots/GetHealth",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(
+                    GrpcMethod::new(
+                        "google.cloud.compute.v1.ReservationSlots",
+                        "GetHealth",
+                    ),
                 );
             self.inner.unary(req, path, codec).await
         }
@@ -131887,6 +135602,28 @@ pub mod rollouts_client {
             self.inner = self.inner.max_encoding_message_size(limit);
             self
         }
+        /// Advances a Rollout to the next wave, or completes it if no waves remain.
+        pub async fn advance(
+            &mut self,
+            request: impl tonic::IntoRequest<super::AdvanceRolloutRequest>,
+        ) -> std::result::Result<tonic::Response<super::Operation>, tonic::Status> {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::unknown(
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic_prost::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/google.cloud.compute.v1.Rollouts/Advance",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(GrpcMethod::new("google.cloud.compute.v1.Rollouts", "Advance"));
+            self.inner.unary(req, path, codec).await
+        }
         /// Cancels a Rollout.
         pub async fn cancel(
             &mut self,
@@ -131976,6 +135713,50 @@ pub mod rollouts_client {
             let mut req = request.into_request();
             req.extensions_mut()
                 .insert(GrpcMethod::new("google.cloud.compute.v1.Rollouts", "List"));
+            self.inner.unary(req, path, codec).await
+        }
+        /// Pauses a Rollout.
+        pub async fn pause(
+            &mut self,
+            request: impl tonic::IntoRequest<super::PauseRolloutRequest>,
+        ) -> std::result::Result<tonic::Response<super::Operation>, tonic::Status> {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::unknown(
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic_prost::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/google.cloud.compute.v1.Rollouts/Pause",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(GrpcMethod::new("google.cloud.compute.v1.Rollouts", "Pause"));
+            self.inner.unary(req, path, codec).await
+        }
+        /// Resumes a Rollout.
+        pub async fn resume(
+            &mut self,
+            request: impl tonic::IntoRequest<super::ResumeRolloutRequest>,
+        ) -> std::result::Result<tonic::Response<super::Operation>, tonic::Status> {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::unknown(
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic_prost::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/google.cloud.compute.v1.Rollouts/Resume",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(GrpcMethod::new("google.cloud.compute.v1.Rollouts", "Resume"));
             self.inner.unary(req, path, codec).await
         }
     }
@@ -132124,6 +135905,30 @@ pub mod routers_client {
                 .insert(GrpcMethod::new("google.cloud.compute.v1.Routers", "Delete"));
             self.inner.unary(req, path, codec).await
         }
+        /// Deletes Named Set
+        pub async fn delete_named_set(
+            &mut self,
+            request: impl tonic::IntoRequest<super::DeleteNamedSetRouterRequest>,
+        ) -> std::result::Result<tonic::Response<super::Operation>, tonic::Status> {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::unknown(
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic_prost::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/google.cloud.compute.v1.Routers/DeleteNamedSet",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(
+                    GrpcMethod::new("google.cloud.compute.v1.Routers", "DeleteNamedSet"),
+                );
+            self.inner.unary(req, path, codec).await
+        }
         /// Deletes Route Policy
         pub async fn delete_route_policy(
             &mut self,
@@ -132171,6 +135976,33 @@ pub mod routers_client {
             let mut req = request.into_request();
             req.extensions_mut()
                 .insert(GrpcMethod::new("google.cloud.compute.v1.Routers", "Get"));
+            self.inner.unary(req, path, codec).await
+        }
+        /// Returns specified Named Set
+        pub async fn get_named_set(
+            &mut self,
+            request: impl tonic::IntoRequest<super::GetNamedSetRouterRequest>,
+        ) -> std::result::Result<
+            tonic::Response<super::RoutersGetNamedSetResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::unknown(
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic_prost::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/google.cloud.compute.v1.Routers/GetNamedSet",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(
+                    GrpcMethod::new("google.cloud.compute.v1.Routers", "GetNamedSet"),
+                );
             self.inner.unary(req, path, codec).await
         }
         /// Retrieves runtime NAT IP information.
@@ -132356,6 +136188,34 @@ pub mod routers_client {
                 );
             self.inner.unary(req, path, codec).await
         }
+        /// Retrieves a list of router named set subresources available to the
+        /// specified project.
+        pub async fn list_named_sets(
+            &mut self,
+            request: impl tonic::IntoRequest<super::ListNamedSetsRoutersRequest>,
+        ) -> std::result::Result<
+            tonic::Response<super::RoutersListNamedSets>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::unknown(
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic_prost::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/google.cloud.compute.v1.Routers/ListNamedSets",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(
+                    GrpcMethod::new("google.cloud.compute.v1.Routers", "ListNamedSets"),
+                );
+            self.inner.unary(req, path, codec).await
+        }
         /// Retrieves a list of router route policy subresources available to the
         /// specified project.
         pub async fn list_route_policies(
@@ -132410,6 +136270,30 @@ pub mod routers_client {
             let mut req = request.into_request();
             req.extensions_mut()
                 .insert(GrpcMethod::new("google.cloud.compute.v1.Routers", "Patch"));
+            self.inner.unary(req, path, codec).await
+        }
+        /// Patches Named Set
+        pub async fn patch_named_set(
+            &mut self,
+            request: impl tonic::IntoRequest<super::PatchNamedSetRouterRequest>,
+        ) -> std::result::Result<tonic::Response<super::Operation>, tonic::Status> {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::unknown(
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic_prost::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/google.cloud.compute.v1.Routers/PatchNamedSet",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(
+                    GrpcMethod::new("google.cloud.compute.v1.Routers", "PatchNamedSet"),
+                );
             self.inner.unary(req, path, codec).await
         }
         /// Patches Route Policy
@@ -132488,6 +136372,30 @@ pub mod routers_client {
             let mut req = request.into_request();
             req.extensions_mut()
                 .insert(GrpcMethod::new("google.cloud.compute.v1.Routers", "Update"));
+            self.inner.unary(req, path, codec).await
+        }
+        /// Updates or creates new Named Set
+        pub async fn update_named_set(
+            &mut self,
+            request: impl tonic::IntoRequest<super::UpdateNamedSetRouterRequest>,
+        ) -> std::result::Result<tonic::Response<super::Operation>, tonic::Status> {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::unknown(
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic_prost::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/google.cloud.compute.v1.Routers/UpdateNamedSet",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(
+                    GrpcMethod::new("google.cloud.compute.v1.Routers", "UpdateNamedSet"),
+                );
             self.inner.unary(req, path, codec).await
         }
         /// Updates or creates new Route Policy

@@ -78,6 +78,9 @@ pub struct Repository {
     /// format of this field is a JSON string.
     #[prost(string, optional, tag = "15")]
     pub internal_metadata: ::core::option::Option<::prost::alloc::string::String>,
+    /// Optional. Includes configuration options for end user authentication.
+    #[prost(message, optional, tag = "28")]
+    pub end_user_auth_config: ::core::option::Option<repository::EndUserAuthConfig>,
 }
 /// Nested message and enum types in `Repository`.
 pub mod repository {
@@ -87,9 +90,15 @@ pub mod repository {
         /// Required. The Git remote's URL.
         #[prost(string, tag = "1")]
         pub url: ::prost::alloc::string::String,
-        /// Required. The Git remote's default branch name.
+        /// Optional. The Git remote's default branch name.
+        /// If not set, `main` will be used.
         #[prost(string, tag = "2")]
         pub default_branch: ::prost::alloc::string::String,
+        /// Output only. The Git remote's effective default branch name.
+        /// This is the default branch name of the Git remote if it is set,
+        /// otherwise it is `main`.
+        #[prost(string, tag = "9")]
+        pub effective_default_branch: ::prost::alloc::string::String,
         /// Optional. The name of the Secret Manager secret version to use as an
         /// authentication token for Git operations. Must be in the format
         /// `projects/*/secrets/*/versions/*`.
@@ -100,6 +109,11 @@ pub mod repository {
         pub ssh_authentication_config: ::core::option::Option<
             git_remote_settings::SshAuthenticationConfig,
         >,
+        /// Optional. Resource name for the `GitRepositoryLink` used for machine
+        /// credentials. Must be in the format
+        /// `projects/*/locations/*/connections/*/gitRepositoryLinks/*`
+        #[prost(string, optional, tag = "7")]
+        pub git_repository_link: ::core::option::Option<::prost::alloc::string::String>,
         /// Output only. Deprecated: The field does not contain any token status
         /// information.
         #[deprecated]
@@ -184,6 +198,24 @@ pub mod repository {
         #[prost(string, tag = "3")]
         pub table_prefix: ::prost::alloc::string::String,
     }
+    /// Includes configuration options for repository end user authentication.
+    #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+    pub struct EndUserAuthConfig {
+        /// Optional. OAuth configuration for repository end user authentication.
+        #[prost(message, optional, tag = "1")]
+        pub oauth_config: ::core::option::Option<super::OAuthConfig>,
+    }
+}
+/// OAuth configuration for end user authentication.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct OAuthConfig {
+    /// Optional. Additional OAuth scopes to use for BigQuery executions.
+    /// Scopes always in use:
+    /// `<https://www.googleapis.com/auth/bigquery`>
+    #[prost(string, repeated, tag = "1")]
+    pub additional_oauth_scopes: ::prost::alloc::vec::Vec<
+        ::prost::alloc::string::String,
+    >,
 }
 /// Metadata used to identify if a resource is user scoped.
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
@@ -925,10 +957,12 @@ pub mod directory_entry {
     /// The entry's contents.
     #[derive(Clone, PartialEq, Eq, Hash, ::prost::Oneof)]
     pub enum Entry {
-        /// A file in the directory.
+        /// A file in the directory. The path is returned including the full
+        /// folder structure from the root.
         #[prost(string, tag = "1")]
         File(::prost::alloc::string::String),
-        /// A child directory in the directory.
+        /// A child directory in the directory. The path is returned including
+        /// the full folder structure from the root.
         #[prost(string, tag = "2")]
         Directory(::prost::alloc::string::String),
     }
@@ -1136,6 +1170,10 @@ pub struct InstallNpmPackagesRequest {
     /// Required. The workspace's name.
     #[prost(string, tag = "1")]
     pub workspace: ::prost::alloc::string::String,
+    /// Optional. The pipeline options which defines the pipeline type and path
+    /// within the Git repository.
+    #[prost(message, optional, tag = "3")]
+    pub pipeline_config: ::core::option::Option<PipelineConfig>,
 }
 /// `InstallNpmPackages` response message.
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
@@ -1163,9 +1201,9 @@ pub struct ReleaseConfig {
     #[prost(string, tag = "4")]
     pub cron_schedule: ::prost::alloc::string::String,
     /// Optional. Specifies the time zone to be used when interpreting
-    /// cron_schedule. Must be a time zone name from the time zone database
-    /// (<https://en.wikipedia.org/wiki/List_of_tz_database_time_zones>). If left
-    /// unspecified, the default is UTC.
+    /// cron_schedule. Must be a time zone name from the [time zone
+    /// database](<https://en.wikipedia.org/wiki/List_of_tz_database_time_zones>). If
+    /// left unspecified, the default is `UTC`.
     #[prost(string, tag = "7")]
     pub time_zone: ::prost::alloc::string::String,
     /// Output only. Records of the 10 most recent scheduled release attempts,
@@ -1336,6 +1374,12 @@ pub struct CompilationResult {
     /// from a workspace.
     #[prost(message, optional, tag = "12")]
     pub private_resource_metadata: ::core::option::Option<PrivateResourceMetadata>,
+    /// Output only. Metadata about the repository snapshot used by scheduled
+    /// notebooks.
+    #[prost(message, optional, tag = "13")]
+    pub gcs_repository_snapshot_metadata: ::core::option::Option<
+        GcsRepositorySnapshotMetadata,
+    >,
     /// The source of the compilation result.
     #[prost(oneof = "compilation_result::Source", tags = "2, 3, 7")]
     pub source: ::core::option::Option<compilation_result::Source>,
@@ -1422,6 +1466,38 @@ pub struct CodeCompilationConfig {
     /// Optional. The default notebook runtime options.
     #[prost(message, optional, tag = "9")]
     pub default_notebook_runtime_options: ::core::option::Option<NotebookRuntimeOptions>,
+    /// Optional. The pipeline options which defines the pipeline type and path
+    /// within the Git repository.
+    #[prost(message, optional, tag = "12")]
+    pub pipeline_config: ::core::option::Option<PipelineConfig>,
+    /// Output only. Whether OpenLineage events are emitted for actions in this
+    /// workflow. Reflects the `lineage.enabled` setting from
+    /// `workflow_settings.yaml`.
+    #[prost(bool, optional, tag = "14")]
+    pub lineage_enabled: ::core::option::Option<bool>,
+}
+/// Metadata about a repository snapshot stored in Google Cloud Storage.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct GcsRepositorySnapshotMetadata {
+    /// Output only. The Google Cloud Storage URI of the repository snapshot.
+    #[prost(string, tag = "1")]
+    pub repository_snapshot_uri: ::prost::alloc::string::String,
+    /// Output only. The crc32c checksum of the repository snapshot, big-endian
+    /// base64 encoded.
+    #[prost(string, tag = "2")]
+    pub crc32c_checksum: ::prost::alloc::string::String,
+    /// Output only. The generation number of the Cloud Storage object. See
+    /// <https://cloud.google.com/storage/docs/metadata#generation-number.>
+    #[prost(int64, tag = "3")]
+    pub generation: i64,
+}
+/// Configures the destination for a repository snapshot.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct GcsRepositorySnapshotDestination {
+    /// Optional. The Google Cloud Storage destination to upload the repository
+    /// snapshot to. Format: `gs://bucket-name/path/`.
+    #[prost(string, tag = "1")]
+    pub repository_snapshot_uri: ::prost::alloc::string::String,
 }
 /// Configures various aspects of Dataform notebook runtime.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -1435,6 +1511,12 @@ pub struct NotebookRuntimeOptions {
     /// The location to store the notebook execution result.
     #[prost(oneof = "notebook_runtime_options::ExecutionSink", tags = "1")]
     pub execution_sink: ::core::option::Option<notebook_runtime_options::ExecutionSink>,
+    /// The destination of the snapshot of repository files to be available for
+    /// read-only access inside a notebook runtime
+    #[prost(oneof = "notebook_runtime_options::RepositorySnapshotStorage", tags = "3")]
+    pub repository_snapshot_storage: ::core::option::Option<
+        notebook_runtime_options::RepositorySnapshotStorage,
+    >,
 }
 /// Nested message and enum types in `NotebookRuntimeOptions`.
 pub mod notebook_runtime_options {
@@ -1445,6 +1527,79 @@ pub mod notebook_runtime_options {
         /// Format: `gs://bucket-name`.
         #[prost(string, tag = "1")]
         GcsOutputBucket(::prost::alloc::string::String),
+    }
+    /// The destination of the snapshot of repository files to be available for
+    /// read-only access inside a notebook runtime
+    #[derive(Clone, PartialEq, Eq, Hash, ::prost::Oneof)]
+    pub enum RepositorySnapshotStorage {
+        /// Optional. The Google Cloud Storage destination to upload the snapshot to.
+        /// For empty URI it defaults to the provided gcs_output_bucket.
+        /// Format: `gs://bucket-name/path/`.
+        #[prost(message, tag = "3")]
+        GcsRepositorySnapshotDestination(super::GcsRepositorySnapshotDestination),
+    }
+}
+/// Defines the pipeline type and path within the Git repository.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct PipelineConfig {
+    /// Required. The type of the pipeline.
+    #[prost(enumeration = "pipeline_config::PipelineType", tag = "1")]
+    pub pipeline_type: i32,
+    /// Required. The relative path within the Git repository where the pipeline is
+    /// defined. For example, for a Dataform pipeline, it is a path to the folder
+    /// where `workflow_settings.yaml` or `dataform.json` is located.
+    #[prost(string, tag = "2")]
+    pub path: ::prost::alloc::string::String,
+}
+/// Nested message and enum types in `PipelineConfig`.
+pub mod pipeline_config {
+    /// The type of the pipeline. This may be extended in the future.
+    /// In case of UNSPECIFIED, the error will be thrown.
+    #[derive(
+        Clone,
+        Copy,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash,
+        PartialOrd,
+        Ord,
+        ::prost::Enumeration
+    )]
+    #[repr(i32)]
+    pub enum PipelineType {
+        /// Default value. This value is unused.
+        Unspecified = 0,
+        /// Regular Dataform pipeline.
+        Dataform = 1,
+        /// SQL single file asset.
+        Sql = 3,
+        /// Notebook single file asset.
+        Notebook = 4,
+    }
+    impl PipelineType {
+        /// String value of the enum field names used in the ProtoBuf definition.
+        ///
+        /// The values are not transformed in any way and thus are considered stable
+        /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+        pub fn as_str_name(&self) -> &'static str {
+            match self {
+                Self::Unspecified => "PIPELINE_TYPE_UNSPECIFIED",
+                Self::Dataform => "DATAFORM",
+                Self::Sql => "SQL",
+                Self::Notebook => "NOTEBOOK",
+            }
+        }
+        /// Creates an enum from field names used in the ProtoBuf definition.
+        pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+            match value {
+                "PIPELINE_TYPE_UNSPECIFIED" => Some(Self::Unspecified),
+                "DATAFORM" => Some(Self::Dataform),
+                "SQL" => Some(Self::Sql),
+                "NOTEBOOK" => Some(Self::Notebook),
+                _ => None,
+            }
+        }
     }
 }
 /// `ListCompilationResults` request message.
@@ -2078,9 +2233,9 @@ pub struct WorkflowConfig {
     #[prost(string, tag = "4")]
     pub cron_schedule: ::prost::alloc::string::String,
     /// Optional. Specifies the time zone to be used when interpreting
-    /// cron_schedule. Must be a time zone name from the time zone database
-    /// (<https://en.wikipedia.org/wiki/List_of_tz_database_time_zones>). If left
-    /// unspecified, the default is UTC.
+    /// cron_schedule. Must be a time zone name from the [time zone
+    /// database](<https://en.wikipedia.org/wiki/List_of_tz_database_time_zones>). If
+    /// left unspecified, the default is `UTC`.
     #[prost(string, tag = "7")]
     pub time_zone: ::prost::alloc::string::String,
     /// Output only. Records of the 10 most recent scheduled execution attempts,
@@ -2160,6 +2315,12 @@ pub struct InvocationConfig {
     /// Optional. The service account to run workflow invocations under.
     #[prost(string, tag = "6")]
     pub service_account: ::prost::alloc::string::String,
+    /// Optional. Configuration for end user authentication.
+    /// Note that this should not be set when `service_account` is used.
+    #[prost(message, optional, tag = "7")]
+    pub end_user_auth_config: ::core::option::Option<
+        invocation_config::EndUserAuthenticationConfig,
+    >,
     /// Optional. Specifies the priority for query execution in BigQuery.
     /// More information can be found at
     /// <https://cloud.google.com/bigquery/docs/running-queries#queries.>
@@ -2168,6 +2329,16 @@ pub struct InvocationConfig {
 }
 /// Nested message and enum types in `InvocationConfig`.
 pub mod invocation_config {
+    /// Includes configuration options for end user authentication.
+    #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+    pub struct EndUserAuthenticationConfig {
+        /// Output only. Email address of the user to run workflow invocations under.
+        #[prost(string, tag = "2")]
+        pub user_email: ::prost::alloc::string::String,
+        /// Optional. OAuth configuration for end user authentication.
+        #[prost(message, optional, tag = "4")]
+        pub oauth_config: ::core::option::Option<super::OAuthConfig>,
+    }
     /// Types of priority for query execution in BigQuery.
     #[derive(
         Clone,
@@ -2324,6 +2495,10 @@ pub struct WorkflowInvocation {
     /// from a compilation result and the compilation result is user-scoped.
     #[prost(message, optional, tag = "10")]
     pub private_resource_metadata: ::core::option::Option<PrivateResourceMetadata>,
+    /// Output only. The pipeline options which defines the pipeline type and path
+    /// within the Git repository.
+    #[prost(message, optional, tag = "11")]
+    pub pipeline_config: ::core::option::Option<PipelineConfig>,
     /// The source of the compilation result to use for this invocation.
     #[prost(oneof = "workflow_invocation::CompilationSource", tags = "2, 6")]
     pub compilation_source: ::core::option::Option<
@@ -2533,11 +2708,15 @@ pub mod workflow_invocation_action {
         /// Output only. The code contents of a Notebook to be run.
         #[prost(string, tag = "1")]
         pub contents: ::prost::alloc::string::String,
-        /// Output only. The ID of the Vertex job that executed the notebook in
-        /// contents and also the ID used for the outputs created in Google Cloud
-        /// Storage buckets. Only set once the job has started to run.
+        /// Output only. The ID of the Gemini Enterprise Agent Platform job that
+        /// executed the notebook in contents and also the ID used for the outputs
+        /// created in Google Cloud Storage buckets. Only set once the job has
+        /// started to run.
         #[prost(string, tag = "2")]
         pub job_id: ::prost::alloc::string::String,
+        /// Output only. The path to the notebook file in the repository.
+        #[prost(string, tag = "3")]
+        pub file_path: ::prost::alloc::string::String,
     }
     /// Represents a workflow action that will run a Data Preparation.
     #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -2786,8 +2965,8 @@ pub struct Folder {
     /// Optional. The containing Folder resource name. This should take
     /// the format: projects/{project}/locations/{location}/folders/{folder},
     /// projects/{project}/locations/{location}/teamFolders/{teamFolder}, or just
-    /// projects/{project}/locations/{location} if this is a root Folder. This
-    /// field can only be updated through MoveFolder.
+    /// "" if this is a root Folder. This field can only be updated through
+    /// MoveFolder.
     #[prost(string, tag = "3")]
     pub containing_folder: ::prost::alloc::string::String,
     /// Output only. The resource name of the TeamFolder that this Folder is
@@ -2978,7 +3157,7 @@ pub mod delete_folder_tree_metadata {
 /// `QueryFolderContents` request message.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct QueryFolderContentsRequest {
-    /// Required. Name of the folder whose contents to list.
+    /// Required. Resource name of the Folder to list contents for.
     /// Format: projects/*/locations/*/folders/\*
     #[prost(string, tag = "1")]
     pub folder: ::prost::alloc::string::String,
@@ -3053,7 +3232,7 @@ pub mod query_folder_contents_response {
 /// `QueryUserRootContents` request message.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct QueryUserRootContentsRequest {
-    /// Required. Location of the user root folder whose contents to list.
+    /// Required. Location of the user root folder to list contents for.
     /// Format: projects/*/locations/*
     #[prost(string, tag = "1")]
     pub location: ::prost::alloc::string::String,
@@ -3189,7 +3368,7 @@ pub struct DeleteTeamFolderRequest {
 /// `QueryTeamFolderContents` request message.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct QueryTeamFolderContentsRequest {
-    /// Required. Name of the team_folder whose contents to list.
+    /// Required. Resource name of the TeamFolder to list contents for.
     /// Format: `projects/*/locations/*/teamFolders/*`.
     #[prost(string, tag = "1")]
     pub team_folder: ::prost::alloc::string::String,
@@ -3268,9 +3447,9 @@ pub struct SearchTeamFoldersRequest {
     /// Format: `projects/*/locations/*`.
     #[prost(string, tag = "1")]
     pub location: ::prost::alloc::string::String,
-    /// Optional. Maximum number of TeamFolders to return. The server may return
-    /// fewer items than requested. If unspecified, the server will pick an
-    /// appropriate default.
+    /// Optional. Maximum number of `TeamFolders` to return. The server may return
+    /// fewer items than requested. If unspecified, the server will pick a default
+    /// of `page_size` = 50.
     #[prost(int32, tag = "2")]
     pub page_size: i32,
     /// Optional. Page token received from a previous `SearchTeamFolders` call.
@@ -3483,7 +3662,7 @@ pub mod move_repository_metadata {
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
 #[repr(i32)]
 pub enum DirectoryContentsView {
-    /// The default / unset value. Defaults to DIRECTORY_CONTENTS_VIEW_BASIC.
+    /// The default unset value. Defaults to DIRECTORY_CONTENTS_VIEW_BASIC.
     Unspecified = 0,
     /// Includes only the file or directory name. This is the default behavior.
     Basic = 1,

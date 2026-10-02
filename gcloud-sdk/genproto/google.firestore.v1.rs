@@ -265,9 +265,12 @@ pub struct StructuredQuery {
     pub r#where: ::core::option::Option<structured_query::Filter>,
     /// The order to apply to the query results.
     ///
-    /// Firestore allows callers to provide a full ordering, a partial ordering, or
-    /// no ordering at all. In all cases, Firestore guarantees a stable ordering
-    /// through the following rules:
+    /// Callers can provide a full ordering, a partial ordering, or no ordering at
+    /// all. While Firestore will always respect the provided order, the behavior
+    /// for queries without a full ordering is different per database edition:
+    ///
+    /// In Standard edition, Firestore guarantees a stable ordering through the
+    /// following rules:
     ///
     /// * The `order_by` is required to reference all fields used with an
     ///   inequality filter.
@@ -283,6 +286,13 @@ pub struct StructuredQuery {
     /// * `WHERE a > 1` becomes `WHERE a > 1 ORDER BY a ASC, __name__ ASC`
     /// * `WHERE __name__ > ... AND a > 1` becomes
     ///   `WHERE __name__ > ... AND a > 1 ORDER BY a ASC, __name__ ASC`
+    ///
+    /// In Enterprise edition, Firestore does not guarantee a stable ordering.
+    /// Instead it will pick the most efficient ordering based on the indexes
+    /// available at the time of query execution. This will result in a different
+    /// ordering for queries that are otherwise identical. To ensure a stable
+    /// ordering, always include a unique field in the `order_by` clause, such as
+    /// `__name__`.
     #[prost(message, repeated, tag = "4")]
     pub order_by: ::prost::alloc::vec::Vec<structured_query::Order>,
     /// A potential prefix of a position in the result set to start the query at.
@@ -1136,14 +1146,21 @@ pub struct TransactionOptions {
 /// Nested message and enum types in `TransactionOptions`.
 pub mod transaction_options {
     /// Options for a transaction that can be used to read and write documents.
-    ///
-    /// Firestore does not allow 3rd party auth requests to create read-write.
-    /// transactions.
     #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
     pub struct ReadWrite {
         /// An optional transaction to retry.
         #[prost(bytes = "vec", tag = "1")]
         pub retry_transaction: ::prost::alloc::vec::Vec<u8>,
+        /// Optional. The concurrency control mode to use for this transaction.
+        ///
+        /// A database is able to use different concurrency modes for different
+        /// transactions simultaneously.
+        ///
+        /// 3rd party auth requests are only allowed to create optimistic
+        /// read-write transactions and must specify that here even if the
+        /// database-level setting is already configured to optimistic.
+        #[prost(enumeration = "ConcurrencyMode", tag = "2")]
+        pub concurrency_mode: i32,
     }
     /// Options for a transaction that can only be used to read documents.
     #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
@@ -1168,6 +1185,49 @@ pub mod transaction_options {
             ReadTime(::prost_types::Timestamp),
         }
     }
+    /// The type of concurrency control mode for transactions.
+    #[derive(
+        Clone,
+        Copy,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash,
+        PartialOrd,
+        Ord,
+        ::prost::Enumeration
+    )]
+    #[repr(i32)]
+    pub enum ConcurrencyMode {
+        /// Start the transaction with the database-level default concurrency mode.
+        Unspecified = 0,
+        /// Use optimistic concurrency control for the new transaction.
+        Optimistic = 1,
+        /// Use pessimistic concurrency control for the new transaction.
+        Pessimistic = 2,
+    }
+    impl ConcurrencyMode {
+        /// String value of the enum field names used in the ProtoBuf definition.
+        ///
+        /// The values are not transformed in any way and thus are considered stable
+        /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+        pub fn as_str_name(&self) -> &'static str {
+            match self {
+                Self::Unspecified => "CONCURRENCY_MODE_UNSPECIFIED",
+                Self::Optimistic => "OPTIMISTIC",
+                Self::Pessimistic => "PESSIMISTIC",
+            }
+        }
+        /// Creates an enum from field names used in the ProtoBuf definition.
+        pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+            match value {
+                "CONCURRENCY_MODE_UNSPECIFIED" => Some(Self::Unspecified),
+                "OPTIMISTIC" => Some(Self::Optimistic),
+                "PESSIMISTIC" => Some(Self::Pessimistic),
+                _ => None,
+            }
+        }
+    }
     /// The mode of the transaction.
     #[derive(Clone, PartialEq, Eq, Hash, ::prost::Oneof)]
     pub enum Mode {
@@ -1178,6 +1238,13 @@ pub mod transaction_options {
         #[prost(message, tag = "3")]
         ReadWrite(ReadWrite),
     }
+}
+/// Options for a server request.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct RequestOptions {
+    /// The request tags for the request.
+    #[prost(string, repeated, tag = "1")]
+    pub request_tags: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
 }
 /// Pipeline explain stats.
 ///
@@ -1594,6 +1661,9 @@ pub struct GetDocumentRequest {
     /// will not be returned in the response.
     #[prost(message, optional, tag = "2")]
     pub mask: ::core::option::Option<DocumentMask>,
+    /// Optional. Any additional options for the request.
+    #[prost(message, optional, tag = "10")]
+    pub request_options: ::core::option::Option<RequestOptions>,
     /// The consistency mode for this transaction.
     /// If not set, defaults to strong consistency.
     #[prost(oneof = "get_document_request::ConsistencySelector", tags = "3, 5")]
@@ -1678,6 +1748,9 @@ pub struct ListDocumentsRequest {
     /// Requests with `show_missing` may not specify `where` or `order_by`.
     #[prost(bool, tag = "12")]
     pub show_missing: bool,
+    /// Optional. Any additional options for the request.
+    #[prost(message, optional, tag = "13")]
+    pub request_options: ::core::option::Option<RequestOptions>,
     /// The consistency mode for this transaction.
     /// If not set, defaults to strong consistency.
     #[prost(oneof = "list_documents_request::ConsistencySelector", tags = "8, 10")]
@@ -1743,6 +1816,9 @@ pub struct CreateDocumentRequest {
     /// will not be returned in the response.
     #[prost(message, optional, tag = "5")]
     pub mask: ::core::option::Option<DocumentMask>,
+    /// Optional. Any additional options for the request.
+    #[prost(message, optional, tag = "6")]
+    pub request_options: ::core::option::Option<RequestOptions>,
 }
 /// The request for
 /// \[Firestore.UpdateDocument\]\[google.firestore.v1.Firestore.UpdateDocument\].
@@ -1771,6 +1847,9 @@ pub struct UpdateDocumentRequest {
     /// The request will fail if this is set and not met by the target document.
     #[prost(message, optional, tag = "4")]
     pub current_document: ::core::option::Option<Precondition>,
+    /// Optional. Any additional options for the request.
+    #[prost(message, optional, tag = "5")]
+    pub request_options: ::core::option::Option<RequestOptions>,
 }
 /// The request for
 /// \[Firestore.DeleteDocument\]\[google.firestore.v1.Firestore.DeleteDocument\].
@@ -1784,6 +1863,9 @@ pub struct DeleteDocumentRequest {
     /// The request will fail if this is set and not met by the target document.
     #[prost(message, optional, tag = "2")]
     pub current_document: ::core::option::Option<Precondition>,
+    /// Optional. Any additional options for the request.
+    #[prost(message, optional, tag = "3")]
+    pub request_options: ::core::option::Option<RequestOptions>,
 }
 /// The request for
 /// \[Firestore.BatchGetDocuments\]\[google.firestore.v1.Firestore.BatchGetDocuments\].
@@ -1805,6 +1887,9 @@ pub struct BatchGetDocumentsRequest {
     /// not be returned in the response.
     #[prost(message, optional, tag = "3")]
     pub mask: ::core::option::Option<DocumentMask>,
+    /// Optional. Any additional options for the request.
+    #[prost(message, optional, tag = "8")]
+    pub request_options: ::core::option::Option<RequestOptions>,
     /// The consistency mode for this transaction.
     /// If not set, defaults to strong consistency.
     #[prost(
@@ -1887,6 +1972,9 @@ pub struct BeginTransactionRequest {
     /// Defaults to a read-write transaction.
     #[prost(message, optional, tag = "2")]
     pub options: ::core::option::Option<TransactionOptions>,
+    /// Optional. Any additional options for the request.
+    #[prost(message, optional, tag = "3")]
+    pub request_options: ::core::option::Option<RequestOptions>,
 }
 /// The response for
 /// \[Firestore.BeginTransaction\]\[google.firestore.v1.Firestore.BeginTransaction\].
@@ -1911,6 +1999,9 @@ pub struct CommitRequest {
     /// If set, applies all writes in this transaction, and commits it.
     #[prost(bytes = "vec", tag = "3")]
     pub transaction: ::prost::alloc::vec::Vec<u8>,
+    /// Optional. Any additional options for the request.
+    #[prost(message, optional, tag = "4")]
+    pub request_options: ::core::option::Option<RequestOptions>,
 }
 /// The response for \[Firestore.Commit\]\[google.firestore.v1.Firestore.Commit\].
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -1936,6 +2027,9 @@ pub struct RollbackRequest {
     /// Required. The transaction to roll back.
     #[prost(bytes = "vec", tag = "2")]
     pub transaction: ::prost::alloc::vec::Vec<u8>,
+    /// Optional. Any additional options for the request.
+    #[prost(message, optional, tag = "3")]
+    pub request_options: ::core::option::Option<RequestOptions>,
 }
 /// The request for \[Firestore.RunQuery\]\[google.firestore.v1.Firestore.RunQuery\].
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -1952,6 +2046,9 @@ pub struct RunQueryRequest {
     /// statistics will be returned. If not, only query results will be returned.
     #[prost(message, optional, tag = "10")]
     pub explain_options: ::core::option::Option<ExplainOptions>,
+    /// Optional. Any additional options for the request.
+    #[prost(message, optional, tag = "11")]
+    pub request_options: ::core::option::Option<RequestOptions>,
     /// The query to run.
     #[prost(oneof = "run_query_request::QueryType", tags = "2")]
     pub query_type: ::core::option::Option<run_query_request::QueryType>,
@@ -2056,6 +2153,14 @@ pub struct ExecutePipelineRequest {
     /// `projects/{project}/databases/{database}`.
     #[prost(string, tag = "1")]
     pub database: ::prost::alloc::string::String,
+    /// Optional. Automatically commits the transaction after the pipeline has been
+    /// executed. Only permitted in combination with `transaction` or
+    /// `new_transaction`.
+    #[prost(bool, tag = "9")]
+    pub auto_commit_transaction: bool,
+    /// Optional. Any additional options for the request.
+    #[prost(message, optional, tag = "10")]
+    pub request_options: ::core::option::Option<RequestOptions>,
     #[prost(oneof = "execute_pipeline_request::PipelineType", tags = "2")]
     pub pipeline_type: ::core::option::Option<execute_pipeline_request::PipelineType>,
     /// Optional consistency arguments, defaults to strong consistency.
@@ -2157,6 +2262,9 @@ pub struct RunAggregationQueryRequest {
     /// statistics will be returned. If not, only query results will be returned.
     #[prost(message, optional, tag = "8")]
     pub explain_options: ::core::option::Option<ExplainOptions>,
+    /// Optional. Any additional options for the request.
+    #[prost(message, optional, tag = "9")]
+    pub request_options: ::core::option::Option<RequestOptions>,
     /// The query to run.
     #[prost(oneof = "run_aggregation_query_request::QueryType", tags = "2")]
     pub query_type: ::core::option::Option<run_aggregation_query_request::QueryType>,
@@ -2276,6 +2384,9 @@ pub struct PartitionQueryRequest {
     /// 2 partitions, to complete the total of 10 specified in `partition_count`.
     #[prost(int32, tag = "5")]
     pub page_size: i32,
+    /// Optional. Any additional options for the request.
+    #[prost(message, optional, tag = "7")]
+    pub request_options: ::core::option::Option<RequestOptions>,
     /// The query to partition.
     #[prost(oneof = "partition_query_request::QueryType", tags = "2")]
     pub query_type: ::core::option::Option<partition_query_request::QueryType>,
@@ -2392,6 +2503,9 @@ pub struct WriteRequest {
         ::prost::alloc::string::String,
         ::prost::alloc::string::String,
     >,
+    /// Optional. Any additional options for the request.
+    #[prost(message, optional, tag = "6")]
+    pub request_options: ::core::option::Option<RequestOptions>,
 }
 /// The response for \[Firestore.Write\]\[google.firestore.v1.Firestore.Write\].
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -2430,6 +2544,9 @@ pub struct ListenRequest {
         ::prost::alloc::string::String,
         ::prost::alloc::string::String,
     >,
+    /// Optional. Any additional options for the request.
+    #[prost(message, optional, tag = "5")]
+    pub request_options: ::core::option::Option<RequestOptions>,
     /// The supported target changes.
     #[prost(oneof = "listen_request::TargetChange", tags = "2, 3")]
     pub target_change: ::core::option::Option<listen_request::TargetChange>,
@@ -2700,6 +2817,9 @@ pub struct ListCollectionIdsRequest {
     /// `projects/{project_id}/databases/{database_id}/documents/{document_path}`.
     /// For example:
     /// `projects/my-project/databases/my-database/documents/chatrooms/my-chatroom`
+    ///
+    /// Use `projects/{project_id}/databases/{database_id}/documents` to list
+    /// top-level collections.
     #[prost(string, tag = "1")]
     pub parent: ::prost::alloc::string::String,
     /// The maximum number of results to return.
@@ -2709,6 +2829,9 @@ pub struct ListCollectionIdsRequest {
     /// \[ListCollectionIdsResponse\]\[google.firestore.v1.ListCollectionIdsResponse\].
     #[prost(string, tag = "3")]
     pub page_token: ::prost::alloc::string::String,
+    /// Optional. Any additional options for the request.
+    #[prost(message, optional, tag = "5")]
+    pub request_options: ::core::option::Option<RequestOptions>,
     /// The consistency mode for this request.
     /// If not set, defaults to strong consistency.
     #[prost(oneof = "list_collection_ids_request::ConsistencySelector", tags = "4")]
@@ -2763,6 +2886,9 @@ pub struct BatchWriteRequest {
         ::prost::alloc::string::String,
         ::prost::alloc::string::String,
     >,
+    /// Optional. Any additional options for the request.
+    #[prost(message, optional, tag = "4")]
+    pub request_options: ::core::option::Option<RequestOptions>,
 }
 /// The response from
 /// \[Firestore.BatchWrite\]\[google.firestore.v1.Firestore.BatchWrite\].

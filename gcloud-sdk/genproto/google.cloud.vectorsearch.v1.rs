@@ -108,12 +108,18 @@ pub struct VertexEmbeddingConfig {
     /// for the list of supported models.
     #[prost(string, tag = "1")]
     pub model_id: ::prost::alloc::string::String,
-    /// Required. Required: Text template for the input to the model. The template
-    /// must contain one or more references to fields in the DataObject, e.g.:
-    /// "Movie Title: {title} ---- Movie Plot: {plot}".
+    /// Optional. Text template for the input to the model. The template must
+    /// contain one or more references to fields in the DataObject, e.g.: "Movie
+    /// Title: {title} ---- Movie Plot: {plot}".
+    ///
+    /// Required when using the text-only path.
     #[prost(string, tag = "2")]
     pub text_template: ::prost::alloc::string::String,
-    /// Required. Required: Task type for the embeddings.
+    /// Optional. Optional: Task type for the embeddings. Required for text-only
+    /// embedding models, see
+    /// <https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/embeddings/task-types>
+    /// Not needed for multi modal embedding models, see
+    /// <https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/embeddings/get-multimodal-embeddings#specify-task-instructions>
     #[prost(enumeration = "EmbeddingTaskType", tag = "3")]
     pub task_type: i32,
 }
@@ -188,7 +194,7 @@ pub struct OutputFields {
     pub metadata_fields: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
 }
 /// Represents a hint to the search index engine.
-#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+#[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SearchHint {
     /// The type of index to use.
     #[prost(oneof = "search_hint::IndexType", tags = "3, 4")]
@@ -197,7 +203,7 @@ pub struct SearchHint {
 /// Nested message and enum types in `SearchHint`.
 pub mod search_hint {
     /// Message to specify the index to use for the search.
-    #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+    #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct IndexHint {
         /// Required. The resource name of the index to use for the search.
         /// The index must be in the same project, location, and collection.
@@ -205,13 +211,35 @@ pub mod search_hint {
         /// `projects/{project}/locations/{location}/collections/{collection}/indexes/{index}`
         #[prost(string, tag = "1")]
         pub name: ::prost::alloc::string::String,
+        /// The parameters for the index.
+        #[prost(oneof = "index_hint::Params", tags = "2")]
+        pub params: ::core::option::Option<index_hint::Params>,
+    }
+    /// Nested message and enum types in `IndexHint`.
+    pub mod index_hint {
+        /// Parameters for dense ScaNN.
+        #[derive(Clone, Copy, PartialEq, ::prost::Message)]
+        pub struct DenseScannParams {
+            /// Optional. The target recall for the search. Must be a double in the
+            /// range \[0, 1\]. While the search aims to achieve this level of recall, it
+            /// is not guaranteed.
+            #[prost(double, optional, tag = "3")]
+            pub target_recall: ::core::option::Option<f64>,
+        }
+        /// The parameters for the index.
+        #[derive(Clone, Copy, PartialEq, ::prost::Oneof)]
+        pub enum Params {
+            /// Optional. Dense ScaNN parameters.
+            #[prost(message, tag = "2")]
+            DenseScannParams(DenseScannParams),
+        }
     }
     /// KnnHint will be used if search should be explicitly done on system's
     /// default K-Nearest Neighbor (KNN) index engine.
     #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
     pub struct KnnHint {}
     /// The type of index to use.
-    #[derive(Clone, PartialEq, Eq, Hash, ::prost::Oneof)]
+    #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum IndexType {
         /// Optional. If set, the search will use the system's default
         /// K-Nearest Neighbor (KNN) index engine.
@@ -290,14 +318,20 @@ pub mod vector_search {
 /// Defines a semantic search operation.
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SemanticSearch {
-    /// Required. The query text, which is used to generate an embedding according
+    /// Optional. The query text, which is used to generate an embedding according
     /// to the embedding model specified in the collection config.
+    ///
+    /// Required when using the text search mode.
     #[prost(string, tag = "1")]
     pub search_text: ::prost::alloc::string::String,
     /// Required. The vector field to search.
     #[prost(string, tag = "2")]
     pub search_field: ::prost::alloc::string::String,
-    /// Required. The task type of the query embedding.
+    /// Optional. The task type of the query embedding. Must be specified for
+    /// text-only embedding models, see
+    /// <<https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/embeddings/task-types>>
+    /// Not needed for multi modal embedding models, see
+    /// <<https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/embeddings/get-multimodal-embeddings#specify-task-instructions>>
     #[prost(enumeration = "EmbeddingTaskType", tag = "5")]
     pub task_type: i32,
     /// Optional. The fields to return in the search results.
@@ -319,10 +353,11 @@ pub struct SemanticSearch {
 /// Defines a text search operation.
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct TextSearch {
-    /// Required. The query text.
+    /// Optional. The query text. Required when using the default text search mode.
     #[prost(string, tag = "1")]
     pub search_text: ::prost::alloc::string::String,
-    /// Required. The data field names to search.
+    /// Optional. The data field names to search. Required when using the default
+    /// text search mode.
     #[prost(string, repeated, tag = "2")]
     pub data_field_names: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
     /// Optional. The fields to return in the search results.
@@ -503,6 +538,10 @@ pub struct Ranker {
     /// The ranking method to use.
     #[prost(oneof = "ranker::Ranker", tags = "1")]
     pub ranker: ::core::option::Option<ranker::Ranker>,
+    /// The reranker to use for final ranking of the results combined by the
+    /// ranker.
+    #[prost(oneof = "ranker::Reranker", tags = "2")]
+    pub reranker: ::core::option::Option<ranker::Reranker>,
 }
 /// Nested message and enum types in `Ranker`.
 pub mod ranker {
@@ -513,6 +552,14 @@ pub mod ranker {
         #[prost(message, tag = "1")]
         Rrf(super::ReciprocalRankFusion),
     }
+    /// The reranker to use for final ranking of the results combined by the
+    /// ranker.
+    #[derive(Clone, PartialEq, Eq, Hash, ::prost::Oneof)]
+    pub enum Reranker {
+        /// Optional. Vertex AI ranking.
+        #[prost(message, tag = "2")]
+        VertexRanker(super::VertexRanker),
+    }
 }
 /// Defines the Reciprocal Rank Fusion (RRF) algorithm for result ranking.
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -520,6 +567,49 @@ pub struct ReciprocalRankFusion {
     /// Required. The weights to apply to each search result set during fusion.
     #[prost(double, repeated, packed = "false", tag = "1")]
     pub weights: ::prost::alloc::vec::Vec<f64>,
+}
+/// Defines a ranker using the Vertex AI ranking service.
+/// See <<https://cloud.google.com/generative-ai-app-builder/docs/ranking>> for
+/// details.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct VertexRanker {
+    /// Required. The model used for ranking documents. The list of available
+    /// models is described in
+    /// <<https://docs.cloud.google.com/generative-ai-app-builder/docs/ranking#models>.>
+    /// Currently, only `semantic-ranker-fast@latest` is supported.
+    #[prost(string, tag = "4")]
+    pub model: ::prost::alloc::string::String,
+    /// Required. The number of documents to be processed for ranking.
+    #[prost(int32, tag = "5")]
+    pub top_n: i32,
+    /// The record specification for ranking. At least one record spec must be
+    /// set.
+    #[prost(oneof = "vertex_ranker::RecordSpec", tags = "6")]
+    pub record_spec: ::core::option::Option<vertex_ranker::RecordSpec>,
+}
+/// Nested message and enum types in `VertexRanker`.
+pub mod vertex_ranker {
+    /// The record spec for text search.
+    #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+    pub struct TextRecordSpec {
+        /// Required. The query against which the records are ranked and scored.
+        #[prost(string, tag = "1")]
+        pub query: ::prost::alloc::string::String,
+        /// Optional. The template used to generate the record's title.
+        #[prost(string, tag = "2")]
+        pub title_template: ::prost::alloc::string::String,
+        /// Optional. The template used to generate the record's content.
+        #[prost(string, tag = "3")]
+        pub content_template: ::prost::alloc::string::String,
+    }
+    /// The record specification for ranking. At least one record spec must be
+    /// set.
+    #[derive(Clone, PartialEq, Eq, Hash, ::prost::Oneof)]
+    pub enum RecordSpec {
+        /// The record spec for text search.
+        #[prost(message, tag = "6")]
+        TextRecordSpec(TextRecordSpec),
+    }
 }
 /// A response from a batch search operation.
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -1399,6 +1489,11 @@ pub struct DeleteCollectionRequest {
     /// not supported (00000000-0000-0000-0000-000000000000).
     #[prost(string, tag = "2")]
     pub request_id: ::prost::alloc::string::String,
+    /// Optional. If set to true, any Indexes and DataObjects from this Collection
+    /// will also be deleted. (Otherwise, the request will only work if the
+    /// Collection has no Indexes and DataObjects.)
+    #[prost(bool, tag = "3")]
+    pub force: bool,
 }
 /// Message describing Index object
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -1701,6 +1796,15 @@ pub struct ExportDataObjectsRequest {
     /// `projects/{project}/locations/{location}/collections/{collection}`.
     #[prost(string, tag = "1")]
     pub name: ::prost::alloc::string::String,
+    /// Optional. Restricts which top-level Data Object fields appear in each
+    /// exported JSONL record. If unset, every field is exported (the existing
+    /// behavior). The primary use case is excluding the per-object `etag` so
+    /// that the exported records can be imported into a Collection in a
+    /// different region without optimistic-concurrency conflicts.
+    ///
+    /// Allowed field names are `id`, `data`, `vectors`, `etag`.
+    #[prost(message, optional, tag = "3")]
+    pub field_filter: ::core::option::Option<export_data_objects_request::FieldFilter>,
     /// The configuration for the export data.
     #[prost(oneof = "export_data_objects_request::Destination", tags = "2")]
     pub destination: ::core::option::Option<export_data_objects_request::Destination>,
@@ -1758,6 +1862,38 @@ pub mod export_data_objects_request {
                     _ => None,
                 }
             }
+        }
+    }
+    /// Selects which top-level Data Object fields are emitted at export time.
+    #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+    pub struct FieldFilter {
+        /// Exactly one of `included_fields` or `excluded_fields` must be set.
+        #[prost(oneof = "field_filter::Selector", tags = "1, 2")]
+        pub selector: ::core::option::Option<field_filter::Selector>,
+    }
+    /// Nested message and enum types in `FieldFilter`.
+    pub mod field_filter {
+        /// Wrapper for a repeated string. Wrapping in a message lets the
+        /// surrounding `oneof` distinguish "field set to an empty list" (which is
+        /// rejected as INVALID_ARGUMENT) from "field not set".
+        #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+        pub struct FieldList {
+            /// Required. The list of top-level Data Object JSON field names. Allowed
+            /// values are `id`, `data`, `vectors`, `etag`.
+            #[prost(string, repeated, tag = "1")]
+            pub fields: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
+        }
+        /// Exactly one of `included_fields` or `excluded_fields` must be set.
+        #[derive(Clone, PartialEq, Eq, Hash, ::prost::Oneof)]
+        pub enum Selector {
+            /// Optional. Only these top-level fields will appear in each exported
+            /// record.
+            #[prost(message, tag = "1")]
+            IncludedFields(FieldList),
+            /// Optional. Every top-level field except these will appear in each
+            /// exported record.
+            #[prost(message, tag = "2")]
+            ExcludedFields(FieldList),
         }
     }
     /// The configuration for the export data.

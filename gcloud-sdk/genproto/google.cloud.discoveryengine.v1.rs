@@ -2064,6 +2064,12 @@ pub struct SearchRequest {
     /// used.
     #[prost(message, repeated, tag = "32")]
     pub data_store_specs: ::prost::alloc::vec::Vec<search_request::DataStoreSpec>,
+    /// Optional. The maximum number of results to retrieve from each data store.
+    /// If not specified, it will use the
+    /// \[SearchRequest.DataStoreSpec.num_results\]\[google.cloud.discoveryengine.v1.SearchRequest.DataStoreSpec.num_results\]
+    /// if provided, otherwise there is no limit.
+    #[prost(int32, tag = "65")]
+    pub num_results_per_data_store: i32,
     /// The filter syntax consists of an expression language for constructing a
     /// predicate from one or more fields of the documents being filtered. Filter
     /// expression is case-sensitive.
@@ -2233,6 +2239,7 @@ pub struct SearchRequest {
     ///   * `is_nan(signal)` -- returns 0 if signal is NaN, 1 otherwise.
     ///   * `fill_nan(signal1, signal2 | double)` -- if signal1 is NaN, returns
     ///     signal2 | double, else returns signal1.
+    ///
     ///   Here are a few examples of ranking formulas that use the supported
     ///   ranking expression types:
     ///
@@ -2272,6 +2279,15 @@ pub struct SearchRequest {
     ///   Google model to determine the keyword-based overlap between the query and
     ///   the document.
     /// * `base_rank`: the default rank of the result
+    /// * `media_actor_match`: whether the media actor matches the query
+    /// * `media_director_match`: whether the media director matches the query
+    /// * `media_genre_match`: whether the media genre matches the query
+    /// * `media_language_match`: whether the media language matches the query
+    /// * `media_title_match`: whether the media title matches the query
+    /// * `media_prefix_similarity_rank`: prefix similarity rank for media
+    ///   results
+    /// * `media_semantic_similarity_rank`: semantic similarity rank for media
+    ///   results
     #[prost(string, tag = "26")]
     pub ranking_expression: ::prost::alloc::string::String,
     /// Optional. The backend to use for the ranking expression evaluation.
@@ -2351,10 +2367,6 @@ pub struct SearchRequest {
     /// Call /answer API with the session ID generated in the first call.
     /// Here, the answer generation happens in the context of the search
     /// results from the first search call.
-    ///
-    /// Multi-turn Search feature is currently at private GA stage. Please use
-    /// v1alpha or v1beta version instead before we launch this feature to public
-    /// GA. Or ask for allowlisting through Google Support team.
     #[prost(string, tag = "41")]
     pub session: ::prost::alloc::string::String,
     /// Session specification.
@@ -2374,20 +2386,51 @@ pub struct SearchRequest {
     /// This feature is not supported for healthcare search.
     #[prost(enumeration = "search_request::RelevanceThreshold", tag = "44")]
     pub relevance_threshold: i32,
+    /// Optional. The granular relevance filtering specification.
+    ///
+    /// If not specified, the global `relevance_threshold` will be used for all
+    /// sub-searches. If specified, this overrides the global
+    /// `relevance_threshold` to use thresholds on a per sub-search basis.
+    ///
+    /// This feature is currently supported only for custom and site search.
+    #[prost(message, optional, tag = "86")]
+    pub relevance_filter_spec: ::core::option::Option<
+        search_request::RelevanceFilterSpec,
+    >,
     /// Optional. The specification for returning the relevance score.
     #[prost(message, optional, tag = "52")]
     pub relevance_score_spec: ::core::option::Option<search_request::RelevanceScoreSpec>,
+    /// Optional. SearchAddonSpec is used to disable add-ons for search as per new
+    /// repricing model.
+    /// This field is only supported for search requests.
+    #[prost(message, optional, tag = "62")]
+    pub search_addon_spec: ::core::option::Option<search_request::SearchAddonSpec>,
+    /// Optional. Optional configuration for the Custom Ranking feature.
+    #[prost(message, optional, tag = "64")]
+    pub custom_ranking_params: ::core::option::Option<
+        search_request::CustomRankingParams,
+    >,
+    /// Optional. The entity for customers that may run multiple different
+    /// entities, domains, sites or regions, for example, "Google US", "Google
+    /// Ads", "Waymo", "google.com", "youtube.com", etc. If this is set, it should
+    /// be exactly matched with
+    /// \[UserEvent.entity\]\[google.cloud.discoveryengine.v1.UserEvent.entity\] to get
+    /// search results boosted by entity.
+    #[prost(string, tag = "66")]
+    pub entity: ::prost::alloc::string::String,
 }
 /// Nested message and enum types in `SearchRequest`.
 pub mod search_request {
     /// Specifies the image query input.
     #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
     pub struct ImageQuery {
+        /// Specifies the image bytes.
         #[prost(oneof = "image_query::Image", tags = "1")]
         pub image: ::core::option::Option<image_query::Image>,
     }
     /// Nested message and enum types in `ImageQuery`.
     pub mod image_query {
+        /// Specifies the image bytes.
         #[derive(Clone, PartialEq, Eq, Hash, ::prost::Oneof)]
         pub enum Image {
             /// Base64 encoded image bytes. Supported image formats: JPEG, PNG, and
@@ -2424,6 +2467,14 @@ pub mod search_request {
         /// [SearchOperators](<https://support.google.com/cloudsearch/answer/6172299>).
         #[prost(string, tag = "7")]
         pub custom_search_operators: ::prost::alloc::string::String,
+        /// Optional. The maximum number of results to retrieve from this data store.
+        /// If not specified, it will use the
+        /// \[SearchRequest.num_results_per_data_store\]\[google.cloud.discoveryengine.v1.SearchRequest.num_results_per_data_store\]
+        /// if provided, otherwise there is no limit. If both this field and
+        /// \[SearchRequest.num_results_per_data_store\]\[google.cloud.discoveryengine.v1.SearchRequest.num_results_per_data_store\]
+        /// are specified, this field will be used.
+        #[prost(int32, tag = "9")]
+        pub num_results: i32,
     }
     /// A facet specification to perform faceted search.
     #[derive(Clone, PartialEq, ::prost::Message)]
@@ -3214,9 +3265,6 @@ pub mod search_request {
         /// Field names used for location-based filtering, where geolocation filters
         /// are detected in natural language search queries.
         /// Only valid when the FilterExtractionCondition is set to `ENABLED`.
-        ///
-        /// If this field is set, it overrides the field names set in
-        /// \[ServingConfig.geo_search_query_detection_field_names\]\[google.cloud.discoveryengine.v1.ServingConfig.geo_search_query_detection_field_names\].
         #[prost(string, repeated, tag = "2")]
         pub geo_search_query_detection_field_names: ::prost::alloc::vec::Vec<
             ::prost::alloc::string::String,
@@ -3345,16 +3393,36 @@ pub mod search_request {
         }
     }
     /// Specification for search as you type in search requests.
-    #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+    #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct SearchAsYouTypeSpec {
         /// The condition under which search as you type should occur.
         /// Default to
         /// \[Condition.DISABLED\]\[google.cloud.discoveryengine.v1.SearchRequest.SearchAsYouTypeSpec.Condition.DISABLED\].
         #[prost(enumeration = "search_as_you_type_spec::Condition", tag = "1")]
         pub condition: i32,
+        /// Optional. The list of fields to be used for Search As You Type scoring.
+        #[prost(message, repeated, tag = "2")]
+        pub fields: ::prost::alloc::vec::Vec<search_as_you_type_spec::Field>,
+        /// Optional. Search As You Type score threshold for filtering purpose.
+        /// We keep the result if `score` >= `score_threshold`.
+        #[prost(double, optional, tag = "3")]
+        pub score_threshold: ::core::option::Option<f64>,
     }
     /// Nested message and enum types in `SearchAsYouTypeSpec`.
     pub mod search_as_you_type_spec {
+        /// A schema field to be used for Search As You Type scoring on this
+        /// request. Overrides any data-store-level Search As You Type field
+        /// configuration for the duration of the request.
+        #[derive(Clone, PartialEq, ::prost::Message)]
+        pub struct Field {
+            /// Required. A field key that has been indexed for Search As You Type.
+            #[prost(string, tag = "1")]
+            pub key: ::prost::alloc::string::String,
+            /// Optional. Weight for scores from this field. Defaults to 1.0 if not
+            /// specified.
+            #[prost(double, optional, tag = "2")]
+            pub weight: ::core::option::Option<f64>,
+        }
         /// Enum describing under which condition search as you type should occur.
         #[derive(
             Clone,
@@ -3534,10 +3602,6 @@ pub mod search_request {
         }
     }
     /// Session specification.
-    ///
-    /// Multi-turn Search feature is currently at private GA stage. Please use
-    /// v1alpha or v1beta version instead before we launch this feature to public
-    /// GA. Or ask for allowlisting through Google Support team.
     #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
     pub struct SessionSpec {
         /// If set, the search result gets stored to the "turn" specified by this
@@ -3579,6 +3643,50 @@ pub mod search_request {
         #[prost(int32, optional, tag = "2")]
         pub search_result_persistence_count: ::core::option::Option<i32>,
     }
+    /// Relevance filtering specification.
+    #[derive(Clone, Copy, PartialEq, ::prost::Message)]
+    pub struct RelevanceFilterSpec {
+        /// Optional. Relevance filtering threshold specification for keyword search.
+        #[prost(message, optional, tag = "1")]
+        pub keyword_search_threshold: ::core::option::Option<
+            relevance_filter_spec::RelevanceThresholdSpec,
+        >,
+        /// Optional. Relevance filtering threshold specification for semantic
+        /// search.
+        #[prost(message, optional, tag = "2")]
+        pub semantic_search_threshold: ::core::option::Option<
+            relevance_filter_spec::RelevanceThresholdSpec,
+        >,
+    }
+    /// Nested message and enum types in `RelevanceFilterSpec`.
+    pub mod relevance_filter_spec {
+        /// Specification for relevance filtering on a specific sub-search.
+        #[derive(Clone, Copy, PartialEq, ::prost::Message)]
+        pub struct RelevanceThresholdSpec {
+            /// Configures how the relevance threshold is determined.
+            #[prost(
+                oneof = "relevance_threshold_spec::RelevanceThresholdSpec",
+                tags = "1, 2"
+            )]
+            pub relevance_threshold_spec: ::core::option::Option<
+                relevance_threshold_spec::RelevanceThresholdSpec,
+            >,
+        }
+        /// Nested message and enum types in `RelevanceThresholdSpec`.
+        pub mod relevance_threshold_spec {
+            /// Configures how the relevance threshold is determined.
+            #[derive(Clone, Copy, PartialEq, ::prost::Oneof)]
+            pub enum RelevanceThresholdSpec {
+                /// Pre-defined relevance threshold for the sub-search.
+                #[prost(enumeration = "super::super::RelevanceThreshold", tag = "1")]
+                RelevanceThreshold(i32),
+                /// Custom relevance threshold for the sub-search.
+                /// The value must be in \[0.0, 1.0\].
+                #[prost(float, tag = "2")]
+                SemanticRelevanceThreshold(f32),
+            }
+        }
+    }
     /// The specification for returning the document relevance score.
     #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
     pub struct RelevanceScoreSpec {
@@ -3586,6 +3694,37 @@ pub mod search_request {
         /// The higher the score, the more relevant the document is to the query.
         #[prost(bool, tag = "1")]
         pub return_relevance_score: bool,
+    }
+    /// SearchAddonSpec is used to disable add-ons for search as per new
+    /// repricing model. By default if the SearchAddonSpec is not specified, we
+    /// consider that the customer wants to enable them wherever applicable.
+    #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+    pub struct SearchAddonSpec {
+        /// Optional. If true, semantic add-on is disabled. Semantic add-on includes
+        /// embeddings and jetstream.
+        #[prost(bool, tag = "1")]
+        pub disable_semantic_add_on: bool,
+        /// Optional. If true, disables event re-ranking and personalization to
+        /// optimize KPIs & personalize results.
+        #[prost(bool, tag = "2")]
+        pub disable_kpi_personalization_add_on: bool,
+        /// Optional. If true, generative answer add-on is disabled. Generative
+        /// answer add-on includes natural language to filters and simple answers.
+        #[prost(bool, tag = "3")]
+        pub disable_generative_answer_add_on: bool,
+    }
+    /// Configuration parameters for the Custom Ranking feature.
+    #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+    pub struct CustomRankingParams {
+        /// Optional. A list of ranking expressions (see `ranking_expression` for the
+        /// syntax documentation) to evaluate. The evaluation results will be
+        /// returned in
+        /// `SearchResponse.SearchResult.rank_signals.precomputed_expression_values`
+        /// field.
+        #[prost(string, repeated, tag = "1")]
+        pub expressions_to_precompute: ::prost::alloc::vec::Vec<
+            ::prost::alloc::string::String,
+        >,
     }
     /// The backend to use for the ranking expression evaluation.
     #[derive(
@@ -3753,6 +3892,9 @@ pub struct SearchResponse {
     /// is set.
     #[prost(message, optional, tag = "9")]
     pub summary: ::core::option::Option<search_response::Summary>,
+    /// Optional. Controls applied as part of the Control service.
+    #[prost(string, repeated, tag = "10")]
+    pub applied_controls: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
     /// Query expansion information for the returned results.
     #[prost(message, optional, tag = "14")]
     pub query_expansion_info: ::core::option::Option<
@@ -3806,6 +3948,10 @@ pub mod search_response {
         /// Optional. A set of ranking signals associated with the result.
         #[prost(message, optional, tag = "7")]
         pub rank_signals: ::core::option::Option<search_result::RankSignals>,
+        /// Optional. A set of signals used by the relevance filter meant for use to
+        /// fine-tune the relevance filter thresholds.
+        #[prost(message, optional, tag = "11")]
+        pub retrieval_signals: ::core::option::Option<search_result::RetrievalSignals>,
     }
     /// Nested message and enum types in `SearchResult`.
     pub mod search_result {
@@ -3839,6 +3985,11 @@ pub mod search_response {
             /// Optional. A list of custom clearbox signals.
             #[prost(message, repeated, tag = "33")]
             pub custom_signals: ::prost::alloc::vec::Vec<rank_signals::CustomSignal>,
+            /// Optional. A list of precomputed expression results for a given
+            /// document, in the same order as requested in
+            /// `SearchRequest.custom_ranking_params.expressions_to_precompute`.
+            #[prost(float, repeated, packed = "false", tag = "34")]
+            pub precomputed_expression_values: ::prost::alloc::vec::Vec<f32>,
         }
         /// Nested message and enum types in `RankSignals`.
         pub mod rank_signals {
@@ -3852,6 +4003,68 @@ pub mod search_response {
                 /// BM25).
                 #[prost(float, tag = "2")]
                 pub value: f32,
+            }
+        }
+        /// Contains a set of signals used by the relevance filter.
+        #[derive(Clone, PartialEq, ::prost::Message)]
+        pub struct RetrievalSignals {
+            /// Optional. Indicates how the result was retrieved.
+            #[prost(
+                enumeration = "retrieval_signals::RetrievalSource",
+                repeated,
+                packed = "false",
+                tag = "1"
+            )]
+            pub retrieval_sources: ::prost::alloc::vec::Vec<i32>,
+            /// Optional. Relevance score used by the filter when
+            /// semantic_relevance_threshold is set.
+            #[prost(float, tag = "2")]
+            pub semantic_relevance_score: f32,
+        }
+        /// Nested message and enum types in `RetrievalSignals`.
+        pub mod retrieval_signals {
+            /// Indicates the source of the retrieval.
+            #[derive(
+                Clone,
+                Copy,
+                Debug,
+                PartialEq,
+                Eq,
+                Hash,
+                PartialOrd,
+                Ord,
+                ::prost::Enumeration
+            )]
+            #[repr(i32)]
+            pub enum RetrievalSource {
+                /// Unspecified retrieval source.
+                Unspecified = 0,
+                /// Indicates the result was retrieved by keyword search.
+                KeywordSearch = 1,
+                /// Indicates the result was retrieved by semantic search.
+                SemanticSearch = 2,
+            }
+            impl RetrievalSource {
+                /// String value of the enum field names used in the ProtoBuf definition.
+                ///
+                /// The values are not transformed in any way and thus are considered stable
+                /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+                pub fn as_str_name(&self) -> &'static str {
+                    match self {
+                        Self::Unspecified => "RETRIEVAL_SOURCE_UNSPECIFIED",
+                        Self::KeywordSearch => "KEYWORD_SEARCH",
+                        Self::SemanticSearch => "SEMANTIC_SEARCH",
+                    }
+                }
+                /// Creates an enum from field names used in the ProtoBuf definition.
+                pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+                    match value {
+                        "RETRIEVAL_SOURCE_UNSPECIFIED" => Some(Self::Unspecified),
+                        "KEYWORD_SEARCH" => Some(Self::KeywordSearch),
+                        "SEMANTIC_SEARCH" => Some(Self::SemanticSearch),
+                        _ => None,
+                    }
+                }
             }
         }
     }
@@ -4736,6 +4949,9 @@ pub struct StreamAssistRequest {
     /// Optional. Information about the user initiating the query.
     #[prost(message, optional, tag = "6")]
     pub user_metadata: ::core::option::Option<AssistUserMetadata>,
+    /// Optional. Specification of agents that are used to serve the request.
+    #[prost(message, optional, tag = "22")]
+    pub agents_spec: ::core::option::Option<stream_assist_request::AgentsSpec>,
     /// Optional. Specification of tools that are used to serve the request.
     #[prost(message, optional, tag = "18")]
     pub tools_spec: ::core::option::Option<stream_assist_request::ToolsSpec>,
@@ -4745,6 +4961,27 @@ pub struct StreamAssistRequest {
 }
 /// Nested message and enum types in `StreamAssistRequest`.
 pub mod stream_assist_request {
+    /// Specification of agents that are used to serve the request.
+    #[derive(Clone, PartialEq, ::prost::Message)]
+    pub struct AgentsSpec {
+        /// Optional. Specification of agents that are used to serve the request.
+        #[prost(message, repeated, tag = "1")]
+        pub agent_specs: ::prost::alloc::vec::Vec<agents_spec::AgentSpec>,
+    }
+    /// Nested message and enum types in `AgentsSpec`.
+    pub mod agents_spec {
+        /// Specification of an agent.
+        #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+        pub struct AgentSpec {
+            /// Required. ID to identify the agent resource serving the request.
+            ///
+            /// This field must conform to
+            /// [RFC-1034](<https://tools.ietf.org/html/rfc1034>)
+            /// with a length limit of 63 characters.
+            #[prost(string, tag = "1")]
+            pub agent_id: ::prost::alloc::string::String,
+        }
+    }
     /// Specification of tools that are used to serve the request.
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct ToolsSpec {

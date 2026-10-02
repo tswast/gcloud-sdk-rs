@@ -383,6 +383,7 @@ pub struct Altitude {
     #[prost(message, optional, tag = "2")]
     pub interval: ::core::option::Option<ObservationTimeInterval>,
     /// Required. Altitude gain in millimeters over the observed interval.
+    /// Must be in the range `\[-1000000000, 1000000000\]`.
     #[prost(int64, optional, tag = "3")]
     pub gain_millimeters: ::core::option::Option<i64>,
 }
@@ -404,7 +405,7 @@ pub struct BodyFat {
     /// Required. The time at which body fat was measured.
     #[prost(message, optional, tag = "2")]
     pub sample_time: ::core::option::Option<ObservationSampleTime>,
-    /// Required. Body fat percentage, in range \[0, 100\].
+    /// Required. Body fat percentage. Must be in the range `\[0, 100\]`.
     #[prost(double, optional, tag = "3")]
     pub percentage: ::core::option::Option<f64>,
 }
@@ -423,6 +424,7 @@ pub struct CoreBodyTemperature {
     #[prost(message, optional, tag = "2")]
     pub sample_time: ::core::option::Option<ObservationSampleTime>,
     /// Required. The core body temperature in Celsius.
+    /// Must be in the range `\[0, 100\]`.
     #[prost(double, optional, tag = "3")]
     pub temperature_celsius: ::core::option::Option<f64>,
     /// Optional. The location of the core body temperature measurement.
@@ -657,15 +659,17 @@ pub struct DailyOxygenSaturation {
     #[prost(message, optional, tag = "1")]
     pub date: ::core::option::Option<super::super::super::r#type::Date>,
     /// Required. The average value of the oxygen saturation samples during the
-    /// sleep.
+    /// sleep. Must be in the range `\[0, 100\]`.
     #[prost(double, optional, tag = "2")]
     pub average_percentage: ::core::option::Option<f64>,
     /// Required. The lower bound of the confidence interval of oxygen saturation
     /// samples during sleep.
+    /// Must be in the range `\[0, 100\]`.
     #[prost(double, optional, tag = "3")]
     pub lower_bound_percentage: ::core::option::Option<f64>,
     /// Required. The upper bound of the confidence interval of oxygen saturation
     /// samples during sleep.
+    /// Must be in the range `\[0, 100\]`.
     #[prost(double, optional, tag = "4")]
     pub upper_bound_percentage: ::core::option::Option<f64>,
     /// Optional. Standard deviation of the daily oxygen saturation averages from
@@ -777,7 +781,7 @@ pub struct DailyVo2Max {
     #[prost(message, optional, tag = "1")]
     pub date: ::core::option::Option<super::super::super::r#type::Date>,
     /// Required. Daily VO2 max value measured as in ml consumed oxygen / kg of
-    /// body weight / min.
+    /// body weight / min. Must be in the range `\[0, 100\]`.
     #[prost(double, optional, tag = "2")]
     pub vo2_max: ::core::option::Option<f64>,
     /// Optional. An estimated field is added to indicate when the confidence has
@@ -861,6 +865,7 @@ pub struct Distance {
     #[prost(message, optional, tag = "2")]
     pub interval: ::core::option::Option<ObservationTimeInterval>,
     /// Required. Distance in millimeters over the observed interval.
+    /// Must be in the range `\[0, 1000000000\]`.
     #[prost(int64, optional, tag = "3")]
     pub millimeters: ::core::option::Option<i64>,
 }
@@ -1024,7 +1029,12 @@ pub struct Exercise {
     /// Optional. Additional exercise metadata.
     #[prost(message, optional, tag = "11")]
     pub exercise_metadata: ::core::option::Option<exercise::ExerciseMetadata>,
-    /// Required. Exercise display name.
+    /// Required. The localized, human-readable name of the exercise.
+    /// For all exercise types other than `OTHER`, the system ignores client
+    /// input and overrides this field with a generated name based on
+    /// `exercise_type` (e.g., "Walking" for `WALKING`). If `exercise_type` is
+    /// `OTHER`, this field can contain the user's custom, free-form display
+    /// name.
     #[prost(string, tag = "12")]
     pub display_name: ::prost::alloc::string::String,
     /// Optional. Duration excluding pauses.
@@ -1213,6 +1223,7 @@ pub mod exercise {
         pub has_gps: bool,
     }
     /// The type of activity performed during an exercise.
+    /// May receive new values in the future.
     #[derive(
         Clone,
         Copy,
@@ -1228,30 +1239,368 @@ pub mod exercise {
     pub enum ExerciseType {
         /// Exercise type is unspecified.
         Unspecified = 0,
-        /// Running type.
-        Running = 1,
-        /// Walking type.
-        Walking = 2,
+        /// Aerobic workout type.
+        AerobicWorkout = 13,
+        /// Archery type.
+        Archery = 47,
+        /// Assault bike type.
+        AssaultBike = 164,
+        /// Backpacking type.
+        Backpacking = 181,
+        /// Badminton type.
+        Badminton = 48,
+        /// Ballet type.
+        Ballet = 103,
+        /// Ballroom dance type.
+        BallroomDance = 156,
+        /// Barre class type.
+        BarreClass = 49,
+        /// Baseball type.
+        Baseball = 50,
+        /// Basketball type.
+        Basketball = 51,
         /// Biking type.
         Biking = 3,
-        /// Swimming type.
-        Swimming = 4,
+        /// Billiards type.
+        Billiards = 180,
+        /// Body weight type.
+        BodyWeight = 149,
+        /// Bootcamp type.
+        Bootcamp = 14,
+        /// Bowling type.
+        Bowling = 52,
+        /// Boxing type.
+        Boxing = 53,
+        /// Breakdancing type.
+        Breakdancing = 157,
+        /// Calisthenics type.
+        Calisthenics = 54,
+        /// Canoeing type.
+        Canoeing = 15,
+        /// Cardio sculpt type.
+        CardioSculpt = 129,
+        /// Cardio workout type.
+        CardioWorkout = 140,
+        /// Carpentry type.
+        Carpentry = 108,
+        /// Cheerleading type.
+        Cheerleading = 165,
+        /// Circuit training type.
+        CircuitTraining = 16,
+        /// Cleaning type.
+        Cleaning = 105,
+        /// Climbing type.
+        Climbing = 55,
+        /// Core training type.
+        CoreTraining = 17,
+        /// Cricket type.
+        Cricket = 56,
+        /// Croquet type.
+        Croquet = 111,
+        /// Cross country ski type.
+        CrossCountrySki = 18,
+        /// Cross training type.
+        CrossTraining = 57,
+        /// Crossfit type.
+        Crossfit = 19,
+        /// Curling type.
+        Curling = 58,
+        /// Dancing type.
+        Dancing = 20,
+        /// Diving type.
+        Diving = 59,
+        /// Electric bike type.
+        ElectricBike = 152,
+        /// Electric scooter type.
+        ElectricScooter = 168,
+        /// Elliptical type.
+        Elliptical = 21,
+        /// Equestrian sports type.
+        EquestrianSports = 60,
+        /// Exercise class type.
+        ExerciseClass = 61,
+        /// Fencing type.
+        Fencing = 62,
+        /// Field hockey type.
+        FieldHockey = 113,
+        /// Fishing type.
+        Fishing = 63,
+        /// Fitness gaming type.
+        FitnessGaming = 64,
+        /// Foiling type.
+        Foiling = 175,
+        /// Football american type.
+        FootballAmerican = 65,
+        /// Football australian type.
+        FootballAustralian = 66,
+        /// Free weights type.
+        FreeWeights = 148,
+        /// Frisbee playing general type.
+        FrisbeePlayingGeneral = 67,
+        /// Functional strength training type.
+        FunctionalStrengthTraining = 68,
+        /// Gardening type.
+        Gardening = 107,
+        /// Golf type.
+        Golf = 22,
+        /// Gymnastics type.
+        Gymnastics = 69,
+        /// Handball type.
+        Handball = 70,
+        /// Hand cycling type.
+        HandCycling = 71,
+        /// Hiit type.
+        Hiit = 9,
         /// Hiking type.
         Hiking = 5,
-        /// Yoga type.
-        Yoga = 6,
-        /// Pilates type.
-        Pilates = 7,
-        /// Workout type.
-        Workout = 8,
-        /// HIIT type.
-        Hiit = 9,
-        /// Weightlifting type.
-        Weightlifting = 10,
-        /// Strength training type.
-        StrengthTraining = 11,
+        /// Hip hop type.
+        HipHop = 158,
+        /// Hockey type.
+        Hockey = 72,
+        /// Hoeing type.
+        Hoeing = 109,
+        /// Household chores type.
+        HouseholdChores = 137,
+        /// Hunting type.
+        Hunting = 73,
+        /// Ice skating type.
+        IceSkating = 127,
+        /// Incline run type.
+        InclineRun = 142,
+        /// Incline walk type.
+        InclineWalk = 146,
+        /// Indoor climbing type.
+        IndoorClimbing = 23,
+        /// Interval workout type.
+        IntervalWorkout = 24,
+        /// Jazz dance type.
+        JazzDance = 154,
+        /// Jiu jitsu type.
+        JiuJitsu = 160,
+        /// Jumping rope type.
+        JumpingRope = 74,
+        /// Karate type.
+        Karate = 159,
+        /// Kayaking type.
+        Kayaking = 25,
+        /// Kickboxing type.
+        Kickboxing = 26,
+        /// Kitesurfing type.
+        Kitesurfing = 172,
+        /// Lacrosse type.
+        Lacrosse = 75,
+        /// Martial arts type.
+        MartialArts = 27,
+        /// Meditate type.
+        Meditate = 28,
+        /// Modern dance type.
+        ModernDance = 153,
+        /// Motocross type.
+        Motocross = 114,
+        /// Motorcycle type.
+        Motorcycle = 121,
+        /// Mountain bike type.
+        MountainBike = 128,
+        /// Mowing lawn type.
+        MowingLawn = 106,
+        /// Muay thai type.
+        MuayThai = 162,
+        /// Multisport type.
+        Multisport = 76,
+        /// Musical performance type.
+        MusicalPerformance = 163,
+        /// Nordic walking type.
+        NordicWalking = 145,
+        /// Orienteering type.
+        Orienteering = 115,
         /// Other type.
         Other = 12,
+        /// Outdoor bike type.
+        OutdoorBike = 29,
+        /// Outdoor workout type.
+        OutdoorWorkout = 30,
+        /// Paddleboarding type.
+        Paddleboarding = 31,
+        /// Padel type.
+        Padel = 176,
+        /// Painting type.
+        Painting = 170,
+        /// Paragliding type.
+        Paragliding = 78,
+        /// Parkour type.
+        Parkour = 166,
+        /// Pickelball type.
+        Pickelball = 79,
+        /// Pilates type.
+        Pilates = 7,
+        /// Polo type.
+        Polo = 116,
+        /// Powerlifting type.
+        Powerlifting = 32,
+        /// Power walking type.
+        PowerWalking = 143,
+        /// Racket sports type.
+        RacketSports = 169,
+        /// Racquetball type.
+        Racquetball = 80,
+        /// Resistance bands type.
+        ResistanceBands = 151,
+        /// Rock climbing type.
+        RockClimbing = 123,
+        /// Rollerblading type.
+        Rollerblading = 33,
+        /// Roller skating type.
+        RollerSkating = 118,
+        /// Rowing type.
+        Rowing = 81,
+        /// Rowing machine type.
+        RowingMachine = 34,
+        /// Rucking type.
+        Rucking = 144,
+        /// Rugby type.
+        Rugby = 82,
+        /// Running type.
+        Running = 1,
+        /// Sailing type.
+        Sailing = 83,
+        /// Scootering type.
+        Scootering = 167,
+        /// Scuba diving type.
+        ScubaDiving = 84,
+        /// Shooting type.
+        Shooting = 104,
+        /// Shoveling type.
+        Shoveling = 171,
+        /// Skateboarding type.
+        Skateboarding = 117,
+        /// Skating type.
+        Skating = 35,
+        /// Skiing type.
+        Skiing = 36,
+        /// Skydiving type.
+        Skydiving = 182,
+        /// Snorkeling type.
+        Snorkeling = 37,
+        /// Snowboarding type.
+        Snowboarding = 38,
+        /// Snowmobiling type.
+        Snowmobiling = 179,
+        /// Snowshoeing type.
+        Snowshoeing = 85,
+        /// Snow sport type.
+        SnowSport = 86,
+        /// Soccer type.
+        Soccer = 87,
+        /// Softball type.
+        Softball = 88,
+        /// Speed skating type.
+        SpeedSkating = 178,
+        /// Spinning type.
+        Spinning = 39,
+        /// Sport type.
+        Sport = 40,
+        /// Squash type.
+        Squash = 89,
+        /// Stairclimber type.
+        Stairclimber = 41,
+        /// Stationary bike type.
+        StationaryBike = 139,
+        /// Step training type.
+        StepTraining = 90,
+        /// Strength training type.
+        StrengthTraining = 11,
+        /// Stretching type.
+        Stretching = 42,
+        /// Stroller walk type.
+        StrollerWalk = 122,
+        /// Surfing type.
+        Surfing = 43,
+        /// Swimming type.
+        Swimming = 4,
+        /// Swimming open water type.
+        SwimmingOpenWater = 91,
+        /// Swimming pool type.
+        SwimmingPool = 101,
+        /// Synchronized swimming type.
+        SynchronizedSwimming = 177,
+        /// Tabata workout type.
+        TabataWorkout = 130,
+        /// Table tennis type.
+        TableTennis = 92,
+        /// Taekwondo type.
+        Taekwondo = 161,
+        /// Tai chi type.
+        TaiChi = 93,
+        /// Tango type.
+        Tango = 155,
+        /// Tennis type.
+        Tennis = 44,
+        /// Track and field type.
+        TrackAndField = 94,
+        /// Trail run type.
+        TrailRun = 141,
+        /// Trampoline type.
+        Trampoline = 119,
+        /// Treadmill type.
+        Treadmill = 45,
+        /// Treadmill walk type.
+        TreadmillWalk = 138,
+        /// Trx type.
+        Trx = 131,
+        /// Ultimate frisbee type.
+        UltimateFrisbee = 112,
+        /// Unicycling type.
+        Unicycling = 102,
+        /// Volleyball type.
+        Volleyball = 95,
+        /// Volleyball beach type.
+        VolleyballBeach = 120,
+        /// Wakeboarding type.
+        Wakeboarding = 173,
+        /// Walking type.
+        Walking = 2,
+        /// Walk with weights type.
+        WalkWithWeights = 147,
+        /// Water aerobics type.
+        WaterAerobics = 96,
+        /// Water jogging type.
+        WaterJogging = 126,
+        /// Water polo type.
+        WaterPolo = 97,
+        /// Water skiing type.
+        WaterSkiing = 124,
+        /// Water sport type.
+        WaterSport = 98,
+        /// Water volleyball type.
+        WaterVolleyball = 125,
+        /// Weeding type.
+        Weeding = 110,
+        /// Weightlifting type.
+        Weightlifting = 10,
+        /// Weight machines type.
+        WeightMachines = 150,
+        /// Weights type.
+        Weights = 46,
+        /// Wheelchair type.
+        Wheelchair = 99,
+        /// Windsurfing type.
+        Windsurfing = 174,
+        /// Workout type.
+        Workout = 8,
+        /// Wrestling type.
+        Wrestling = 100,
+        /// Yoga type.
+        Yoga = 6,
+        /// Yoga bikram type.
+        YogaBikram = 132,
+        /// Yoga hatha type.
+        YogaHatha = 133,
+        /// Yoga power type.
+        YogaPower = 134,
+        /// Yoga vinyasa type.
+        YogaVinyasa = 135,
+        /// Zumba type.
+        Zumba = 136,
     }
     impl ExerciseType {
         /// String value of the enum field names used in the ProtoBuf definition.
@@ -1261,36 +1610,374 @@ pub mod exercise {
         pub fn as_str_name(&self) -> &'static str {
             match self {
                 Self::Unspecified => "EXERCISE_TYPE_UNSPECIFIED",
-                Self::Running => "RUNNING",
-                Self::Walking => "WALKING",
+                Self::AerobicWorkout => "AEROBIC_WORKOUT",
+                Self::Archery => "ARCHERY",
+                Self::AssaultBike => "ASSAULT_BIKE",
+                Self::Backpacking => "BACKPACKING",
+                Self::Badminton => "BADMINTON",
+                Self::Ballet => "BALLET",
+                Self::BallroomDance => "BALLROOM_DANCE",
+                Self::BarreClass => "BARRE_CLASS",
+                Self::Baseball => "BASEBALL",
+                Self::Basketball => "BASKETBALL",
                 Self::Biking => "BIKING",
-                Self::Swimming => "SWIMMING",
-                Self::Hiking => "HIKING",
-                Self::Yoga => "YOGA",
-                Self::Pilates => "PILATES",
-                Self::Workout => "WORKOUT",
+                Self::Billiards => "BILLIARDS",
+                Self::BodyWeight => "BODY_WEIGHT",
+                Self::Bootcamp => "BOOTCAMP",
+                Self::Bowling => "BOWLING",
+                Self::Boxing => "BOXING",
+                Self::Breakdancing => "BREAKDANCING",
+                Self::Calisthenics => "CALISTHENICS",
+                Self::Canoeing => "CANOEING",
+                Self::CardioSculpt => "CARDIO_SCULPT",
+                Self::CardioWorkout => "CARDIO_WORKOUT",
+                Self::Carpentry => "CARPENTRY",
+                Self::Cheerleading => "CHEERLEADING",
+                Self::CircuitTraining => "CIRCUIT_TRAINING",
+                Self::Cleaning => "CLEANING",
+                Self::Climbing => "CLIMBING",
+                Self::CoreTraining => "CORE_TRAINING",
+                Self::Cricket => "CRICKET",
+                Self::Croquet => "CROQUET",
+                Self::CrossCountrySki => "CROSS_COUNTRY_SKI",
+                Self::CrossTraining => "CROSS_TRAINING",
+                Self::Crossfit => "CROSSFIT",
+                Self::Curling => "CURLING",
+                Self::Dancing => "DANCING",
+                Self::Diving => "DIVING",
+                Self::ElectricBike => "ELECTRIC_BIKE",
+                Self::ElectricScooter => "ELECTRIC_SCOOTER",
+                Self::Elliptical => "ELLIPTICAL",
+                Self::EquestrianSports => "EQUESTRIAN_SPORTS",
+                Self::ExerciseClass => "EXERCISE_CLASS",
+                Self::Fencing => "FENCING",
+                Self::FieldHockey => "FIELD_HOCKEY",
+                Self::Fishing => "FISHING",
+                Self::FitnessGaming => "FITNESS_GAMING",
+                Self::Foiling => "FOILING",
+                Self::FootballAmerican => "FOOTBALL_AMERICAN",
+                Self::FootballAustralian => "FOOTBALL_AUSTRALIAN",
+                Self::FreeWeights => "FREE_WEIGHTS",
+                Self::FrisbeePlayingGeneral => "FRISBEE_PLAYING_GENERAL",
+                Self::FunctionalStrengthTraining => "FUNCTIONAL_STRENGTH_TRAINING",
+                Self::Gardening => "GARDENING",
+                Self::Golf => "GOLF",
+                Self::Gymnastics => "GYMNASTICS",
+                Self::Handball => "HANDBALL",
+                Self::HandCycling => "HAND_CYCLING",
                 Self::Hiit => "HIIT",
-                Self::Weightlifting => "WEIGHTLIFTING",
-                Self::StrengthTraining => "STRENGTH_TRAINING",
+                Self::Hiking => "HIKING",
+                Self::HipHop => "HIP_HOP",
+                Self::Hockey => "HOCKEY",
+                Self::Hoeing => "HOEING",
+                Self::HouseholdChores => "HOUSEHOLD_CHORES",
+                Self::Hunting => "HUNTING",
+                Self::IceSkating => "ICE_SKATING",
+                Self::InclineRun => "INCLINE_RUN",
+                Self::InclineWalk => "INCLINE_WALK",
+                Self::IndoorClimbing => "INDOOR_CLIMBING",
+                Self::IntervalWorkout => "INTERVAL_WORKOUT",
+                Self::JazzDance => "JAZZ_DANCE",
+                Self::JiuJitsu => "JIU_JITSU",
+                Self::JumpingRope => "JUMPING_ROPE",
+                Self::Karate => "KARATE",
+                Self::Kayaking => "KAYAKING",
+                Self::Kickboxing => "KICKBOXING",
+                Self::Kitesurfing => "KITESURFING",
+                Self::Lacrosse => "LACROSSE",
+                Self::MartialArts => "MARTIAL_ARTS",
+                Self::Meditate => "MEDITATE",
+                Self::ModernDance => "MODERN_DANCE",
+                Self::Motocross => "MOTOCROSS",
+                Self::Motorcycle => "MOTORCYCLE",
+                Self::MountainBike => "MOUNTAIN_BIKE",
+                Self::MowingLawn => "MOWING_LAWN",
+                Self::MuayThai => "MUAY_THAI",
+                Self::Multisport => "MULTISPORT",
+                Self::MusicalPerformance => "MUSICAL_PERFORMANCE",
+                Self::NordicWalking => "NORDIC_WALKING",
+                Self::Orienteering => "ORIENTEERING",
                 Self::Other => "OTHER",
+                Self::OutdoorBike => "OUTDOOR_BIKE",
+                Self::OutdoorWorkout => "OUTDOOR_WORKOUT",
+                Self::Paddleboarding => "PADDLEBOARDING",
+                Self::Padel => "PADEL",
+                Self::Painting => "PAINTING",
+                Self::Paragliding => "PARAGLIDING",
+                Self::Parkour => "PARKOUR",
+                Self::Pickelball => "PICKELBALL",
+                Self::Pilates => "PILATES",
+                Self::Polo => "POLO",
+                Self::Powerlifting => "POWERLIFTING",
+                Self::PowerWalking => "POWER_WALKING",
+                Self::RacketSports => "RACKET_SPORTS",
+                Self::Racquetball => "RACQUETBALL",
+                Self::ResistanceBands => "RESISTANCE_BANDS",
+                Self::RockClimbing => "ROCK_CLIMBING",
+                Self::Rollerblading => "ROLLERBLADING",
+                Self::RollerSkating => "ROLLER_SKATING",
+                Self::Rowing => "ROWING",
+                Self::RowingMachine => "ROWING_MACHINE",
+                Self::Rucking => "RUCKING",
+                Self::Rugby => "RUGBY",
+                Self::Running => "RUNNING",
+                Self::Sailing => "SAILING",
+                Self::Scootering => "SCOOTERING",
+                Self::ScubaDiving => "SCUBA_DIVING",
+                Self::Shooting => "SHOOTING",
+                Self::Shoveling => "SHOVELING",
+                Self::Skateboarding => "SKATEBOARDING",
+                Self::Skating => "SKATING",
+                Self::Skiing => "SKIING",
+                Self::Skydiving => "SKYDIVING",
+                Self::Snorkeling => "SNORKELING",
+                Self::Snowboarding => "SNOWBOARDING",
+                Self::Snowmobiling => "SNOWMOBILING",
+                Self::Snowshoeing => "SNOWSHOEING",
+                Self::SnowSport => "SNOW_SPORT",
+                Self::Soccer => "SOCCER",
+                Self::Softball => "SOFTBALL",
+                Self::SpeedSkating => "SPEED_SKATING",
+                Self::Spinning => "SPINNING",
+                Self::Sport => "SPORT",
+                Self::Squash => "SQUASH",
+                Self::Stairclimber => "STAIRCLIMBER",
+                Self::StationaryBike => "STATIONARY_BIKE",
+                Self::StepTraining => "STEP_TRAINING",
+                Self::StrengthTraining => "STRENGTH_TRAINING",
+                Self::Stretching => "STRETCHING",
+                Self::StrollerWalk => "STROLLER_WALK",
+                Self::Surfing => "SURFING",
+                Self::Swimming => "SWIMMING",
+                Self::SwimmingOpenWater => "SWIMMING_OPEN_WATER",
+                Self::SwimmingPool => "SWIMMING_POOL",
+                Self::SynchronizedSwimming => "SYNCHRONIZED_SWIMMING",
+                Self::TabataWorkout => "TABATA_WORKOUT",
+                Self::TableTennis => "TABLE_TENNIS",
+                Self::Taekwondo => "TAEKWONDO",
+                Self::TaiChi => "TAI_CHI",
+                Self::Tango => "TANGO",
+                Self::Tennis => "TENNIS",
+                Self::TrackAndField => "TRACK_AND_FIELD",
+                Self::TrailRun => "TRAIL_RUN",
+                Self::Trampoline => "TRAMPOLINE",
+                Self::Treadmill => "TREADMILL",
+                Self::TreadmillWalk => "TREADMILL_WALK",
+                Self::Trx => "TRX",
+                Self::UltimateFrisbee => "ULTIMATE_FRISBEE",
+                Self::Unicycling => "UNICYCLING",
+                Self::Volleyball => "VOLLEYBALL",
+                Self::VolleyballBeach => "VOLLEYBALL_BEACH",
+                Self::Wakeboarding => "WAKEBOARDING",
+                Self::Walking => "WALKING",
+                Self::WalkWithWeights => "WALK_WITH_WEIGHTS",
+                Self::WaterAerobics => "WATER_AEROBICS",
+                Self::WaterJogging => "WATER_JOGGING",
+                Self::WaterPolo => "WATER_POLO",
+                Self::WaterSkiing => "WATER_SKIING",
+                Self::WaterSport => "WATER_SPORT",
+                Self::WaterVolleyball => "WATER_VOLLEYBALL",
+                Self::Weeding => "WEEDING",
+                Self::Weightlifting => "WEIGHTLIFTING",
+                Self::WeightMachines => "WEIGHT_MACHINES",
+                Self::Weights => "WEIGHTS",
+                Self::Wheelchair => "WHEELCHAIR",
+                Self::Windsurfing => "WINDSURFING",
+                Self::Workout => "WORKOUT",
+                Self::Wrestling => "WRESTLING",
+                Self::Yoga => "YOGA",
+                Self::YogaBikram => "YOGA_BIKRAM",
+                Self::YogaHatha => "YOGA_HATHA",
+                Self::YogaPower => "YOGA_POWER",
+                Self::YogaVinyasa => "YOGA_VINYASA",
+                Self::Zumba => "ZUMBA",
             }
         }
         /// Creates an enum from field names used in the ProtoBuf definition.
         pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
             match value {
                 "EXERCISE_TYPE_UNSPECIFIED" => Some(Self::Unspecified),
-                "RUNNING" => Some(Self::Running),
-                "WALKING" => Some(Self::Walking),
+                "AEROBIC_WORKOUT" => Some(Self::AerobicWorkout),
+                "ARCHERY" => Some(Self::Archery),
+                "ASSAULT_BIKE" => Some(Self::AssaultBike),
+                "BACKPACKING" => Some(Self::Backpacking),
+                "BADMINTON" => Some(Self::Badminton),
+                "BALLET" => Some(Self::Ballet),
+                "BALLROOM_DANCE" => Some(Self::BallroomDance),
+                "BARRE_CLASS" => Some(Self::BarreClass),
+                "BASEBALL" => Some(Self::Baseball),
+                "BASKETBALL" => Some(Self::Basketball),
                 "BIKING" => Some(Self::Biking),
-                "SWIMMING" => Some(Self::Swimming),
-                "HIKING" => Some(Self::Hiking),
-                "YOGA" => Some(Self::Yoga),
-                "PILATES" => Some(Self::Pilates),
-                "WORKOUT" => Some(Self::Workout),
+                "BILLIARDS" => Some(Self::Billiards),
+                "BODY_WEIGHT" => Some(Self::BodyWeight),
+                "BOOTCAMP" => Some(Self::Bootcamp),
+                "BOWLING" => Some(Self::Bowling),
+                "BOXING" => Some(Self::Boxing),
+                "BREAKDANCING" => Some(Self::Breakdancing),
+                "CALISTHENICS" => Some(Self::Calisthenics),
+                "CANOEING" => Some(Self::Canoeing),
+                "CARDIO_SCULPT" => Some(Self::CardioSculpt),
+                "CARDIO_WORKOUT" => Some(Self::CardioWorkout),
+                "CARPENTRY" => Some(Self::Carpentry),
+                "CHEERLEADING" => Some(Self::Cheerleading),
+                "CIRCUIT_TRAINING" => Some(Self::CircuitTraining),
+                "CLEANING" => Some(Self::Cleaning),
+                "CLIMBING" => Some(Self::Climbing),
+                "CORE_TRAINING" => Some(Self::CoreTraining),
+                "CRICKET" => Some(Self::Cricket),
+                "CROQUET" => Some(Self::Croquet),
+                "CROSS_COUNTRY_SKI" => Some(Self::CrossCountrySki),
+                "CROSS_TRAINING" => Some(Self::CrossTraining),
+                "CROSSFIT" => Some(Self::Crossfit),
+                "CURLING" => Some(Self::Curling),
+                "DANCING" => Some(Self::Dancing),
+                "DIVING" => Some(Self::Diving),
+                "ELECTRIC_BIKE" => Some(Self::ElectricBike),
+                "ELECTRIC_SCOOTER" => Some(Self::ElectricScooter),
+                "ELLIPTICAL" => Some(Self::Elliptical),
+                "EQUESTRIAN_SPORTS" => Some(Self::EquestrianSports),
+                "EXERCISE_CLASS" => Some(Self::ExerciseClass),
+                "FENCING" => Some(Self::Fencing),
+                "FIELD_HOCKEY" => Some(Self::FieldHockey),
+                "FISHING" => Some(Self::Fishing),
+                "FITNESS_GAMING" => Some(Self::FitnessGaming),
+                "FOILING" => Some(Self::Foiling),
+                "FOOTBALL_AMERICAN" => Some(Self::FootballAmerican),
+                "FOOTBALL_AUSTRALIAN" => Some(Self::FootballAustralian),
+                "FREE_WEIGHTS" => Some(Self::FreeWeights),
+                "FRISBEE_PLAYING_GENERAL" => Some(Self::FrisbeePlayingGeneral),
+                "FUNCTIONAL_STRENGTH_TRAINING" => Some(Self::FunctionalStrengthTraining),
+                "GARDENING" => Some(Self::Gardening),
+                "GOLF" => Some(Self::Golf),
+                "GYMNASTICS" => Some(Self::Gymnastics),
+                "HANDBALL" => Some(Self::Handball),
+                "HAND_CYCLING" => Some(Self::HandCycling),
                 "HIIT" => Some(Self::Hiit),
-                "WEIGHTLIFTING" => Some(Self::Weightlifting),
-                "STRENGTH_TRAINING" => Some(Self::StrengthTraining),
+                "HIKING" => Some(Self::Hiking),
+                "HIP_HOP" => Some(Self::HipHop),
+                "HOCKEY" => Some(Self::Hockey),
+                "HOEING" => Some(Self::Hoeing),
+                "HOUSEHOLD_CHORES" => Some(Self::HouseholdChores),
+                "HUNTING" => Some(Self::Hunting),
+                "ICE_SKATING" => Some(Self::IceSkating),
+                "INCLINE_RUN" => Some(Self::InclineRun),
+                "INCLINE_WALK" => Some(Self::InclineWalk),
+                "INDOOR_CLIMBING" => Some(Self::IndoorClimbing),
+                "INTERVAL_WORKOUT" => Some(Self::IntervalWorkout),
+                "JAZZ_DANCE" => Some(Self::JazzDance),
+                "JIU_JITSU" => Some(Self::JiuJitsu),
+                "JUMPING_ROPE" => Some(Self::JumpingRope),
+                "KARATE" => Some(Self::Karate),
+                "KAYAKING" => Some(Self::Kayaking),
+                "KICKBOXING" => Some(Self::Kickboxing),
+                "KITESURFING" => Some(Self::Kitesurfing),
+                "LACROSSE" => Some(Self::Lacrosse),
+                "MARTIAL_ARTS" => Some(Self::MartialArts),
+                "MEDITATE" => Some(Self::Meditate),
+                "MODERN_DANCE" => Some(Self::ModernDance),
+                "MOTOCROSS" => Some(Self::Motocross),
+                "MOTORCYCLE" => Some(Self::Motorcycle),
+                "MOUNTAIN_BIKE" => Some(Self::MountainBike),
+                "MOWING_LAWN" => Some(Self::MowingLawn),
+                "MUAY_THAI" => Some(Self::MuayThai),
+                "MULTISPORT" => Some(Self::Multisport),
+                "MUSICAL_PERFORMANCE" => Some(Self::MusicalPerformance),
+                "NORDIC_WALKING" => Some(Self::NordicWalking),
+                "ORIENTEERING" => Some(Self::Orienteering),
                 "OTHER" => Some(Self::Other),
+                "OUTDOOR_BIKE" => Some(Self::OutdoorBike),
+                "OUTDOOR_WORKOUT" => Some(Self::OutdoorWorkout),
+                "PADDLEBOARDING" => Some(Self::Paddleboarding),
+                "PADEL" => Some(Self::Padel),
+                "PAINTING" => Some(Self::Painting),
+                "PARAGLIDING" => Some(Self::Paragliding),
+                "PARKOUR" => Some(Self::Parkour),
+                "PICKELBALL" => Some(Self::Pickelball),
+                "PILATES" => Some(Self::Pilates),
+                "POLO" => Some(Self::Polo),
+                "POWERLIFTING" => Some(Self::Powerlifting),
+                "POWER_WALKING" => Some(Self::PowerWalking),
+                "RACKET_SPORTS" => Some(Self::RacketSports),
+                "RACQUETBALL" => Some(Self::Racquetball),
+                "RESISTANCE_BANDS" => Some(Self::ResistanceBands),
+                "ROCK_CLIMBING" => Some(Self::RockClimbing),
+                "ROLLERBLADING" => Some(Self::Rollerblading),
+                "ROLLER_SKATING" => Some(Self::RollerSkating),
+                "ROWING" => Some(Self::Rowing),
+                "ROWING_MACHINE" => Some(Self::RowingMachine),
+                "RUCKING" => Some(Self::Rucking),
+                "RUGBY" => Some(Self::Rugby),
+                "RUNNING" => Some(Self::Running),
+                "SAILING" => Some(Self::Sailing),
+                "SCOOTERING" => Some(Self::Scootering),
+                "SCUBA_DIVING" => Some(Self::ScubaDiving),
+                "SHOOTING" => Some(Self::Shooting),
+                "SHOVELING" => Some(Self::Shoveling),
+                "SKATEBOARDING" => Some(Self::Skateboarding),
+                "SKATING" => Some(Self::Skating),
+                "SKIING" => Some(Self::Skiing),
+                "SKYDIVING" => Some(Self::Skydiving),
+                "SNORKELING" => Some(Self::Snorkeling),
+                "SNOWBOARDING" => Some(Self::Snowboarding),
+                "SNOWMOBILING" => Some(Self::Snowmobiling),
+                "SNOWSHOEING" => Some(Self::Snowshoeing),
+                "SNOW_SPORT" => Some(Self::SnowSport),
+                "SOCCER" => Some(Self::Soccer),
+                "SOFTBALL" => Some(Self::Softball),
+                "SPEED_SKATING" => Some(Self::SpeedSkating),
+                "SPINNING" => Some(Self::Spinning),
+                "SPORT" => Some(Self::Sport),
+                "SQUASH" => Some(Self::Squash),
+                "STAIRCLIMBER" => Some(Self::Stairclimber),
+                "STATIONARY_BIKE" => Some(Self::StationaryBike),
+                "STEP_TRAINING" => Some(Self::StepTraining),
+                "STRENGTH_TRAINING" => Some(Self::StrengthTraining),
+                "STRETCHING" => Some(Self::Stretching),
+                "STROLLER_WALK" => Some(Self::StrollerWalk),
+                "SURFING" => Some(Self::Surfing),
+                "SWIMMING" => Some(Self::Swimming),
+                "SWIMMING_OPEN_WATER" => Some(Self::SwimmingOpenWater),
+                "SWIMMING_POOL" => Some(Self::SwimmingPool),
+                "SYNCHRONIZED_SWIMMING" => Some(Self::SynchronizedSwimming),
+                "TABATA_WORKOUT" => Some(Self::TabataWorkout),
+                "TABLE_TENNIS" => Some(Self::TableTennis),
+                "TAEKWONDO" => Some(Self::Taekwondo),
+                "TAI_CHI" => Some(Self::TaiChi),
+                "TANGO" => Some(Self::Tango),
+                "TENNIS" => Some(Self::Tennis),
+                "TRACK_AND_FIELD" => Some(Self::TrackAndField),
+                "TRAIL_RUN" => Some(Self::TrailRun),
+                "TRAMPOLINE" => Some(Self::Trampoline),
+                "TREADMILL" => Some(Self::Treadmill),
+                "TREADMILL_WALK" => Some(Self::TreadmillWalk),
+                "TRX" => Some(Self::Trx),
+                "ULTIMATE_FRISBEE" => Some(Self::UltimateFrisbee),
+                "UNICYCLING" => Some(Self::Unicycling),
+                "VOLLEYBALL" => Some(Self::Volleyball),
+                "VOLLEYBALL_BEACH" => Some(Self::VolleyballBeach),
+                "WAKEBOARDING" => Some(Self::Wakeboarding),
+                "WALKING" => Some(Self::Walking),
+                "WALK_WITH_WEIGHTS" => Some(Self::WalkWithWeights),
+                "WATER_AEROBICS" => Some(Self::WaterAerobics),
+                "WATER_JOGGING" => Some(Self::WaterJogging),
+                "WATER_POLO" => Some(Self::WaterPolo),
+                "WATER_SKIING" => Some(Self::WaterSkiing),
+                "WATER_SPORT" => Some(Self::WaterSport),
+                "WATER_VOLLEYBALL" => Some(Self::WaterVolleyball),
+                "WEEDING" => Some(Self::Weeding),
+                "WEIGHTLIFTING" => Some(Self::Weightlifting),
+                "WEIGHT_MACHINES" => Some(Self::WeightMachines),
+                "WEIGHTS" => Some(Self::Weights),
+                "WHEELCHAIR" => Some(Self::Wheelchair),
+                "WINDSURFING" => Some(Self::Windsurfing),
+                "WORKOUT" => Some(Self::Workout),
+                "WRESTLING" => Some(Self::Wrestling),
+                "YOGA" => Some(Self::Yoga),
+                "YOGA_BIKRAM" => Some(Self::YogaBikram),
+                "YOGA_HATHA" => Some(Self::YogaHatha),
+                "YOGA_POWER" => Some(Self::YogaPower),
+                "YOGA_VINYASA" => Some(Self::YogaVinyasa),
+                "ZUMBA" => Some(Self::Zumba),
                 _ => None,
             }
         }
@@ -1302,7 +1989,8 @@ pub struct Floors {
     /// Required. Observed interval
     #[prost(message, optional, tag = "2")]
     pub interval: ::core::option::Option<ObservationTimeInterval>,
-    /// Required. Number of floors in the recorded interval
+    /// Required. Number of floors in the recorded interval.
+    /// Must be in the range `\[0, 1000000\]`.
     #[prost(int64, optional, tag = "4")]
     pub count: ::core::option::Option<i64>,
 }
@@ -1327,6 +2015,7 @@ pub struct HeartRate {
     #[prost(message, optional, tag = "2")]
     pub sample_time: ::core::option::Option<ObservationSampleTime>,
     /// Required. The heart rate value in beats per minute.
+    /// Must be in the range `\[1, 300\]`.
     #[prost(int64, optional, tag = "4")]
     pub beats_per_minute: ::core::option::Option<i64>,
     /// Optional. Metadata about the heart rate sample.
@@ -1488,6 +2177,7 @@ pub struct RunVo2Max {
     #[prost(message, optional, tag = "1")]
     pub sample_time: ::core::option::Option<ObservationSampleTime>,
     /// Required. Run VO2 max value in ml/kg/min.
+    /// Must be in the range `\[0, 100\]`.
     #[prost(double, optional, tag = "2")]
     pub run_vo2_max: ::core::option::Option<f64>,
 }
@@ -1511,6 +2201,7 @@ pub struct Height {
     #[prost(message, optional, tag = "1")]
     pub sample_time: ::core::option::Option<ObservationSampleTime>,
     /// Required. Height of the user in millimeters.
+    /// Must be in the range `\[0, 3000\]`.
     #[prost(int64, optional, tag = "2")]
     pub height_millimeters: ::core::option::Option<i64>,
 }
@@ -1524,7 +2215,7 @@ pub struct HeartRateVariability {
     pub sample_time: ::core::option::Option<ObservationSampleTime>,
     /// Optional. The root mean square of successive differences between normal
     /// heartbeats. This is a measure of heart rate variability used by Google
-    /// Health.
+    /// Health. Must be in the range `\[1, 200\]`.
     #[prost(double, optional, tag = "2")]
     pub root_mean_square_of_successive_differences_milliseconds: ::core::option::Option<
         f64,
@@ -1532,11 +2223,33 @@ pub struct HeartRateVariability {
     /// Optional. The standard deviation of the heart rate variability measurement.
     #[prost(double, optional, tag = "3")]
     pub standard_deviation_milliseconds: ::core::option::Option<f64>,
+    /// Optional. Additional information about the heart rate variability
+    /// measurement.
+    #[prost(message, optional, tag = "4")]
+    pub metadata: ::core::option::Option<
+        heart_rate_variability::HeartRateVariabilityMetadata,
+    >,
+}
+/// Nested message and enum types in `HeartRateVariability`.
+pub mod heart_rate_variability {
+    /// Metadata for HeartRateVariability.
+    #[derive(Clone, Copy, PartialEq, ::prost::Message)]
+    pub struct HeartRateVariabilityMetadata {
+        /// Optional. The power in interbeat interval fluctuations within the high
+        /// frequency band (0.15 Hz - 0.4 Hz).
+        #[prost(double, tag = "2")]
+        pub high_frequency_power: f64,
+        /// Optional. The power in interbeat interval fluctuations within the low
+        /// frequency band (0.04 Hz - 0.15 Hz).
+        #[prost(double, tag = "3")]
+        pub low_frequency_power: f64,
+    }
 }
 /// Represents the volume quantity.
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct VolumeQuantity {
     /// Required. Value representing the volume in milliliters.
+    /// Must be in the range `\[0, 100000\]`.
     #[prost(double, optional, tag = "1")]
     pub milliliters: ::core::option::Option<f64>,
     /// Optional. Value representing the user provided unit, used only for
@@ -1760,7 +2473,8 @@ pub mod metrics_summary {
 /// Represents the weight quantity.
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct WeightQuantity {
-    /// Required. Value representing the weight in grams.
+    /// Required. The weight value in grams.
+    /// Must be in the range `\[0, 100000\]`.
     #[prost(double, optional, tag = "1")]
     pub grams: ::core::option::Option<f64>,
     /// Optional. Value representing the user provided unit.
@@ -1770,7 +2484,8 @@ pub struct WeightQuantity {
 /// Represents the energy quantity.
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct EnergyQuantity {
-    /// Required. Value representing the energy in kilocalories.
+    /// Required. The energy value in kilocalories.
+    /// Must be in the range `\[0, 100000\]`.
     #[prost(double, optional, tag = "1")]
     pub kcal: ::core::option::Option<f64>,
     /// Optional. Value representing the user provided unit.
@@ -1780,14 +2495,14 @@ pub struct EnergyQuantity {
 /// Represents the quantity of a nutrient.
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct NutrientQuantity {
-    /// Required. Value representing the quantity of the nutrient.
+    /// Required. The quantity of the nutrient, measured in grams.
     #[prost(message, optional, tag = "1")]
     pub quantity: ::core::option::Option<WeightQuantity>,
-    /// Required. Value representing the nutrient.
+    /// Required. The nutrient type.
     #[prost(enumeration = "Nutrient", tag = "2")]
     pub nutrient: i32,
 }
-/// Holds information about a user logged food.
+/// Holds information about food logged by a user.
 ///
 /// There are two ways of creating a nutrition log based on the food type:
 ///
@@ -1800,52 +2515,41 @@ pub struct NutrientQuantity {
 ///    `total_fat` fields manually.
 ///
 /// The identified food is preferred over the anonymous food.
-/// Nutrition logs created from anonymous food are not be editable.
+/// Nutrition logs created from anonymous food are not editable.
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct NutritionLog {
-    /// Required. Observed interval.
+    /// Required. The time window when the food was logged.
     #[prost(message, optional, tag = "2")]
     pub interval: ::core::option::Option<SessionTimeInterval>,
-    /// Optional. Value representing the nutrients of the nutrition log.
+    /// Optional. An array of individual nutrient values for the nutrition log.
     #[prost(message, repeated, tag = "3")]
     pub nutrients: ::prost::alloc::vec::Vec<NutrientQuantity>,
-    /// Optional. Value representing the energy of the nutrition log.
-    /// For nutrition logs created from an identified food, this field will be
-    /// populated based on the referenced food. For anonymous food, this field will
-    /// be populated manually.
+    /// Optional. The total energy of the food, measured in kilocalories (`kcal`).
     #[prost(message, optional, tag = "4")]
     pub energy: ::core::option::Option<EnergyQuantity>,
-    /// Optional. Value representing the energy from fat of the nutrition log.
-    /// For nutrition logs created from an identified food, this field will be
-    /// populated based on the referenced food. For anonymous food, this field will
-    /// be populated manually.
+    /// Optional. The energy from fat, measured in kilocalories (`kcal`).
     #[prost(message, optional, tag = "5")]
     pub energy_from_fat: ::core::option::Option<EnergyQuantity>,
-    /// Optional. Value representing the total carbohydrate of the nutrition log.
-    /// For nutrition logs created from an identified food, this field will be
-    /// populated based on the referenced food. For anonymous food, this field will
-    /// be populated manually.
+    /// Optional. The total carbohydrate content, measured in grams.
     #[prost(message, optional, tag = "7")]
     pub total_carbohydrate: ::core::option::Option<WeightQuantity>,
-    /// Optional. Value representing the total fat of the nutrition log.
-    /// For nutrition logs created from an identified food, this field will be
-    /// populated based on the referenced food. For anonymous food, this field will
-    /// be populated manually.
+    /// Optional. The total fat content, measured in grams.
     #[prost(message, optional, tag = "8")]
     pub total_fat: ::core::option::Option<WeightQuantity>,
-    /// Optional. Value representing the meal type of the nutrition log.
+    /// Optional. The meal category. One of `BREAKFAST`, `LUNCH`, `DINNER`, or
+    /// `SNACK`.
     #[prost(enumeration = "MealType", tag = "13")]
     pub meal_type: i32,
-    /// Optional. Value representing the nutrition log serving.
+    /// Optional. The serving information for the logged food.
     #[prost(message, optional, tag = "14")]
     pub serving: ::core::option::Option<nutrition_log::Serving>,
-    /// Required. Represents the food ID.
+    /// Optional. The resource name of the Food item. Required when creating a
+    /// nutrition log from an identified food. For anonymous food logs, use the
+    /// `food_display_name` field instead.
     #[prost(string, tag = "15")]
     pub food: ::prost::alloc::string::String,
-    /// Value representing the display name of the food.
-    /// For nutrition logs created from an identified food, this field will be
-    /// populated based on the referenced food. For anonymous food, this field will
-    /// be populated manually.
+    /// The display name of the food. For identified food logs, this is populated
+    /// automatically from the referenced food.
     #[prost(string, tag = "16")]
     pub food_display_name: ::prost::alloc::string::String,
 }
@@ -1855,7 +2559,7 @@ pub mod nutrition_log {
     /// specific food.
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct Serving {
-        /// Optional. Amount of food consumed, fractional values are supported.
+        /// Optional. The number of servings.
         #[prost(double, optional, tag = "1")]
         pub amount: ::core::option::Option<f64>,
         /// Required. Food measurement unit
@@ -2018,7 +2722,8 @@ pub struct OxygenSaturation {
     /// Required. The time at which oxygen saturation was measured.
     #[prost(message, optional, tag = "1")]
     pub sample_time: ::core::option::Option<ObservationSampleTime>,
-    /// Required. The oxygen saturation percentage. Valid values are from 0 to 100.
+    /// Required. The oxygen saturation percentage.
+    /// Must be in the range `\[0, 100\]`.
     #[prost(double, optional, tag = "2")]
     pub percentage: ::core::option::Option<f64>,
 }
@@ -2105,7 +2810,8 @@ pub struct Sleep {
     /// “Out of bed” segments that can overlap with sleep stages.
     #[prost(message, repeated, tag = "6")]
     pub out_of_bed_segments: ::prost::alloc::vec::Vec<sleep::OutOfBedSegment>,
-    /// Optional. Sleep metadata: processing, main, manually edited, stages status.
+    /// Optional. Sleep metadata: `processed`, `main_sleep`, `manually_edited`, and
+    /// `stages_status`.
     #[prost(message, optional, tag = "8")]
     pub metadata: ::core::option::Option<sleep::SleepMetadata>,
     /// Output only. Sleep summary: metrics and stages summary.
@@ -2117,6 +2823,10 @@ pub struct Sleep {
     /// Output only. Last update time of this sleep observation.
     #[prost(message, optional, tag = "11")]
     pub update_time: ::core::option::Option<::prost_types::Timestamp>,
+    /// Output only. List of short awake segments (under a set threshold) that are
+    /// part of the sleep session. These can overlap with sleep stages.
+    #[prost(message, repeated, tag = "12")]
+    pub short_awakenings: ::prost::alloc::vec::Vec<sleep::SleepStage>,
 }
 /// Nested message and enum types in `Sleep`.
 pub mod sleep {
@@ -2172,6 +2882,10 @@ pub mod sleep {
         #[prost(enumeration = "sleep_metadata::StagesState", tag = "1")]
         pub stages_status: i32,
         /// Output only. Sleep and sleep stages algorithms finished processing.
+        /// A `true` value indicates whether all data processing for the session is
+        /// complete.
+        /// A `false` value means sleep period is detected but sleep stages is still
+        /// processing.
         #[prost(bool, tag = "2")]
         pub processed: bool,
         /// Output only. Naps are sleeps without stages and relatively short
@@ -2185,6 +2899,12 @@ pub mod sleep {
         /// Optional. Sleep identifier relevant in the context of the data source.
         #[prost(string, tag = "7")]
         pub external_id: ::prost::alloc::string::String,
+        /// Output only. `main_sleep`: the longest sleep session with stages within
+        /// one day. If no sleep session has stages, then the longest sleep is the
+        /// `main_sleep`.  If there are multiple days of sleep in the response, there
+        /// is one `main_sleep` per day.
+        #[prost(bool, tag = "9")]
+        pub main_sleep: bool,
     }
     /// Nested message and enum types in `SleepMetadata`.
     pub mod sleep_metadata {
@@ -2422,6 +3142,7 @@ pub struct Steps {
     #[prost(message, optional, tag = "2")]
     pub interval: ::core::option::Option<ObservationTimeInterval>,
     /// Required. Number of steps in the recorded interval.
+    /// Must be in the range `\[0, 1000000\]`.
     #[prost(int64, optional, tag = "4")]
     pub count: ::core::option::Option<i64>,
 }
@@ -2541,6 +3262,16 @@ pub mod time_in_heart_rate_zone_rollup_value {
     }
 }
 /// Represents the result of the rollup of the user's total calories.
+///
+/// Note: Queries for the `total-calories` data type must include a time
+/// interval filter (such as
+/// \[`total_calories.interval.start_time`\]\[google.devicesandservices.health.v4main.ObservationTimeInterval.start_time\]
+/// or
+/// \[`total_calories.interval.civil_start_time`\]\[google.devicesandservices.health.v4main.ObservationTimeInterval.civil_start_time\]).
+/// The maximum range is 14 days.
+///
+/// Example filter query:
+/// `total_calories.interval.start_time >= "2026-04-20T00:00:00Z" AND  total_calories.interval.start_time < "2026-04-21T00:00:00Z"`
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct TotalCaloriesRollupValue {
     /// Sum of the total calories in kilocalories.
@@ -2554,7 +3285,7 @@ pub struct Vo2Max {
     #[prost(message, optional, tag = "1")]
     pub sample_time: ::core::option::Option<ObservationSampleTime>,
     /// Required. VO2 max value measured as in ml consumed oxygen / kg of body
-    /// weight / min.
+    /// weight / min. Must be in the range `\[0, 100\]`.
     #[prost(double, optional, tag = "2")]
     pub vo2_max: ::core::option::Option<f64>,
     /// Optional. The method used to measure the VO2 max value.
@@ -2658,6 +3389,7 @@ pub struct Weight {
     #[prost(message, optional, tag = "2")]
     pub sample_time: ::core::option::Option<ObservationSampleTime>,
     /// Required. Weight of a user in grams.
+    /// Must be in the range `\[0, 1000000\]`.
     #[prost(double, optional, tag = "3")]
     pub weight_grams: ::core::option::Option<f64>,
     /// Optional. Standard free-form notes captured at manual logging.
@@ -2679,6 +3411,7 @@ pub struct BloodGlucose {
     #[prost(message, optional, tag = "1")]
     pub sample_time: ::core::option::Option<ObservationSampleTime>,
     /// Required. Blood glucose level concentration in mg/dL.
+    /// Must be in the range `\[0, 900\]`.
     #[prost(double, optional, tag = "2")]
     pub blood_glucose_milligrams_per_deciliter: ::core::option::Option<f64>,
     /// Optional. Source of the measurement.
@@ -2950,6 +3683,7 @@ pub struct ActiveEnergyBurned {
     #[prost(message, optional, tag = "1")]
     pub interval: ::core::option::Option<ObservationTimeInterval>,
     /// Required. Energy burned during an activity, measured in kilocalories.
+    /// Must be in the range `\[0, 1000000\]`.
     #[prost(double, optional, tag = "2")]
     pub kcal: ::core::option::Option<f64>,
 }
@@ -2959,6 +3693,709 @@ pub struct ActiveEnergyBurnedRollupValue {
     /// Output only. Sum of the active energy burned in kilocalories.
     #[prost(double, optional, tag = "1")]
     pub kcal_sum: ::core::option::Option<f64>,
+}
+/// Menstrual period record.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct MenstrualPeriod {
+    /// Required. Observed interval.
+    #[prost(message, optional, tag = "2")]
+    pub interval: ::core::option::Option<ObservationTimeInterval>,
+    /// Optional. Standard free-form notes captured at manual logging.
+    #[prost(string, tag = "4")]
+    pub notes: ::prost::alloc::string::String,
+}
+/// Ovulation test record.
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct OvulationTest {
+    /// Required. The time at which ovulation test was measured.
+    #[prost(message, optional, tag = "2")]
+    pub sample_time: ::core::option::Option<ObservationSampleTime>,
+    /// Required. The result of the ovulation test.
+    #[prost(enumeration = "OvulationTestResult", tag = "3")]
+    pub result: i32,
+}
+/// Symptoms logged by the user.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct Symptoms {
+    /// Required. Time when the symptoms were logged.
+    #[prost(message, optional, tag = "1")]
+    pub sample_time: ::core::option::Option<ObservationSampleTime>,
+    /// Required. List of symptoms experienced.
+    #[prost(
+        enumeration = "symptoms::SymptomValue",
+        repeated,
+        packed = "false",
+        tag = "2"
+    )]
+    pub symptoms: ::prost::alloc::vec::Vec<i32>,
+}
+/// Nested message and enum types in `Symptoms`.
+pub mod symptoms {
+    /// Enum representing possible symptom values.
+    #[derive(
+        Clone,
+        Copy,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash,
+        PartialOrd,
+        Ord,
+        ::prost::Enumeration
+    )]
+    #[repr(i32)]
+    pub enum SymptomValue {
+        /// Unspecified symptom value.
+        Unspecified = 0,
+        /// Abdominal cramps.
+        Cramps = 1,
+        /// Headache.
+        Headache = 2,
+        /// Tender breasts.
+        TenderBreasts = 3,
+        /// Acne.
+        Acne = 4,
+        /// Feeling sick or unwell.
+        Sick = 5,
+        /// Bloating or abdominal swelling.
+        Bloated = 6,
+        /// Hot flashes.
+        HotFlashes = 7,
+        /// Premenstrual syndrome symptoms.
+        Pms = 8,
+        /// Coughing.
+        Cough = 9,
+        /// Fever or elevated body temperature.
+        Fever = 10,
+        /// Difficulty breathing or shortness of breath.
+        DifficultyBreathing = 11,
+        /// Back pain.
+        BackPain = 12,
+        /// Shakiness or tremors.
+        Shakiness = 13,
+        /// Excessive hunger.
+        Hunger = 14,
+        /// Excessive sweating.
+        Sweating = 15,
+        /// Anxiety or nervousness.
+        Anxiety = 16,
+        /// Excessive thirst.
+        Thirst = 17,
+        /// Frequent urination.
+        FrequentUrination = 18,
+        /// Blurred vision.
+        BlurredVision = 19,
+        /// Other symptoms.
+        Other = 20,
+        /// High sex drive.
+        SexDriveHigh = 21,
+        /// Medium sex drive.
+        SexDriveMedium = 22,
+        /// Low sex drive.
+        SexDriveLow = 23,
+        /// Heart palpitations or racing heart.
+        HeartPalpitations = 24,
+        /// Fainting or loss of consciousness.
+        Fainting = 25,
+        /// Chest pain or discomfort.
+        ChestPain = 26,
+        /// Fatigue or extreme tiredness.
+        Fatigue = 27,
+        /// Confusion or mental fogginess.
+        Confusion = 28,
+        /// Dizziness or lightheadedness.
+        Dizziness = 29,
+        /// Abdominal pain.
+        AbdominalPain = 30,
+        /// Bladder leaks.
+        BladderLeaks = 31,
+        /// Bleeding gums.
+        BleedingGums = 32,
+        /// Brain fog.
+        BrainFog = 33,
+        /// Burning mouth.
+        BurningMouth = 34,
+        /// Constipation.
+        Constipation = 35,
+        /// Food cravings.
+        Cravings = 36,
+        /// Decreased appetite.
+        DecreasedAppetite = 37,
+        /// Diarrhea.
+        Diarrhea = 38,
+        /// Drawing pain.
+        DrawingPain = 39,
+        /// Dry eyes.
+        DryEyes = 40,
+        /// Dry hair.
+        DryHair = 41,
+        /// Dry skin.
+        DrySkin = 42,
+        /// Exhaustion.
+        Exhaustion = 43,
+        /// Feeling good or well.
+        FeelGood = 44,
+        /// Food aversions.
+        FoodAversions = 45,
+        /// Hair loss.
+        HairLoss = 46,
+        /// Heartburn.
+        Heartburn = 47,
+        /// Hyperpigmentation.
+        Hyperpigmentation = 48,
+        /// Increased appetite.
+        IncreasedAppetite = 49,
+        /// Increased appetite V2.
+        IncreasedAppetiteV2 = 50,
+        /// Insomnia or difficulty sleeping.
+        Insomnia = 51,
+        /// Joint pain.
+        JointPain = 52,
+        /// Leg cramps.
+        LegCramps = 53,
+        /// Milky nipple discharge.
+        MilkyNippleDischarge = 54,
+        /// Nausea.
+        Nausea = 55,
+        /// Night sweats.
+        NightSweats = 56,
+        /// Normal digestion.
+        NormalDigestion = 57,
+        /// Normal stool.
+        NormalStool = 58,
+        /// Perineum pain.
+        PerineumPain = 59,
+        /// Sleepiness or drowsiness.
+        Sleepiness = 60,
+        /// Stretch marks.
+        StretchMarks = 61,
+        /// Swelling.
+        Swelling = 62,
+        /// Vaginal dryness.
+        VaginalDryness = 63,
+        /// Vaginal itching.
+        VaginalItching = 64,
+        /// Vomiting.
+        Vomiting = 65,
+    }
+    impl SymptomValue {
+        /// String value of the enum field names used in the ProtoBuf definition.
+        ///
+        /// The values are not transformed in any way and thus are considered stable
+        /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+        pub fn as_str_name(&self) -> &'static str {
+            match self {
+                Self::Unspecified => "SYMPTOM_VALUE_UNSPECIFIED",
+                Self::Cramps => "CRAMPS",
+                Self::Headache => "HEADACHE",
+                Self::TenderBreasts => "TENDER_BREASTS",
+                Self::Acne => "ACNE",
+                Self::Sick => "SICK",
+                Self::Bloated => "BLOATED",
+                Self::HotFlashes => "HOT_FLASHES",
+                Self::Pms => "PMS",
+                Self::Cough => "COUGH",
+                Self::Fever => "FEVER",
+                Self::DifficultyBreathing => "DIFFICULTY_BREATHING",
+                Self::BackPain => "BACK_PAIN",
+                Self::Shakiness => "SHAKINESS",
+                Self::Hunger => "HUNGER",
+                Self::Sweating => "SWEATING",
+                Self::Anxiety => "ANXIETY",
+                Self::Thirst => "THIRST",
+                Self::FrequentUrination => "FREQUENT_URINATION",
+                Self::BlurredVision => "BLURRED_VISION",
+                Self::Other => "OTHER",
+                Self::SexDriveHigh => "SEX_DRIVE_HIGH",
+                Self::SexDriveMedium => "SEX_DRIVE_MEDIUM",
+                Self::SexDriveLow => "SEX_DRIVE_LOW",
+                Self::HeartPalpitations => "HEART_PALPITATIONS",
+                Self::Fainting => "FAINTING",
+                Self::ChestPain => "CHEST_PAIN",
+                Self::Fatigue => "FATIGUE",
+                Self::Confusion => "CONFUSION",
+                Self::Dizziness => "DIZZINESS",
+                Self::AbdominalPain => "ABDOMINAL_PAIN",
+                Self::BladderLeaks => "BLADDER_LEAKS",
+                Self::BleedingGums => "BLEEDING_GUMS",
+                Self::BrainFog => "BRAIN_FOG",
+                Self::BurningMouth => "BURNING_MOUTH",
+                Self::Constipation => "CONSTIPATION",
+                Self::Cravings => "CRAVINGS",
+                Self::DecreasedAppetite => "DECREASED_APPETITE",
+                Self::Diarrhea => "DIARRHEA",
+                Self::DrawingPain => "DRAWING_PAIN",
+                Self::DryEyes => "DRY_EYES",
+                Self::DryHair => "DRY_HAIR",
+                Self::DrySkin => "DRY_SKIN",
+                Self::Exhaustion => "EXHAUSTION",
+                Self::FeelGood => "FEEL_GOOD",
+                Self::FoodAversions => "FOOD_AVERSIONS",
+                Self::HairLoss => "HAIR_LOSS",
+                Self::Heartburn => "HEARTBURN",
+                Self::Hyperpigmentation => "HYPERPIGMENTATION",
+                Self::IncreasedAppetite => "INCREASED_APPETITE",
+                Self::IncreasedAppetiteV2 => "INCREASED_APPETITE_V2",
+                Self::Insomnia => "INSOMNIA",
+                Self::JointPain => "JOINT_PAIN",
+                Self::LegCramps => "LEG_CRAMPS",
+                Self::MilkyNippleDischarge => "MILKY_NIPPLE_DISCHARGE",
+                Self::Nausea => "NAUSEA",
+                Self::NightSweats => "NIGHT_SWEATS",
+                Self::NormalDigestion => "NORMAL_DIGESTION",
+                Self::NormalStool => "NORMAL_STOOL",
+                Self::PerineumPain => "PERINEUM_PAIN",
+                Self::Sleepiness => "SLEEPINESS",
+                Self::StretchMarks => "STRETCH_MARKS",
+                Self::Swelling => "SWELLING",
+                Self::VaginalDryness => "VAGINAL_DRYNESS",
+                Self::VaginalItching => "VAGINAL_ITCHING",
+                Self::Vomiting => "VOMITING",
+            }
+        }
+        /// Creates an enum from field names used in the ProtoBuf definition.
+        pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+            match value {
+                "SYMPTOM_VALUE_UNSPECIFIED" => Some(Self::Unspecified),
+                "CRAMPS" => Some(Self::Cramps),
+                "HEADACHE" => Some(Self::Headache),
+                "TENDER_BREASTS" => Some(Self::TenderBreasts),
+                "ACNE" => Some(Self::Acne),
+                "SICK" => Some(Self::Sick),
+                "BLOATED" => Some(Self::Bloated),
+                "HOT_FLASHES" => Some(Self::HotFlashes),
+                "PMS" => Some(Self::Pms),
+                "COUGH" => Some(Self::Cough),
+                "FEVER" => Some(Self::Fever),
+                "DIFFICULTY_BREATHING" => Some(Self::DifficultyBreathing),
+                "BACK_PAIN" => Some(Self::BackPain),
+                "SHAKINESS" => Some(Self::Shakiness),
+                "HUNGER" => Some(Self::Hunger),
+                "SWEATING" => Some(Self::Sweating),
+                "ANXIETY" => Some(Self::Anxiety),
+                "THIRST" => Some(Self::Thirst),
+                "FREQUENT_URINATION" => Some(Self::FrequentUrination),
+                "BLURRED_VISION" => Some(Self::BlurredVision),
+                "OTHER" => Some(Self::Other),
+                "SEX_DRIVE_HIGH" => Some(Self::SexDriveHigh),
+                "SEX_DRIVE_MEDIUM" => Some(Self::SexDriveMedium),
+                "SEX_DRIVE_LOW" => Some(Self::SexDriveLow),
+                "HEART_PALPITATIONS" => Some(Self::HeartPalpitations),
+                "FAINTING" => Some(Self::Fainting),
+                "CHEST_PAIN" => Some(Self::ChestPain),
+                "FATIGUE" => Some(Self::Fatigue),
+                "CONFUSION" => Some(Self::Confusion),
+                "DIZZINESS" => Some(Self::Dizziness),
+                "ABDOMINAL_PAIN" => Some(Self::AbdominalPain),
+                "BLADDER_LEAKS" => Some(Self::BladderLeaks),
+                "BLEEDING_GUMS" => Some(Self::BleedingGums),
+                "BRAIN_FOG" => Some(Self::BrainFog),
+                "BURNING_MOUTH" => Some(Self::BurningMouth),
+                "CONSTIPATION" => Some(Self::Constipation),
+                "CRAVINGS" => Some(Self::Cravings),
+                "DECREASED_APPETITE" => Some(Self::DecreasedAppetite),
+                "DIARRHEA" => Some(Self::Diarrhea),
+                "DRAWING_PAIN" => Some(Self::DrawingPain),
+                "DRY_EYES" => Some(Self::DryEyes),
+                "DRY_HAIR" => Some(Self::DryHair),
+                "DRY_SKIN" => Some(Self::DrySkin),
+                "EXHAUSTION" => Some(Self::Exhaustion),
+                "FEEL_GOOD" => Some(Self::FeelGood),
+                "FOOD_AVERSIONS" => Some(Self::FoodAversions),
+                "HAIR_LOSS" => Some(Self::HairLoss),
+                "HEARTBURN" => Some(Self::Heartburn),
+                "HYPERPIGMENTATION" => Some(Self::Hyperpigmentation),
+                "INCREASED_APPETITE" => Some(Self::IncreasedAppetite),
+                "INCREASED_APPETITE_V2" => Some(Self::IncreasedAppetiteV2),
+                "INSOMNIA" => Some(Self::Insomnia),
+                "JOINT_PAIN" => Some(Self::JointPain),
+                "LEG_CRAMPS" => Some(Self::LegCramps),
+                "MILKY_NIPPLE_DISCHARGE" => Some(Self::MilkyNippleDischarge),
+                "NAUSEA" => Some(Self::Nausea),
+                "NIGHT_SWEATS" => Some(Self::NightSweats),
+                "NORMAL_DIGESTION" => Some(Self::NormalDigestion),
+                "NORMAL_STOOL" => Some(Self::NormalStool),
+                "PERINEUM_PAIN" => Some(Self::PerineumPain),
+                "SLEEPINESS" => Some(Self::Sleepiness),
+                "STRETCH_MARKS" => Some(Self::StretchMarks),
+                "SWELLING" => Some(Self::Swelling),
+                "VAGINAL_DRYNESS" => Some(Self::VaginalDryness),
+                "VAGINAL_ITCHING" => Some(Self::VaginalItching),
+                "VOMITING" => Some(Self::Vomiting),
+                _ => None,
+            }
+        }
+    }
+}
+/// Moods record.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct Moods {
+    /// Required. The time at which moods were measured.
+    #[prost(message, optional, tag = "2")]
+    pub sample_time: ::core::option::Option<ObservationSampleTime>,
+    /// Required. The moods logged.
+    #[prost(enumeration = "moods::Mood", repeated, packed = "false", tag = "3")]
+    pub moods: ::prost::alloc::vec::Vec<i32>,
+    /// Optional. The valences.
+    #[prost(enumeration = "moods::Valence", repeated, packed = "false", tag = "5")]
+    pub valences: ::prost::alloc::vec::Vec<i32>,
+}
+/// Nested message and enum types in `Moods`.
+pub mod moods {
+    /// The mood.
+    #[derive(
+        Clone,
+        Copy,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash,
+        PartialOrd,
+        Ord,
+        ::prost::Enumeration
+    )]
+    #[repr(i32)]
+    pub enum Mood {
+        /// Unspecified mood.
+        Unspecified = 0,
+        /// Amazed.
+        Amazed = 1,
+        /// Amused.
+        Amused = 2,
+        /// Angry.
+        Angry = 3,
+        /// Annoyed.
+        Annoyed = 4,
+        /// Anxious.
+        Anxious = 5,
+        /// Happy.
+        Happy = 6,
+        /// Content.
+        Content = 7,
+        /// Sad.
+        Sad = 8,
+        /// Worried.
+        Worried = 9,
+        /// Frustrated.
+        Frustrated = 10,
+        /// Excited.
+        Excited = 11,
+        /// Calm.
+        Calm = 12,
+        /// Stressed.
+        Stressed = 13,
+        /// Ashamed.
+        Ashamed = 14,
+        /// Brave.
+        Brave = 15,
+        /// Confident.
+        Confident = 16,
+        /// Disappointed.
+        Disappointed = 17,
+        /// Discouraged.
+        Discouraged = 18,
+        /// Disgusted.
+        Disgusted = 19,
+        /// Drained.
+        Drained = 20,
+        /// Embarrassed.
+        Embarrassed = 21,
+        /// Grateful.
+        Grateful = 22,
+        /// Guilty.
+        Guilty = 23,
+        /// Hopeful.
+        Hopeful = 24,
+        /// Hopeless.
+        Hopeless = 25,
+        /// Indifferent.
+        Indifferent = 26,
+        /// Irritated.
+        Irritated = 27,
+        /// Jealous.
+        Jealous = 28,
+        /// Joyful.
+        Joyful = 29,
+        /// Lonely.
+        Lonely = 30,
+        /// Overwhelmed.
+        Overwhelmed = 31,
+        /// Passionate.
+        Passionate = 32,
+        /// Peaceful.
+        Peaceful = 33,
+        /// Proud.
+        Proud = 34,
+        /// Relieved.
+        Relieved = 35,
+        /// Satisfied.
+        Satisfied = 36,
+        /// Scared.
+        Scared = 37,
+        /// Surprised.
+        Surprised = 38,
+        /// Energized.
+        Energized = 39,
+        /// Fatigued.
+        Fatigued = 40,
+        /// Very calm.
+        VeryCalm = 41,
+        /// Very stressed.
+        VeryStressed = 42,
+        /// Neutral.
+        Neutral = 43,
+        /// Afraid.
+        Afraid = 44,
+        /// Hurting.
+        Hurting = 45,
+        /// Bored.
+        Bored = 46,
+        /// Bitter.
+        Bitter = 47,
+        /// Envious.
+        Envious = 48,
+        /// Confused.
+        Confused = 49,
+        /// Curious.
+        Curious = 50,
+        /// Awestruck.
+        Awestruck = 51,
+        /// Inspired.
+        Inspired = 52,
+        /// Longing.
+        Longing = 53,
+        /// Accomplished.
+        Accomplished = 54,
+        /// Loving.
+        Loving = 55,
+        /// Compassionate.
+        Compassionate = 56,
+        /// Depressed.
+        Depressed = 57,
+        /// Good.
+        Good = 58,
+        /// Low energy.
+        LowEnergy = 59,
+        /// Obsessive thoughts.
+        ObsessiveThoughts = 60,
+        /// Panic.
+        Panic = 61,
+        /// Playful.
+        Playful = 62,
+        /// Pleased.
+        Pleased = 63,
+        /// Sensitive.
+        Sensitive = 64,
+        /// Sleepy.
+        Sleepy = 65,
+        /// Mood swings.
+        Swings = 66,
+        /// Unhappy.
+        Unhappy = 67,
+        /// Very self-critical.
+        VerySelfCritical = 68,
+    }
+    impl Mood {
+        /// String value of the enum field names used in the ProtoBuf definition.
+        ///
+        /// The values are not transformed in any way and thus are considered stable
+        /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+        pub fn as_str_name(&self) -> &'static str {
+            match self {
+                Self::Unspecified => "MOOD_UNSPECIFIED",
+                Self::Amazed => "AMAZED",
+                Self::Amused => "AMUSED",
+                Self::Angry => "ANGRY",
+                Self::Annoyed => "ANNOYED",
+                Self::Anxious => "ANXIOUS",
+                Self::Happy => "HAPPY",
+                Self::Content => "CONTENT",
+                Self::Sad => "SAD",
+                Self::Worried => "WORRIED",
+                Self::Frustrated => "FRUSTRATED",
+                Self::Excited => "EXCITED",
+                Self::Calm => "CALM",
+                Self::Stressed => "STRESSED",
+                Self::Ashamed => "ASHAMED",
+                Self::Brave => "BRAVE",
+                Self::Confident => "CONFIDENT",
+                Self::Disappointed => "DISAPPOINTED",
+                Self::Discouraged => "DISCOURAGED",
+                Self::Disgusted => "DISGUSTED",
+                Self::Drained => "DRAINED",
+                Self::Embarrassed => "EMBARRASSED",
+                Self::Grateful => "GRATEFUL",
+                Self::Guilty => "GUILTY",
+                Self::Hopeful => "HOPEFUL",
+                Self::Hopeless => "HOPELESS",
+                Self::Indifferent => "INDIFFERENT",
+                Self::Irritated => "IRRITATED",
+                Self::Jealous => "JEALOUS",
+                Self::Joyful => "JOYFUL",
+                Self::Lonely => "LONELY",
+                Self::Overwhelmed => "OVERWHELMED",
+                Self::Passionate => "PASSIONATE",
+                Self::Peaceful => "PEACEFUL",
+                Self::Proud => "PROUD",
+                Self::Relieved => "RELIEVED",
+                Self::Satisfied => "SATISFIED",
+                Self::Scared => "SCARED",
+                Self::Surprised => "SURPRISED",
+                Self::Energized => "ENERGIZED",
+                Self::Fatigued => "FATIGUED",
+                Self::VeryCalm => "VERY_CALM",
+                Self::VeryStressed => "VERY_STRESSED",
+                Self::Neutral => "NEUTRAL",
+                Self::Afraid => "AFRAID",
+                Self::Hurting => "HURTING",
+                Self::Bored => "BORED",
+                Self::Bitter => "BITTER",
+                Self::Envious => "ENVIOUS",
+                Self::Confused => "CONFUSED",
+                Self::Curious => "CURIOUS",
+                Self::Awestruck => "AWESTRUCK",
+                Self::Inspired => "INSPIRED",
+                Self::Longing => "LONGING",
+                Self::Accomplished => "ACCOMPLISHED",
+                Self::Loving => "LOVING",
+                Self::Compassionate => "COMPASSIONATE",
+                Self::Depressed => "DEPRESSED",
+                Self::Good => "GOOD",
+                Self::LowEnergy => "LOW_ENERGY",
+                Self::ObsessiveThoughts => "OBSESSIVE_THOUGHTS",
+                Self::Panic => "PANIC",
+                Self::Playful => "PLAYFUL",
+                Self::Pleased => "PLEASED",
+                Self::Sensitive => "SENSITIVE",
+                Self::Sleepy => "SLEEPY",
+                Self::Swings => "SWINGS",
+                Self::Unhappy => "UNHAPPY",
+                Self::VerySelfCritical => "VERY_SELF_CRITICAL",
+            }
+        }
+        /// Creates an enum from field names used in the ProtoBuf definition.
+        pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+            match value {
+                "MOOD_UNSPECIFIED" => Some(Self::Unspecified),
+                "AMAZED" => Some(Self::Amazed),
+                "AMUSED" => Some(Self::Amused),
+                "ANGRY" => Some(Self::Angry),
+                "ANNOYED" => Some(Self::Annoyed),
+                "ANXIOUS" => Some(Self::Anxious),
+                "HAPPY" => Some(Self::Happy),
+                "CONTENT" => Some(Self::Content),
+                "SAD" => Some(Self::Sad),
+                "WORRIED" => Some(Self::Worried),
+                "FRUSTRATED" => Some(Self::Frustrated),
+                "EXCITED" => Some(Self::Excited),
+                "CALM" => Some(Self::Calm),
+                "STRESSED" => Some(Self::Stressed),
+                "ASHAMED" => Some(Self::Ashamed),
+                "BRAVE" => Some(Self::Brave),
+                "CONFIDENT" => Some(Self::Confident),
+                "DISAPPOINTED" => Some(Self::Disappointed),
+                "DISCOURAGED" => Some(Self::Discouraged),
+                "DISGUSTED" => Some(Self::Disgusted),
+                "DRAINED" => Some(Self::Drained),
+                "EMBARRASSED" => Some(Self::Embarrassed),
+                "GRATEFUL" => Some(Self::Grateful),
+                "GUILTY" => Some(Self::Guilty),
+                "HOPEFUL" => Some(Self::Hopeful),
+                "HOPELESS" => Some(Self::Hopeless),
+                "INDIFFERENT" => Some(Self::Indifferent),
+                "IRRITATED" => Some(Self::Irritated),
+                "JEALOUS" => Some(Self::Jealous),
+                "JOYFUL" => Some(Self::Joyful),
+                "LONELY" => Some(Self::Lonely),
+                "OVERWHELMED" => Some(Self::Overwhelmed),
+                "PASSIONATE" => Some(Self::Passionate),
+                "PEACEFUL" => Some(Self::Peaceful),
+                "PROUD" => Some(Self::Proud),
+                "RELIEVED" => Some(Self::Relieved),
+                "SATISFIED" => Some(Self::Satisfied),
+                "SCARED" => Some(Self::Scared),
+                "SURPRISED" => Some(Self::Surprised),
+                "ENERGIZED" => Some(Self::Energized),
+                "FATIGUED" => Some(Self::Fatigued),
+                "VERY_CALM" => Some(Self::VeryCalm),
+                "VERY_STRESSED" => Some(Self::VeryStressed),
+                "NEUTRAL" => Some(Self::Neutral),
+                "AFRAID" => Some(Self::Afraid),
+                "HURTING" => Some(Self::Hurting),
+                "BORED" => Some(Self::Bored),
+                "BITTER" => Some(Self::Bitter),
+                "ENVIOUS" => Some(Self::Envious),
+                "CONFUSED" => Some(Self::Confused),
+                "CURIOUS" => Some(Self::Curious),
+                "AWESTRUCK" => Some(Self::Awestruck),
+                "INSPIRED" => Some(Self::Inspired),
+                "LONGING" => Some(Self::Longing),
+                "ACCOMPLISHED" => Some(Self::Accomplished),
+                "LOVING" => Some(Self::Loving),
+                "COMPASSIONATE" => Some(Self::Compassionate),
+                "DEPRESSED" => Some(Self::Depressed),
+                "GOOD" => Some(Self::Good),
+                "LOW_ENERGY" => Some(Self::LowEnergy),
+                "OBSESSIVE_THOUGHTS" => Some(Self::ObsessiveThoughts),
+                "PANIC" => Some(Self::Panic),
+                "PLAYFUL" => Some(Self::Playful),
+                "PLEASED" => Some(Self::Pleased),
+                "SENSITIVE" => Some(Self::Sensitive),
+                "SLEEPY" => Some(Self::Sleepy),
+                "SWINGS" => Some(Self::Swings),
+                "UNHAPPY" => Some(Self::Unhappy),
+                "VERY_SELF_CRITICAL" => Some(Self::VerySelfCritical),
+                _ => None,
+            }
+        }
+    }
+    /// The valence.
+    #[derive(
+        Clone,
+        Copy,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash,
+        PartialOrd,
+        Ord,
+        ::prost::Enumeration
+    )]
+    #[repr(i32)]
+    pub enum Valence {
+        /// Unspecified valence.
+        Unspecified = 0,
+        /// Unpleasant.
+        Unpleasant = 1,
+        /// Baseline.
+        Baseline = 2,
+        /// Pleasant.
+        Pleasant = 3,
+    }
+    impl Valence {
+        /// String value of the enum field names used in the ProtoBuf definition.
+        ///
+        /// The values are not transformed in any way and thus are considered stable
+        /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+        pub fn as_str_name(&self) -> &'static str {
+            match self {
+                Self::Unspecified => "VALENCE_UNSPECIFIED",
+                Self::Unpleasant => "UNPLEASANT",
+                Self::Baseline => "BASELINE",
+                Self::Pleasant => "PLEASANT",
+            }
+        }
+        /// Creates an enum from field names used in the ProtoBuf definition.
+        pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+            match value {
+                "VALENCE_UNSPECIFIED" => Some(Self::Unspecified),
+                "UNPLEASANT" => Some(Self::Unpleasant),
+                "BASELINE" => Some(Self::Baseline),
+                "PLEASANT" => Some(Self::Pleasant),
+                _ => None,
+            }
+        }
+    }
 }
 /// The heart rate zone type.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
@@ -3435,6 +4872,51 @@ impl VolumeUnit {
         }
     }
 }
+/// Ovulation test result.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
+#[repr(i32)]
+pub enum OvulationTestResult {
+    /// Unspecified result.
+    Unspecified = 0,
+    /// Negative result.
+    Negative = 1,
+    /// Luteinizing hormone surge.
+    LuteinizingHormoneSurge = 2,
+    /// Estrogen surge.
+    EstrogenSurge = 3,
+    /// Positive result.
+    Positive = 4,
+    /// Indeterminate result.
+    Indeterminate = 5,
+}
+impl OvulationTestResult {
+    /// String value of the enum field names used in the ProtoBuf definition.
+    ///
+    /// The values are not transformed in any way and thus are considered stable
+    /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+    pub fn as_str_name(&self) -> &'static str {
+        match self {
+            Self::Unspecified => "OVULATION_TEST_RESULT_UNSPECIFIED",
+            Self::Negative => "NEGATIVE",
+            Self::LuteinizingHormoneSurge => "LUTEINIZING_HORMONE_SURGE",
+            Self::EstrogenSurge => "ESTROGEN_SURGE",
+            Self::Positive => "POSITIVE",
+            Self::Indeterminate => "INDETERMINATE",
+        }
+    }
+    /// Creates an enum from field names used in the ProtoBuf definition.
+    pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+        match value {
+            "OVULATION_TEST_RESULT_UNSPECIFIED" => Some(Self::Unspecified),
+            "NEGATIVE" => Some(Self::Negative),
+            "LUTEINIZING_HORMONE_SURGE" => Some(Self::LuteinizingHormoneSurge),
+            "ESTROGEN_SURGE" => Some(Self::EstrogenSurge),
+            "POSITIVE" => Some(Self::Positive),
+            "INDETERMINATE" => Some(Self::Indeterminate),
+            _ => None,
+        }
+    }
+}
 /// Data Source definition to track the origin of data.
 ///
 /// Each health data point, regardless of the complexity or data model (whether a
@@ -3722,7 +5204,7 @@ pub struct DataPoint {
     /// The `{data_type}` ID corresponds to the kebab-case version of the field
     /// names in the \[DataPoint
     /// data\]\[google.devicesandservices.health.v4.DataPoint\] union
-    /// field, e.g. `total-calories` for the `total_calories` field.
+    /// field, e.g. `heart-rate` for the `heart_rate` field.
     ///
     /// The `{data_point}` ID can be client-provided or system-generated.
     /// If client-provided, it must be a string of 4-63 characters,
@@ -3742,7 +5224,7 @@ pub struct DataPoint {
     /// actually worn.
     #[prost(
         oneof = "data_point::Data",
-        tags = "4, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15, 17, 19, 20, 21, 22, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 44, 45, 46"
+        tags = "4, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15, 17, 19, 20, 21, 22, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 44, 45, 46, 49, 50, 52, 53"
     )]
     pub data: ::core::option::Option<data_point::Data>,
 }
@@ -3900,6 +5382,21 @@ pub mod data_point {
         /// collection.
         #[prost(message, tag = "46")]
         BloodGlucose(super::BloodGlucose),
+        /// Optional. Data for points in the `menstrual-period` interval data type
+        /// collection.
+        #[prost(message, tag = "49")]
+        MenstrualPeriod(super::MenstrualPeriod),
+        /// Optional. Data for points in the `ovulation-test` sample data type
+        /// collection.
+        #[prost(message, tag = "50")]
+        OvulationTest(super::OvulationTest),
+        /// Optional. Data for points in the `symptoms` sample data type
+        /// collection.
+        #[prost(message, tag = "52")]
+        Symptoms(super::Symptoms),
+        /// Optional. Data for points in the `moods` sample data type collection.
+        #[prost(message, tag = "53")]
+        Moods(super::Moods),
     }
 }
 /// A reconciled computed or recorded metric.
@@ -3920,7 +5417,7 @@ pub struct ReconciledDataPoint {
     /// The `{data_type}` ID corresponds to the kebab-case version of the field
     /// names in the \[DataPoint
     /// data\]\[google.devicesandservices.health.v4.DataPoint\] union
-    /// field, e.g. `total-calories` for the `total_calories` field.
+    /// field, e.g. `heart-rate` for the `heart_rate` field.
     ///
     /// The `{data_point}` ID can be client-provided or system-generated.
     /// If client-provided, it must be a string of 4-63 characters,
@@ -4664,12 +6161,26 @@ pub struct ReconcileDataPointsRequest {
     ///
     /// Format: `users/me/dataSourceFamilies/{data_source_family}`
     ///
-    /// The supported values are:
+    /// * `users/me/dataSourceFamilies/all-sources` - Default value. Includes data
+    ///   from all available data sources.
+    /// * `users/me/dataSourceFamilies/google-wearables` - Includes data from
+    ///   Google and Fitbit tracker devices (such as Fitbit trackers and Pixel
+    ///   Watch). Excludes manually logged data.
+    /// * `users/me/dataSourceFamilies/google-sources` - Includes first-party
+    ///   Google data, such as data from tracker devices, manually logged data, and
+    ///   Health Connect.
+    /// * `users/me/dataSourceFamilies/self-sources` - Includes only the data the
+    ///   calling client wrote through this API, that is, data points whose data
+    ///   source was registered through this API with the same OAuth client ID as
+    ///   the caller.
     ///
-    /// * `users/me/dataSourceFamilies/all-sources` - default value
-    /// * `users/me/dataSourceFamilies/google-wearables` - tracker devices
-    /// * `users/me/dataSourceFamilies/google-sources` - Google first party
-    ///   sources
+    /// Callers that were only granted write scopes for the requested data type
+    /// may only read the data they wrote themselves: their requests are
+    /// implicitly restricted to `self-sources`, and requesting any other data
+    /// source family fails with `PERMISSION_DENIED`.
+    ///
+    /// If no data point matches the requested data source family, the response is
+    /// an empty list rather than an error.
     #[prost(string, tag = "5")]
     pub data_source_family: ::prost::alloc::string::String,
 }
@@ -4705,7 +6216,11 @@ pub struct RollUpDataPointsRequest {
     #[prost(message, optional, tag = "2")]
     pub range: ::core::option::Option<super::super::super::r#type::Interval>,
     /// Required. The size of the time window to group data points into before
-    /// applying the aggregation functions.
+    /// applying the aggregation functions. Must be at least 1 second.
+    ///
+    /// If the requested range is not an exact multiple of `window_size`, the final
+    /// bucket chronologically will be truncated at the upper endpoint of the
+    /// range and will cover a duration shorter than `window_size`.
     #[prost(message, optional, tag = "3")]
     pub window_size: ::core::option::Option<::prost_types::Duration>,
     /// Optional. The maximum number of data points to return.
@@ -4727,10 +6242,26 @@ pub struct RollUpDataPointsRequest {
     ///
     /// The supported values are:
     ///
-    /// * `users/me/dataSourceFamilies/all-sources` - default value
-    /// * `users/me/dataSourceFamilies/google-wearables` - tracker devices
-    /// * `users/me/dataSourceFamilies/google-sources` - Google first party
-    ///   sources
+    /// * `users/me/dataSourceFamilies/all-sources` - Default value. Includes data
+    ///   from all available data sources.
+    /// * `users/me/dataSourceFamilies/google-wearables` - Includes data from
+    ///   Google and Fitbit tracker devices (such as Fitbit trackers and Pixel
+    ///   Watch). Excludes manually logged data.
+    /// * `users/me/dataSourceFamilies/google-sources` - Includes first-party
+    ///   Google data, such as data from tracker devices, manually logged data, and
+    ///   Health Connect.
+    /// * `users/me/dataSourceFamilies/self-sources` - Includes only the data the
+    ///   calling client wrote through this API, that is, data points whose data
+    ///   source was registered through this API with the same OAuth client ID as
+    ///   the caller.
+    ///
+    /// Callers that were only granted write scopes for the requested data type
+    /// may only read the data they wrote themselves: their requests are
+    /// implicitly restricted to `self-sources`, and requesting any other data
+    /// source family fails with `PERMISSION_DENIED`.
+    ///
+    /// If no data point matches the requested data source family, the response is
+    /// an empty list rather than an error.
     #[prost(string, tag = "7")]
     pub data_source_family: ::prost::alloc::string::String,
 }
@@ -4769,6 +6300,10 @@ pub struct DailyRollUpDataPointsRequest {
     pub range: ::core::option::Option<CivilTimeInterval>,
     /// Optional. Aggregation window size, in number of days. Defaults to 1 if not
     /// specified.
+    ///
+    /// If the requested range is not an exact multiple of `window_size_days`, the
+    /// final bucket chronologically will be truncated at the upper endpoint of the
+    /// range and will cover a duration shorter than `window_size_days`.
     #[prost(int32, tag = "3")]
     pub window_size_days: i32,
     /// Optional. The maximum number of data points to return.
@@ -4789,10 +6324,26 @@ pub struct DailyRollUpDataPointsRequest {
     ///
     /// The supported values are:
     ///
-    /// * `users/me/dataSourceFamilies/all-sources` - default value
-    /// * `users/me/dataSourceFamilies/google-wearables` - tracker devices
-    /// * `users/me/dataSourceFamilies/google-sources` - Google first party
-    ///   sources
+    /// * `users/me/dataSourceFamilies/all-sources` - Default value. Includes data
+    ///   from all available data sources.
+    /// * `users/me/dataSourceFamilies/google-wearables` - Includes data from
+    ///   Google and Fitbit tracker devices (such as Fitbit trackers and Pixel
+    ///   Watch). Excludes manually logged data.
+    /// * `users/me/dataSourceFamilies/google-sources` - Includes first-party
+    ///   Google data, such as data from tracker devices, manually logged data, and
+    ///   Health Connect.
+    /// * `users/me/dataSourceFamilies/self-sources` - Includes only the data the
+    ///   calling client wrote through this API, that is, data points whose data
+    ///   source was registered through this API with the same OAuth client ID as
+    ///   the caller.
+    ///
+    /// Callers that were only granted write scopes for the requested data type
+    /// may only read the data they wrote themselves: their requests are
+    /// implicitly restricted to `self-sources`, and requesting any other data
+    /// source family fails with `PERMISSION_DENIED`.
+    ///
+    /// If no data point matches the requested data source family, the response is
+    /// an empty list rather than an error.
     #[prost(string, tag = "7")]
     pub data_source_family: ::prost::alloc::string::String,
 }
@@ -5234,8 +6785,8 @@ pub mod data_points_service_client {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CreateSubscriberRequest {
     /// Required. The parent resource where this subscriber will be created.
-    /// Format: projects/{project}
-    /// Example: projects/my-project-123
+    /// Format: projects/{project_number}
+    /// Example: projects/1234567890
     #[prost(string, tag = "1")]
     pub parent: ::prost::alloc::string::String,
     /// Required. The subscriber to create.
@@ -5358,7 +6909,7 @@ pub struct ListSubscriptionsRequest {
     /// * `data_type`
     ///
     /// The `user` identifier (e.g., `user1` in `users/user1`) refers to the public
-    /// `healthUserId`
+    /// `health_user_id`
     ///
     /// Example: user = "users/user1"
     /// Example: user = "users/user1" OR user = "users/user2"
@@ -5533,8 +7084,9 @@ pub struct Subscription {
     /// A subscriber will only receive notifications for data types that are
     /// declared here.
     /// A subscription can only subscribe to the data types of the subscriber.
-    /// Supported data types are: "altitude", "distance", "floors", "sleep",
-    /// "steps", "weight".
+    /// The values should be in the format
+    /// "users/{health_user_id}/dataTypes/{data_type}" where `{data_type}` is one
+    /// of "altitude", "distance", "floors", "sleep", "steps", "weight".
     #[prost(string, repeated, tag = "2")]
     pub data_types: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
     /// Immutable. The resource name of the user for whom this subscription is
@@ -5618,7 +7170,7 @@ pub mod subscriber_config {
 /// Authorization mechanism for a subscriber endpoint.
 /// For all requests sent by the Webhooks service, the JSON payload is
 /// cryptographically signed. The signature is delivered in the
-/// `X-HEALTHAPI-SIGNATURE` HTTP header. This is an ECDSA (NIST P256)
+/// `GOOGLE-HEALTH-API-SIGNATURE` HTTP header. This is an ECDSA (NIST P256)
 /// signature of the JSON payload. Clients must verify this signature using
 /// Google Health API's public key to confirm the payload was sent by the Health
 /// API.
@@ -6083,6 +7635,8 @@ pub struct Profile {
     /// 1-63 characters consisting of lowercase and uppercase letters, numbers, and
     /// hyphens. The literal `me` can also be used to refer to the authenticated
     /// user.
+    ///
+    /// This field is read-only.
     #[prost(string, tag = "1")]
     pub name: ::prost::alloc::string::String,
     /// Optional. The age in years based on the user's birth date.
@@ -6097,52 +7651,40 @@ pub struct Profile {
     pub membership_start_date: ::core::option::Option<super::super::super::r#type::Date>,
     /// Optional. The user's user configured walking stride length, in millimeters.
     ///
-    /// The user must consent to
-    /// one of the following access scopes to access this field:
+    /// The user must consent to the following access scope to access this field:
     ///
     /// *
     ///
     /// `<https://www.googleapis.com/auth/googlehealth.activity_and_fitness.readonly`>
-    ///
-    /// * `<https://www.googleapis.com/auth/googlehealth.activity_and_fitness`>
     #[prost(int32, optional, tag = "13")]
     pub user_configured_walking_stride_length_mm: ::core::option::Option<i32>,
     /// Optional. The user's user configured running stride length, in millimeters.
     ///
-    /// The user must consent to
-    /// one of the following access scopes to access this field:
+    /// The user must consent to the following access scope to access this field:
     ///
     /// *
     ///
     /// `<https://www.googleapis.com/auth/googlehealth.activity_and_fitness.readonly`>
-    ///
-    /// * `<https://www.googleapis.com/auth/googlehealth.activity_and_fitness`>
     #[prost(int32, optional, tag = "14")]
     pub user_configured_running_stride_length_mm: ::core::option::Option<i32>,
     /// Output only. The automatically calculated walking stride length, in
     /// millimeters.
     ///
-    /// The user must consent to
-    /// one of the following access scopes to access this field:
+    /// The user must consent to the following access scope to access this field:
     ///
     /// *
     ///
     /// `<https://www.googleapis.com/auth/googlehealth.activity_and_fitness.readonly`>
-    ///
-    /// * `<https://www.googleapis.com/auth/googlehealth.activity_and_fitness`>
     #[prost(int32, optional, tag = "15")]
     pub auto_walking_stride_length_mm: ::core::option::Option<i32>,
     /// Output only. The automatically calculated running stride length, in
     /// millimeters.
     ///
-    /// The user must consent to
-    /// one of the following access scopes to access this field:
+    /// The user must consent to the following access scope to access this field:
     ///
     /// *
     ///
     /// `<https://www.googleapis.com/auth/googlehealth.activity_and_fitness.readonly`>
-    ///
-    /// * `<https://www.googleapis.com/auth/googlehealth.activity_and_fitness`>
     #[prost(int32, optional, tag = "16")]
     pub auto_running_stride_length_mm: ::core::option::Option<i32>,
 }
@@ -6387,6 +7929,8 @@ pub struct Settings {
     /// 1-63 characters consisting of lowercase and uppercase letters, numbers, and
     /// hyphens. The literal `me` can also be used to refer to the authenticated
     /// user.
+    ///
+    /// This field is read-only.
     #[prost(string, tag = "1")]
     pub name: ::prost::alloc::string::String,
     /// Optional. True if the user's stride length is determined automatically.
@@ -6395,8 +7939,6 @@ pub struct Settings {
     #[prost(bool, tag = "2")]
     pub auto_stride_enabled: bool,
     /// Optional. The measurement unit defined in the user's account settings.
-    ///
-    /// Updates to this field are currently not supported.
     #[prost(enumeration = "settings::DistanceUnit", tag = "5")]
     pub distance_unit: i32,
     /// Optional. The measurement unit defined in the user's account settings.
