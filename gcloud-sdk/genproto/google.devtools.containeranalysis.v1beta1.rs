@@ -2,6 +2,7 @@
 /// GeneratePackagesSummaryRequest is the request body for the
 /// GeneratePackagesSummary API method. It just takes a single name argument,
 /// referring to the resource.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct GeneratePackagesSummaryRequest {
     /// Required. The name of the resource to get a packages summary for in the
@@ -10,6 +11,7 @@ pub struct GeneratePackagesSummaryRequest {
     pub name: ::prost::alloc::string::String,
 }
 /// A summary of the packages found within the given resource.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct PackagesSummaryResponse {
     /// The unique URL of the image or the container for which this summary
@@ -25,6 +27,7 @@ pub struct PackagesSummaryResponse {
 /// Nested message and enum types in `PackagesSummaryResponse`.
 pub mod packages_summary_response {
     /// Per license count
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
     pub struct LicensesSummary {
         /// The license of the package. Note that the format of this value is not
@@ -38,6 +41,7 @@ pub mod packages_summary_response {
     }
 }
 /// The request to a call of ExportSBOM
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct ExportSbomRequest {
     /// Required. The name of the resource in the form of
@@ -46,6 +50,7 @@ pub struct ExportSbomRequest {
     pub name: ::prost::alloc::string::String,
 }
 /// The response from a call to ExportSBOM
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct ExportSbomResponse {
     /// The name of the discovery occurrence in the form

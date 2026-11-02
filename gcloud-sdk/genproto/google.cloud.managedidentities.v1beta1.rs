@@ -3,6 +3,7 @@
 /// If the domain is being changed, it will be placed into the UPDATING state,
 /// which indicates that the resource is being reconciled. At this point, Get
 /// will reflect an intermediate state.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Domain {
     /// Output only. The unique name of the domain using the form:
@@ -64,6 +65,7 @@ pub struct Domain {
 /// Nested message and enum types in `Domain`.
 pub mod domain {
     /// Represents the different states of a managed domain.
+    #[allow(clippy::all)]
     #[derive(
         Clone,
         Copy,
@@ -130,6 +132,7 @@ pub mod domain {
 }
 /// Represents a relationship between two domains. This allows a controller in
 /// one domain to authenticate a user in another domain.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct Trust {
     /// The fully qualified target domain name which will be in trust with the
@@ -179,6 +182,7 @@ pub struct Trust {
 /// Nested message and enum types in `Trust`.
 pub mod trust {
     /// Represents the different states of a domain trust.
+    #[allow(clippy::all)]
     #[derive(
         Clone,
         Copy,
@@ -234,6 +238,7 @@ pub mod trust {
         }
     }
     /// Represents the different inter-forest trust types.
+    #[allow(clippy::all)]
     #[derive(
         Clone,
         Copy,
@@ -280,6 +285,7 @@ pub mod trust {
     /// See
     /// [System.DirectoryServices.ActiveDirectory.TrustDirection](<https://docs.microsoft.com/en-us/dotnet/api/system.directoryservices.activedirectory.trustdirection?view=netframework-4.7.2>)
     /// for more information.
+    #[allow(clippy::all)]
     #[derive(
         Clone,
         Copy,
@@ -328,6 +334,7 @@ pub mod trust {
     }
 }
 /// Represents the metadata of the long-running operation.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct OpMetadata {
     /// Output only. The time the operation was created.
@@ -354,6 +361,7 @@ pub struct OpMetadata {
 }
 /// Request message for
 /// \[CreateMicrosoftAdDomain\]\[google.cloud.managedidentities.v1beta1.CreateMicrosoftAdDomain\]
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CreateMicrosoftAdDomainRequest {
     /// Required. The resource project name and location using the form:
@@ -379,6 +387,7 @@ pub struct CreateMicrosoftAdDomainRequest {
 }
 /// Request message for
 /// \[ResetAdminPassword\]\[google.cloud.managedidentities.v1beta1.ResetAdminPassword\]
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct ResetAdminPasswordRequest {
     /// Required. The domain resource name using the form:
@@ -388,6 +397,7 @@ pub struct ResetAdminPasswordRequest {
 }
 /// Response message for
 /// \[ResetAdminPassword\]\[google.cloud.managedidentities.v1beta1.ResetAdminPassword\]
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct ResetAdminPasswordResponse {
     /// A random password. See \[admin\]\[google.cloud.managedidentities.v1beta1.Domain.admin\] for more information.
@@ -396,6 +406,7 @@ pub struct ResetAdminPasswordResponse {
 }
 /// Request message for
 /// \[ListDomains\]\[google.cloud.managedidentities.v1beta1.ListDomains\]
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct ListDomainsRequest {
     /// Required. The resource name of the domain location using the form:
@@ -427,6 +438,7 @@ pub struct ListDomainsRequest {
 }
 /// Response message for
 /// \[ListDomains\]\[google.cloud.managedidentities.v1beta1.ListDomains\]
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ListDomainsResponse {
     /// A list of Managed Identities Service domains in the project.
@@ -442,6 +454,7 @@ pub struct ListDomainsResponse {
 }
 /// Request message for
 /// \[GetDomain\]\[google.cloud.managedidentities.v1beta1.GetDomain\]
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct GetDomainRequest {
     /// Required. The domain resource name using the form:
@@ -451,6 +464,7 @@ pub struct GetDomainRequest {
 }
 /// Request message for
 /// \[UpdateDomain\]\[google.cloud.managedidentities.v1beta1.UpdateDomain\]
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct UpdateDomainRequest {
     /// Required. Mask of fields to update. At least one path must be supplied in this
@@ -470,6 +484,7 @@ pub struct UpdateDomainRequest {
 }
 /// Request message for
 /// \[DeleteDomain\]\[google.cloud.managedidentities.v1beta1.DeleteDomain\]
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct DeleteDomainRequest {
     /// Required. The domain resource name using the form:
@@ -479,6 +494,7 @@ pub struct DeleteDomainRequest {
 }
 /// Request message for
 /// \[AttachTrust\]\[google.cloud.managedidentities.v1beta1.AttachTrust\]
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct AttachTrustRequest {
     /// Required. The resource domain name, project name and location using the form:
@@ -491,6 +507,7 @@ pub struct AttachTrustRequest {
 }
 /// Request message for
 /// \[ReconfigureTrust\]\[google.cloud.managedidentities.v1beta1.ReconfigureTrust\]
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct ReconfigureTrustRequest {
     /// Required. The resource domain name, project name and location using the form:
@@ -510,6 +527,7 @@ pub struct ReconfigureTrustRequest {
 }
 /// Request message for
 /// \[DetachTrust\]\[google.cloud.managedidentities.v1beta1.DetachTrust\]
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct DetachTrustRequest {
     /// Required. The resource domain name, project name, and location using the form:
@@ -522,6 +540,7 @@ pub struct DetachTrustRequest {
 }
 /// Request message for
 /// \[ValidateTrust\]\[google.cloud.managedidentities.v1beta1.ValidateTrust\]
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct ValidateTrustRequest {
     /// Required. The resource domain name, project name, and location using the form:

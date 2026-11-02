@@ -4,9 +4,10 @@
 /// storage bucket location, spark / hive engine location or any other compute
 /// location  match. Catalog can be viewed as the destination for migrating an
 /// on-prem Hive metastore to GCP.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct HiveCatalog {
-    /// Output only. The resource name.
+    /// Identifier. The resource name.
     /// Format:
     /// projects/{project_id_or_number}/catalogs/{catalog_id}
     #[prost(string, tag = "1")]
@@ -23,10 +24,17 @@ pub struct HiveCatalog {
     /// Output only. The replicas for the catalog metadata.
     #[prost(message, repeated, tag = "4")]
     pub replicas: ::prost::alloc::vec::Vec<hive_catalog::Replica>,
+    /// Output only. The creation time of the catalog.
+    #[prost(message, optional, tag = "5")]
+    pub create_time: ::core::option::Option<::prost_types::Timestamp>,
+    /// Output only. The update time of the catalog.
+    #[prost(message, optional, tag = "6")]
+    pub update_time: ::core::option::Option<::prost_types::Timestamp>,
 }
 /// Nested message and enum types in `HiveCatalog`.
 pub mod hive_catalog {
     /// The replica of the Catalog.
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
     pub struct Replica {
         /// Output only. The region of the replica. For example `us-east1`.
@@ -40,6 +48,7 @@ pub mod hive_catalog {
     pub mod replica {
         /// If the catalog is replicated to multiple regions, this enum describes the
         /// current state of the replica.
+        #[allow(clippy::all)]
         #[derive(
             Clone,
             Copy,
@@ -90,6 +99,7 @@ pub mod hive_catalog {
     }
 }
 /// Request message for the CreateHiveCatalog method.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CreateHiveCatalogRequest {
     /// Required. The parent resource where this catalog will be created.
@@ -112,6 +122,7 @@ pub struct CreateHiveCatalogRequest {
     pub primary_location: ::prost::alloc::string::String,
 }
 /// Request message for the GetHiveCatalog method.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct GetHiveCatalogRequest {
     /// Required. The name of the catalog to retrieve.
@@ -121,6 +132,7 @@ pub struct GetHiveCatalogRequest {
     pub name: ::prost::alloc::string::String,
 }
 /// Request message for the ListHiveCatalogs method.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct ListHiveCatalogsRequest {
     /// Required. The project to list catalogs from.
@@ -135,6 +147,7 @@ pub struct ListHiveCatalogsRequest {
     pub page_token: ::prost::alloc::string::String,
 }
 /// Response message for the ListHiveCatalogs method.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ListHiveCatalogsResponse {
     /// Output only. The catalogs from the specified project.
@@ -150,6 +163,7 @@ pub struct ListHiveCatalogsResponse {
     pub unreachable: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
 }
 /// Request message for the UpdateHiveCatalog method.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct UpdateHiveCatalogRequest {
     /// Required. The hive catalog to update.
@@ -167,6 +181,7 @@ pub struct UpdateHiveCatalogRequest {
     pub update_mask: ::core::option::Option<::prost_types::FieldMask>,
 }
 /// Request message for the DeleteHiveCatalog method.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct DeleteHiveCatalogRequest {
     /// Required. The name of the catalog to delete.
@@ -177,9 +192,10 @@ pub struct DeleteHiveCatalogRequest {
 }
 /// Stores the hive database information. It includes the database name,
 /// description, location and properties associated with the database.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct HiveDatabase {
-    /// Output only. The resource name.
+    /// Identifier. The resource name.
     /// Format:
     /// projects/{project_id_or_number}/catalogs/{catalog_id}/databases/{database_id}
     #[prost(string, tag = "1")]
@@ -201,8 +217,15 @@ pub struct HiveDatabase {
         ::prost::alloc::string::String,
         ::prost::alloc::string::String,
     >,
+    /// Output only. The creation time of the database.
+    #[prost(message, optional, tag = "5")]
+    pub create_time: ::core::option::Option<::prost_types::Timestamp>,
+    /// Output only. The update time of the database.
+    #[prost(message, optional, tag = "6")]
+    pub update_time: ::core::option::Option<::prost_types::Timestamp>,
 }
 /// Request message for the CreateHiveDatabase method.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CreateHiveDatabaseRequest {
     /// Required. The parent resource where this database will be created.
@@ -220,6 +243,7 @@ pub struct CreateHiveDatabaseRequest {
     pub hive_database_id: ::prost::alloc::string::String,
 }
 /// Request message for the GetHiveDatabase method.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct GetHiveDatabaseRequest {
     /// Required. The name of the database to retrieve.
@@ -229,6 +253,7 @@ pub struct GetHiveDatabaseRequest {
     pub name: ::prost::alloc::string::String,
 }
 /// Request message for the ListHiveDatabases method.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct ListHiveDatabasesRequest {
     /// Required. The hive catalog to list databases from.
@@ -243,6 +268,7 @@ pub struct ListHiveDatabasesRequest {
     pub page_token: ::prost::alloc::string::String,
 }
 /// Response message for the ListHiveDatabases method.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ListHiveDatabasesResponse {
     /// Output only. The databases from the specified project and catalog.
@@ -254,6 +280,7 @@ pub struct ListHiveDatabasesResponse {
     pub next_page_token: ::prost::alloc::string::String,
 }
 /// Request message for the UpdateHiveDatabase method.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct UpdateHiveDatabaseRequest {
     /// Required. The database to update.
@@ -268,6 +295,7 @@ pub struct UpdateHiveDatabaseRequest {
     pub update_mask: ::core::option::Option<::prost_types::FieldMask>,
 }
 /// Request message for the DeleteHiveDatabase method.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct DeleteHiveDatabaseRequest {
     /// Required. The name of the database to delete.
@@ -279,9 +307,10 @@ pub struct DeleteHiveDatabaseRequest {
 /// Stores the hive table information. It includes the table name, schema (column
 /// names and types), data location, storage format, serde info, etc. This
 /// message closely matches the Table object in the IMetastoreClient
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct HiveTable {
-    /// Output only. The resource name.
+    /// Identifier. The resource name.
     /// Format:
     /// projects/{project_id_or_number}/catalogs/{catalog_id}/databases/{database_id}/tables/{table_id}
     #[prost(string, tag = "1")]
@@ -305,12 +334,24 @@ pub struct HiveTable {
         ::prost::alloc::string::String,
         ::prost::alloc::string::String,
     >,
+    /// Optional. The original view text. Empty for non-view. The maximum size is
+    /// 16MiB.
+    #[prost(string, tag = "9")]
+    pub view_original_text: ::prost::alloc::string::String,
+    /// Optional. The expanded view text. Empty for non-view. The maximum size is
+    /// 16MiB.
+    #[prost(string, tag = "10")]
+    pub view_expanded_text: ::prost::alloc::string::String,
     /// Output only. The type of the table. This is EXTERNAL for BigLake hive
     /// tables.
     #[prost(string, tag = "11")]
     pub table_type: ::prost::alloc::string::String,
+    /// Output only. The update time of the table.
+    #[prost(message, optional, tag = "12")]
+    pub update_time: ::core::option::Option<::prost_types::Timestamp>,
 }
 /// Field schema information.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct FieldSchema {
     /// Required. Name of the field. The maximum length is 767 characters.
@@ -324,6 +365,7 @@ pub struct FieldSchema {
     pub comment: ::prost::alloc::string::String,
 }
 /// Contains information about the physical storage of the table data.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct StorageDescriptor {
     /// Required. Specifies the columns of the table.
@@ -375,6 +417,7 @@ pub struct StorageDescriptor {
 /// Nested message and enum types in `StorageDescriptor`.
 pub mod storage_descriptor {
     /// Sort order of the stored data per column.
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
     pub struct Order {
         /// Required. The column name. The maximum length is 767 characters.
@@ -386,6 +429,7 @@ pub mod storage_descriptor {
         pub order: i32,
     }
     /// Stores all the information about skewed table.
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct SkewedInfo {
         /// Required. The column names that are skewed. The maximum length is 256
@@ -404,6 +448,7 @@ pub mod storage_descriptor {
     /// Nested message and enum types in `SkewedInfo`.
     pub mod skewed_info {
         /// The skewed column values.
+        #[allow(clippy::all)]
         #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
         pub struct SkewedColumnValue {
             /// Required. The skewed column values. The maximum length is 256
@@ -412,6 +457,7 @@ pub mod storage_descriptor {
             pub values: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
         }
         /// The skewed key values and their corresponding location.
+        #[allow(clippy::all)]
         #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
         pub struct SkewedKeyValuesLocation {
             /// Required. The skewed column values. The maximum length is 256
@@ -426,6 +472,7 @@ pub mod storage_descriptor {
     }
 }
 /// Serialization and deserialization information.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SerdeInfo {
     /// Required. Name of the SerDe. Table name by default. The maximum length is
@@ -460,6 +507,7 @@ pub struct SerdeInfo {
 /// Nested message and enum types in `SerdeInfo`.
 pub mod serde_info {
     /// The serde types.
+    #[allow(clippy::all)]
     #[derive(
         Clone,
         Copy,
@@ -504,6 +552,7 @@ pub mod serde_info {
     }
 }
 /// Request message for the CreateHiveTable method.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CreateHiveTableRequest {
     /// Required. The parent resource for the table to be created.
@@ -522,6 +571,7 @@ pub struct CreateHiveTableRequest {
     pub hive_table_id: ::prost::alloc::string::String,
 }
 /// Request message for the GetHiveTable method.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct GetHiveTableRequest {
     /// Required. The name of the table to retrieve.
@@ -531,6 +581,7 @@ pub struct GetHiveTableRequest {
     pub name: ::prost::alloc::string::String,
 }
 /// Request message for the ListHiveTables method.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct ListHiveTablesRequest {
     /// Required. The database to list tables from.
@@ -546,6 +597,7 @@ pub struct ListHiveTablesRequest {
     pub page_token: ::prost::alloc::string::String,
 }
 /// Response message for the ListHiveTables method.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ListHiveTablesResponse {
     /// Output only. The tables from the specified project, catalog and database.
@@ -557,6 +609,7 @@ pub struct ListHiveTablesResponse {
     pub next_page_token: ::prost::alloc::string::String,
 }
 /// Request message for the UpdateHiveTable method.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct UpdateHiveTableRequest {
     /// Required. The table to update.
@@ -571,6 +624,7 @@ pub struct UpdateHiveTableRequest {
     pub update_mask: ::core::option::Option<::prost_types::FieldMask>,
 }
 /// Request message for the DeleteHiveTable method.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct DeleteHiveTableRequest {
     /// Required. The name of the database to delete.
@@ -580,6 +634,7 @@ pub struct DeleteHiveTableRequest {
     pub name: ::prost::alloc::string::String,
 }
 /// Information about a Hive partition.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Partition {
     /// Required. Represents the values of the partition keys, where each value
@@ -606,6 +661,7 @@ pub struct Partition {
     pub fields: ::prost::alloc::vec::Vec<FieldSchema>,
 }
 /// Represents the values of a partition.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct PartitionValues {
     /// Required. The values of the partition keys, where each value corresponds to
@@ -616,6 +672,7 @@ pub struct PartitionValues {
 /// Request message for CreatePartition. The Partition is
 /// uniquely identified by values, which is an ordered list. Hence, there is no
 /// separate name or partition id field.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CreatePartitionRequest {
     /// Required. Reference to the table to where the partition to be added, in the
@@ -628,6 +685,7 @@ pub struct CreatePartitionRequest {
     pub partition: ::core::option::Option<Partition>,
 }
 /// Request message for the BatchCreatePartitions method.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct BatchCreatePartitionsRequest {
     /// Required. Reference to the table to where the partitions to be added, in
@@ -647,6 +705,7 @@ pub struct BatchCreatePartitionsRequest {
     pub skip_existing_partitions: bool,
 }
 /// Response message for BatchCreatePartitions.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct BatchCreatePartitionsResponse {
     /// The list of partitions that have been added.
@@ -656,6 +715,7 @@ pub struct BatchCreatePartitionsResponse {
 /// Request message for BatchDeletePartitions. The Partition is
 /// uniquely identified by values, which is an ordered list. Hence, there is no
 /// separate name or partition id field.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct BatchDeletePartitionsRequest {
     /// Required. Reference to the table to which these partitions belong, in the
@@ -669,6 +729,7 @@ pub struct BatchDeletePartitionsRequest {
     pub partition_values: ::prost::alloc::vec::Vec<PartitionValues>,
 }
 /// Request message for UpdatePartition.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct UpdatePartitionRequest {
     /// Required. The partition to be updated.
@@ -679,6 +740,7 @@ pub struct UpdatePartitionRequest {
     pub update_mask: ::core::option::Option<::prost_types::FieldMask>,
 }
 /// Request message for BatchUpdatePartitions.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct BatchUpdatePartitionsRequest {
     /// Required. Reference to the table to which these partitions belong, in the
@@ -691,6 +753,7 @@ pub struct BatchUpdatePartitionsRequest {
     pub requests: ::prost::alloc::vec::Vec<UpdatePartitionRequest>,
 }
 /// Response message for BatchUpdatePartitions.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct BatchUpdatePartitionsResponse {
     /// The list of partitions that have been updated.
@@ -699,6 +762,7 @@ pub struct BatchUpdatePartitionsResponse {
     pub partitions: ::prost::alloc::vec::Vec<Partition>,
 }
 /// Request message for ListPartitions.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct ListPartitionsRequest {
     /// Required. Reference to the table to which these partitions belong, in the
@@ -723,11 +787,54 @@ pub struct ListPartitionsRequest {
     pub filter: ::prost::alloc::string::String,
 }
 /// Response message for ListPartitions.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ListPartitionsResponse {
     /// Output only. List of partitions.
     #[prost(message, repeated, tag = "1")]
     pub partitions: ::prost::alloc::vec::Vec<Partition>,
+}
+/// Request message for FailoverHiveCatalog.
+#[allow(clippy::all)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct FailoverHiveCatalogRequest {
+    /// Required. The name of the catalog in the form
+    /// "projects/{project_id}/catalogs/{catalog_id}"
+    #[prost(string, tag = "1")]
+    pub name: ::prost::alloc::string::String,
+    /// Required. The region being assigned as the new primary replica region. For
+    /// example "us-east1". This must be one of the replica regions in the
+    /// catalog's list of replicas marked as a "secondary".
+    #[prost(string, tag = "2")]
+    pub primary_replica: ::prost::alloc::string::String,
+    /// Optional. If set, only validate the request, but do not perform the update.
+    /// This can be used to inspect the replication_time at any time, including
+    /// before performing a fail-over.
+    #[prost(bool, tag = "3")]
+    pub validate_only: bool,
+    /// Optional. If unset, wait for all data from the source region to replicate
+    /// to the new primary region before completing the failover, with no data loss
+    /// (also called "soft failover"). If set, failover immediately, accepting the
+    /// loss of any data committed in the source region after this timestamp, that
+    /// has not yet replicated. If any data committed before this time has not
+    /// replicated, the failover will not be performed and an error will be
+    /// returned (also called "hard failover").
+    #[prost(message, optional, tag = "4")]
+    pub conditional_failover_replication_time: ::core::option::Option<
+        ::prost_types::Timestamp,
+    >,
+}
+/// Response message for FailoverHiveCatalog.
+#[allow(clippy::all)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct FailoverHiveCatalogResponse {
+    /// Output only. The min timestamp for which all namespaces and table metadata
+    /// have been replicated in the region specified as the new primary_replica.
+    /// Some resources may have been replicated more recently than this timestamp.
+    /// If empty, the replica has just been created and has not yet been fully
+    /// initialized.
+    #[prost(message, optional, tag = "1")]
+    pub replication_time: ::core::option::Option<::prost_types::Timestamp>,
 }
 /// Generated client implementations.
 pub mod hive_metastore_service_client {
@@ -1366,6 +1473,36 @@ pub mod hive_metastore_service_client {
                     ),
                 );
             self.inner.server_streaming(req, path, codec).await
+        }
+        /// Failover the catalog to a new primary replica region.
+        pub async fn failover_hive_catalog(
+            &mut self,
+            request: impl tonic::IntoRequest<super::FailoverHiveCatalogRequest>,
+        ) -> std::result::Result<
+            tonic::Response<super::FailoverHiveCatalogResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::unknown(
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic_prost::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/google.cloud.biglake.hive.v1beta.HiveMetastoreService/FailoverHiveCatalog",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(
+                    GrpcMethod::new(
+                        "google.cloud.biglake.hive.v1beta.HiveMetastoreService",
+                        "FailoverHiveCatalog",
+                    ),
+                );
+            self.inner.unary(req, path, codec).await
         }
     }
 }

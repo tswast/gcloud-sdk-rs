@@ -4,6 +4,7 @@
 /// A `Content` includes a `role` field designating the producer of the `Content`
 /// and a `parts` field containing multi-part data that contains the content of
 /// the message turn.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Content {
     /// Ordered `Parts` that constitute a single message. Parts may have different
@@ -24,6 +25,7 @@ pub struct Content {
 ///
 /// A `Part` must have a fixed IANA MIME type identifying the type and subtype
 /// of the media if the `inline_data` field is filled with raw bytes.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Part {
     #[prost(oneof = "part::Data", tags = "2, 3, 4, 5, 6, 9, 10")]
@@ -31,6 +33,7 @@ pub struct Part {
 }
 /// Nested message and enum types in `Part`.
 pub mod part {
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum Data {
         /// Inline text.
@@ -64,6 +67,7 @@ pub mod part {
 /// Raw media bytes.
 ///
 /// Text should not be sent as raw bytes, use the 'text' field.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct Blob {
     /// The IANA standard MIME type of the source data.
@@ -81,6 +85,7 @@ pub struct Blob {
     pub data: ::prost::alloc::vec::Vec<u8>,
 }
 /// URI based data.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct FileData {
     /// Optional. The IANA standard MIME type of the source data.
@@ -96,6 +101,7 @@ pub struct FileData {
 /// Only generated when using the `CodeExecution` tool, in which the code will
 /// be automatically executed, and a corresponding `CodeExecutionResult` will
 /// also be generated.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct ExecutableCode {
     /// Required. Programming language of the `code`.
@@ -108,6 +114,7 @@ pub struct ExecutableCode {
 /// Nested message and enum types in `ExecutableCode`.
 pub mod executable_code {
     /// Supported programming languages for the generated code.
+    #[allow(clippy::all)]
     #[derive(
         Clone,
         Copy,
@@ -151,6 +158,7 @@ pub mod executable_code {
 ///
 /// Only generated when using the `CodeExecution`, and always follows a `part`
 /// containing the `ExecutableCode`.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct CodeExecutionResult {
     /// Required. Outcome of the code execution.
@@ -164,6 +172,7 @@ pub struct CodeExecutionResult {
 /// Nested message and enum types in `CodeExecutionResult`.
 pub mod code_execution_result {
     /// Enumeration of possible outcomes of the code execution.
+    #[allow(clippy::all)]
     #[derive(
         Clone,
         Copy,
@@ -218,6 +227,7 @@ pub mod code_execution_result {
 /// A `Tool` is a piece of code that enables the system to interact with
 /// external systems to perform an action, or set of actions, outside of
 /// knowledge and scope of the model.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Tool {
     /// Optional. A list of `FunctionDeclarations` available to the model that can
@@ -250,10 +260,12 @@ pub struct Tool {
 pub mod tool {
     /// GoogleSearch tool type.
     /// Tool to support Google Search in Model. Powered by Google.
+    #[allow(clippy::all)]
     #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
     pub struct GoogleSearch {}
 }
 /// Tool to retrieve public web data for grounding, powered by Google.
+#[allow(clippy::all)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct GoogleSearchRetrieval {
     /// Specifies the dynamic retrieval configuration for the given source.
@@ -261,6 +273,7 @@ pub struct GoogleSearchRetrieval {
     pub dynamic_retrieval_config: ::core::option::Option<DynamicRetrievalConfig>,
 }
 /// Describes the options to customize dynamic retrieval.
+#[allow(clippy::all)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct DynamicRetrievalConfig {
     /// The mode of the predictor to be used in dynamic retrieval.
@@ -274,6 +287,7 @@ pub struct DynamicRetrievalConfig {
 /// Nested message and enum types in `DynamicRetrievalConfig`.
 pub mod dynamic_retrieval_config {
     /// The mode of the predictor to be used in dynamic retrieval.
+    #[allow(clippy::all)]
     #[derive(
         Clone,
         Copy,
@@ -318,10 +332,12 @@ pub mod dynamic_retrieval_config {
 ///
 /// See also `ExecutableCode` and `CodeExecutionResult` which are only generated
 /// when using this tool.
+#[allow(clippy::all)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct CodeExecution {}
 /// The Tool configuration containing parameters for specifying `Tool` use
 /// in the request.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct ToolConfig {
     /// Optional. Function calling config.
@@ -329,6 +345,7 @@ pub struct ToolConfig {
     pub function_calling_config: ::core::option::Option<FunctionCallingConfig>,
 }
 /// Configuration for specifying function calling behavior.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct FunctionCallingConfig {
     /// Optional. Specifies the mode in which function calling should execute. If
@@ -348,6 +365,7 @@ pub struct FunctionCallingConfig {
 pub mod function_calling_config {
     /// Defines the execution behavior for function calling by defining the
     /// execution mode.
+    #[allow(clippy::all)]
     #[derive(
         Clone,
         Copy,
@@ -405,6 +423,7 @@ pub mod function_calling_config {
 /// in this declaration are the function name and parameters. This
 /// FunctionDeclaration is a representation of a block of code that can be used
 /// as a `Tool` by the model and executed by the client.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct FunctionDeclaration {
     /// Required. The name of the function.
@@ -430,6 +449,7 @@ pub struct FunctionDeclaration {
 /// A predicted `FunctionCall` returned from the model that contains
 /// a string representing the `FunctionDeclaration.name` with the
 /// arguments and their values.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct FunctionCall {
     /// Optional. The unique id of the function call. If populated, the client to
@@ -450,6 +470,7 @@ pub struct FunctionCall {
 /// object containing any output from the function is used as context to
 /// the model. This should contain the result of a`FunctionCall` made
 /// based on model prediction.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct FunctionResponse {
     /// Optional. The id of the function call this response is for. Populated by
@@ -469,6 +490,7 @@ pub struct FunctionResponse {
 /// These types can be objects, but also primitives and arrays.
 /// Represents a select subset of an [OpenAPI 3.0 schema
 /// object](<https://spec.openapis.org/oas/v3.0.3#schema>).
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Schema {
     /// Required. Data type.
@@ -510,6 +532,7 @@ pub struct Schema {
     pub required: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
 }
 /// Passage included inline with a grounding configuration.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct GroundingPassage {
     /// Identifier for the passage for attributing this passage in grounded
@@ -521,6 +544,7 @@ pub struct GroundingPassage {
     pub content: ::core::option::Option<Content>,
 }
 /// A repeated list of passages.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct GroundingPassages {
     /// List of passages.
@@ -529,6 +553,7 @@ pub struct GroundingPassages {
 }
 /// Type contains the list of OpenAPI data types as defined by
 /// <https://spec.openapis.org/oas/v3.0.3#data-types>
+#[allow(clippy::all)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
 #[repr(i32)]
 pub enum Type {
@@ -581,6 +606,7 @@ impl Type {
 /// to GenerativeService.
 ///
 /// Cached content can be only used with model it was created for.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CachedContent {
     /// Optional. Identifier. The resource name referring to the cached content.
@@ -626,6 +652,7 @@ pub struct CachedContent {
 /// Nested message and enum types in `CachedContent`.
 pub mod cached_content {
     /// Metadata on the usage of the cached content.
+    #[allow(clippy::all)]
     #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
     pub struct UsageMetadata {
         /// Total number of tokens that the cached content consumes.
@@ -633,6 +660,7 @@ pub mod cached_content {
         pub total_token_count: i32,
     }
     /// Specifies when this resource will expire.
+    #[allow(clippy::all)]
     #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Oneof)]
     pub enum Expiration {
         /// Timestamp in UTC of when this resource is considered expired.
@@ -646,6 +674,7 @@ pub mod cached_content {
     }
 }
 /// Request to list CachedContents.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct ListCachedContentsRequest {
     /// Optional. The maximum number of cached contents to return. The service may
@@ -663,6 +692,7 @@ pub struct ListCachedContentsRequest {
     pub page_token: ::prost::alloc::string::String,
 }
 /// Response with CachedContents list.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ListCachedContentsResponse {
     /// List of cached contents.
@@ -674,6 +704,7 @@ pub struct ListCachedContentsResponse {
     pub next_page_token: ::prost::alloc::string::String,
 }
 /// Request to create CachedContent.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CreateCachedContentRequest {
     /// Required. The cached content to create.
@@ -681,6 +712,7 @@ pub struct CreateCachedContentRequest {
     pub cached_content: ::core::option::Option<CachedContent>,
 }
 /// Request to read CachedContent.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct GetCachedContentRequest {
     /// Required. The resource name referring to the content cache entry.
@@ -689,6 +721,7 @@ pub struct GetCachedContentRequest {
     pub name: ::prost::alloc::string::String,
 }
 /// Request to update CachedContent.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct UpdateCachedContentRequest {
     /// Required. The content cache entry to update
@@ -699,6 +732,7 @@ pub struct UpdateCachedContentRequest {
     pub update_mask: ::core::option::Option<::prost_types::FieldMask>,
 }
 /// Request to delete CachedContent.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct DeleteCachedContentRequest {
     /// Required. The resource name referring to the content cache entry
@@ -942,6 +976,7 @@ pub mod cache_service_client {
     }
 }
 /// A collection of source attributions for a piece of content.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CitationMetadata {
     /// Citations to sources for a specific response.
@@ -949,6 +984,7 @@ pub struct CitationMetadata {
     pub citation_sources: ::prost::alloc::vec::Vec<CitationSource>,
 }
 /// A citation to a source for a portion of a specific response.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct CitationSource {
     /// Optional. Start of segment of the response that is attributed to this
@@ -974,6 +1010,7 @@ pub struct CitationSource {
 ///
 /// ContentFilter contains a reason and an optional supporting string. The reason
 /// may be unspecified.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct ContentFilter {
     /// The reason content was blocked during request processing.
@@ -986,6 +1023,7 @@ pub struct ContentFilter {
 /// Nested message and enum types in `ContentFilter`.
 pub mod content_filter {
     /// A list of reasons why content may have been blocked.
+    #[allow(clippy::all)]
     #[derive(
         Clone,
         Copy,
@@ -1036,6 +1074,7 @@ pub mod content_filter {
 /// Each SafetyFeedback will return the safety settings used by the request as
 /// well as the lowest HarmProbability that should be allowed in order to return
 /// a result.
+#[allow(clippy::all)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct SafetyFeedback {
     /// Safety rating evaluated from content.
@@ -1052,6 +1091,7 @@ pub struct SafetyFeedback {
 /// Content is classified for safety across a number of
 /// harm categories and the probability of the harm classification is included
 /// here.
+#[allow(clippy::all)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct SafetyRating {
     /// Required. The category for this rating.
@@ -1070,6 +1110,7 @@ pub mod safety_rating {
     ///
     /// The classification system gives the probability of the content being
     /// unsafe. This does not indicate the severity of harm for a piece of content.
+    #[allow(clippy::all)]
     #[derive(
         Clone,
         Copy,
@@ -1125,6 +1166,7 @@ pub mod safety_rating {
 ///
 /// Passing a safety setting for a category changes the allowed probability that
 /// content is blocked.
+#[allow(clippy::all)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct SafetySetting {
     /// Required. The category for this setting.
@@ -1137,6 +1179,7 @@ pub struct SafetySetting {
 /// Nested message and enum types in `SafetySetting`.
 pub mod safety_setting {
     /// Block at and beyond a specified harm probability.
+    #[allow(clippy::all)]
     #[derive(
         Clone,
         Copy,
@@ -1196,6 +1239,7 @@ pub mod safety_setting {
 ///
 /// These categories cover various kinds of harms that developers
 /// may wish to adjust.
+#[allow(clippy::all)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
 #[repr(i32)]
 pub enum HarmCategory {
@@ -1268,6 +1312,7 @@ impl HarmCategory {
     }
 }
 /// Request to generate a message response from the model.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct GenerateMessageRequest {
     /// Required. The name of the model to use.
@@ -1317,6 +1362,7 @@ pub struct GenerateMessageRequest {
 ///
 /// This includes candidate messages and
 /// conversation history in the form of chronologically-ordered messages.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct GenerateMessageResponse {
     /// Candidate response messages from the model.
@@ -1341,6 +1387,7 @@ pub struct GenerateMessageResponse {
 ///
 /// The `author` is used to tag messages when they are fed to the
 /// model as text.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Message {
     /// Optional. The author of this Message.
@@ -1370,6 +1417,7 @@ pub struct Message {
 /// prime the model to respond in different ways, and the conversation history
 /// or list of messages representing the alternating turns of the conversation
 /// between the user and the model.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct MessagePrompt {
     /// Optional. Text that should be provided to the model first to ground the
@@ -1413,6 +1461,7 @@ pub struct MessagePrompt {
 /// An input/output example used to instruct the Model.
 ///
 /// It demonstrates how the model should respond or format its response.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Example {
     /// Required. An example of an input `Message` from the user.
@@ -1426,6 +1475,7 @@ pub struct Example {
 ///
 /// Models may tokenize text differently, so each model may return a different
 /// `token_count`.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CountMessageTokensRequest {
     /// Required. The model's resource name. This serves as an ID for the Model to
@@ -1443,6 +1493,7 @@ pub struct CountMessageTokensRequest {
 /// A response from `CountMessageTokens`.
 ///
 /// It returns the model's `token_count` for the `prompt`.
+#[allow(clippy::all)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct CountMessageTokensResponse {
     /// The number of tokens that the `model` tokenizes the `prompt` into.
@@ -1610,6 +1661,7 @@ pub mod discuss_service_client {
 }
 /// A file uploaded to the API.
 /// Next ID: 15
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct File {
     /// Immutable. Identifier. The `File` resource name. The ID (name excluding the
@@ -1659,6 +1711,7 @@ pub struct File {
 /// Nested message and enum types in `File`.
 pub mod file {
     /// States for the lifecycle of a File.
+    #[allow(clippy::all)]
     #[derive(
         Clone,
         Copy,
@@ -1706,6 +1759,7 @@ pub mod file {
         }
     }
     /// Metadata for the File.
+    #[allow(clippy::all)]
     #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Oneof)]
     pub enum Metadata {
         /// Output only. Metadata for a video.
@@ -1714,6 +1768,7 @@ pub mod file {
     }
 }
 /// Metadata for a video `File`.
+#[allow(clippy::all)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct VideoMetadata {
     /// Duration of the video.
@@ -1721,6 +1776,7 @@ pub struct VideoMetadata {
     pub video_duration: ::core::option::Option<::prost_types::Duration>,
 }
 /// Request for `CreateFile`.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CreateFileRequest {
     /// Optional. Metadata for the file to create.
@@ -1728,6 +1784,7 @@ pub struct CreateFileRequest {
     pub file: ::core::option::Option<File>,
 }
 /// Response for `CreateFile`.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CreateFileResponse {
     /// Metadata for the created file.
@@ -1735,6 +1792,7 @@ pub struct CreateFileResponse {
     pub file: ::core::option::Option<File>,
 }
 /// Request for `ListFiles`.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct ListFilesRequest {
     /// Optional. Maximum number of `File`s to return per page.
@@ -1746,6 +1804,7 @@ pub struct ListFilesRequest {
     pub page_token: ::prost::alloc::string::String,
 }
 /// Response for `ListFiles`.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ListFilesResponse {
     /// The list of `File`s.
@@ -1757,6 +1816,7 @@ pub struct ListFilesResponse {
     pub next_page_token: ::prost::alloc::string::String,
 }
 /// Request for `GetFile`.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct GetFileRequest {
     /// Required. The name of the `File` to get.
@@ -1765,6 +1825,7 @@ pub struct GetFileRequest {
     pub name: ::prost::alloc::string::String,
 }
 /// Request for `DeleteFile`.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct DeleteFileRequest {
     /// Required. The name of the `File` to delete.
@@ -1982,6 +2043,7 @@ pub mod file_service_client {
 }
 /// A `Corpus` is a collection of `Document`s.
 /// A project can create up to 5 corpora.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct Corpus {
     /// Immutable. Identifier. The `Corpus` resource name. The ID (name excluding
@@ -2007,6 +2069,7 @@ pub struct Corpus {
 }
 /// A `Document` is a collection of `Chunk`s.
 /// A `Corpus` can have a maximum of 10,000 `Document`s.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Document {
     /// Immutable. Identifier. The `Document` resource name. The ID (name excluding
@@ -2034,6 +2097,7 @@ pub struct Document {
     pub create_time: ::core::option::Option<::prost_types::Timestamp>,
 }
 /// User provided string values assigned to a single metadata key.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct StringList {
     /// The string values of the metadata to store.
@@ -2041,6 +2105,7 @@ pub struct StringList {
     pub values: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
 }
 /// User provided metadata stored as key-value pairs.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CustomMetadata {
     /// Required. The key of the metadata to store.
@@ -2051,6 +2116,7 @@ pub struct CustomMetadata {
 }
 /// Nested message and enum types in `CustomMetadata`.
 pub mod custom_metadata {
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum Value {
         /// The string value of the metadata to store.
@@ -2070,6 +2136,7 @@ pub mod custom_metadata {
 /// key = "document.custom_metadata.genre"
 /// conditions = \[{string_value = "drama", operation = EQUAL},
 /// {string_value = "action", operation = EQUAL}\]
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct MetadataFilter {
     /// Required. The key of the metadata to filter on.
@@ -2081,6 +2148,7 @@ pub struct MetadataFilter {
     pub conditions: ::prost::alloc::vec::Vec<Condition>,
 }
 /// Filter condition applicable to a single key.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Condition {
     /// Required. Operator applied to the given key-value pair to trigger the
@@ -2099,6 +2167,7 @@ pub struct Condition {
 /// Nested message and enum types in `Condition`.
 pub mod condition {
     /// Defines the valid operators that can be applied to a key-value pair.
+    #[allow(clippy::all)]
     #[derive(
         Clone,
         Copy,
@@ -2173,6 +2242,7 @@ pub mod condition {
     /// value type, the filtering condition should use `string_value` paired with
     /// an INCLUDES/EXCLUDES operation, otherwise the result will also be an empty
     /// set.
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum Value {
         /// The string value to filter the metadata on.
@@ -2186,6 +2256,7 @@ pub mod condition {
 /// A `Chunk` is a subpart of a `Document` that is treated as an independent unit
 /// for the purposes of vector representation and storage.
 /// A `Corpus` can have a maximum of 1 million `Chunk`s.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Chunk {
     /// Immutable. Identifier. The `Chunk` resource name. The ID (name excluding
@@ -2217,6 +2288,7 @@ pub struct Chunk {
 /// Nested message and enum types in `Chunk`.
 pub mod chunk {
     /// States for the lifecycle of a `Chunk`.
+    #[allow(clippy::all)]
     #[derive(
         Clone,
         Copy,
@@ -2265,6 +2337,7 @@ pub mod chunk {
     }
 }
 /// Extracted data that represents the `Chunk` content.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct ChunkData {
     #[prost(oneof = "chunk_data::Data", tags = "1")]
@@ -2272,6 +2345,7 @@ pub struct ChunkData {
 }
 /// Nested message and enum types in `ChunkData`.
 pub mod chunk_data {
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, Eq, Hash, ::prost::Oneof)]
     pub enum Data {
         /// The `Chunk` content as a string.
@@ -2281,6 +2355,7 @@ pub mod chunk_data {
     }
 }
 /// Request to generate a completion from the model.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct GenerateContentRequest {
     /// Required. The name of the `Model` to use for generating the completion.
@@ -2348,6 +2423,7 @@ pub struct GenerateContentRequest {
     pub cached_content: ::core::option::Option<::prost::alloc::string::String>,
 }
 /// The configuration for the prebuilt speaker to use.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct PrebuiltVoiceConfig {
     /// The name of the preset voice to use.
@@ -2355,6 +2431,7 @@ pub struct PrebuiltVoiceConfig {
     pub voice_name: ::core::option::Option<::prost::alloc::string::String>,
 }
 /// The configuration for the voice to use.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct VoiceConfig {
     /// The configuration for the speaker to use.
@@ -2364,6 +2441,7 @@ pub struct VoiceConfig {
 /// Nested message and enum types in `VoiceConfig`.
 pub mod voice_config {
     /// The configuration for the speaker to use.
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, Eq, Hash, ::prost::Oneof)]
     pub enum VoiceConfig {
         /// The configuration for the prebuilt voice to use.
@@ -2372,6 +2450,7 @@ pub mod voice_config {
     }
 }
 /// The speech generation config.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct SpeechConfig {
     /// The configuration for the speaker to use.
@@ -2380,6 +2459,7 @@ pub struct SpeechConfig {
 }
 /// Configuration options for model generation and outputs. Not all parameters
 /// are configurable for every model.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct GenerationConfig {
     /// Optional. Number of generated responses to return.
@@ -2526,6 +2606,7 @@ pub struct GenerationConfig {
 /// Nested message and enum types in `GenerationConfig`.
 pub mod generation_config {
     /// Supported modalities of the response.
+    #[allow(clippy::all)]
     #[derive(
         Clone,
         Copy,
@@ -2575,6 +2656,7 @@ pub mod generation_config {
 }
 /// Configuration for retrieving grounding content from a `Corpus` or
 /// `Document` created using the Semantic Retriever API.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SemanticRetrieverConfig {
     /// Required. Name of the resource for retrieval. Example: `corpora/123` or
@@ -2607,6 +2689,7 @@ pub struct SemanticRetrieverConfig {
 ///   prompt (check `prompt_feedback`)
 /// * Reports feedback on each candidate in `finish_reason` and
 ///   `safety_ratings`.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct GenerateContentResponse {
     /// Candidate responses from the model.
@@ -2628,6 +2711,7 @@ pub struct GenerateContentResponse {
 pub mod generate_content_response {
     /// A set of the feedback metadata the prompt specified in
     /// `GenerateContentRequest.content`.
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct PromptFeedback {
         /// Optional. If set, the prompt was blocked and no candidates are returned.
@@ -2642,6 +2726,7 @@ pub mod generate_content_response {
     /// Nested message and enum types in `PromptFeedback`.
     pub mod prompt_feedback {
         /// Specifies the reason why the prompt was blocked.
+        #[allow(clippy::all)]
         #[derive(
             Clone,
             Copy,
@@ -2700,6 +2785,7 @@ pub mod generate_content_response {
         }
     }
     /// Metadata on the generation request's token usage.
+    #[allow(clippy::all)]
     #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
     pub struct UsageMetadata {
         /// Number of tokens in the prompt. When `cached_content` is set, this is
@@ -2720,6 +2806,7 @@ pub mod generate_content_response {
     }
 }
 /// A response candidate generated from the model.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Candidate {
     /// Output only. Index of the candidate in the list of response candidates.
@@ -2769,6 +2856,7 @@ pub struct Candidate {
 /// Nested message and enum types in `Candidate`.
 pub mod candidate {
     /// Defines the reason why the model stopped generating tokens.
+    #[allow(clippy::all)]
     #[derive(
         Clone,
         Copy,
@@ -2852,6 +2940,7 @@ pub mod candidate {
     }
 }
 /// Logprobs Result
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct LogprobsResult {
     /// Length = total number of decoding steps.
@@ -2865,6 +2954,7 @@ pub struct LogprobsResult {
 /// Nested message and enum types in `LogprobsResult`.
 pub mod logprobs_result {
     /// Candidate for the logprobs token and score.
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct Candidate {
         /// The candidate’s token string value.
@@ -2878,6 +2968,7 @@ pub mod logprobs_result {
         pub log_probability: ::core::option::Option<f32>,
     }
     /// Candidates with top log probabilities at each decoding step.
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct TopCandidates {
         /// Sorted by log probability in descending order.
@@ -2886,6 +2977,7 @@ pub mod logprobs_result {
     }
 }
 /// Identifier for the source contributing to this attribution.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct AttributionSourceId {
     #[prost(oneof = "attribution_source_id::Source", tags = "1, 2")]
@@ -2894,6 +2986,7 @@ pub struct AttributionSourceId {
 /// Nested message and enum types in `AttributionSourceId`.
 pub mod attribution_source_id {
     /// Identifier for a part within a `GroundingPassage`.
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
     pub struct GroundingPassageId {
         /// Output only. ID of the passage matching the `GenerateAnswerRequest`'s
@@ -2907,6 +3000,7 @@ pub mod attribution_source_id {
     }
     /// Identifier for a `Chunk` retrieved via Semantic Retriever specified in the
     /// `GenerateAnswerRequest` using `SemanticRetrieverConfig`.
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
     pub struct SemanticRetrieverChunk {
         /// Output only. Name of the source matching the request's
@@ -2919,6 +3013,7 @@ pub mod attribution_source_id {
         #[prost(string, tag = "2")]
         pub chunk: ::prost::alloc::string::String,
     }
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, Eq, Hash, ::prost::Oneof)]
     pub enum Source {
         /// Identifier for an inline passage.
@@ -2930,6 +3025,7 @@ pub mod attribution_source_id {
     }
 }
 /// Attribution for a source that contributed to an answer.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct GroundingAttribution {
     /// Output only. Identifier for the source contributing to this attribution.
@@ -2940,6 +3036,7 @@ pub struct GroundingAttribution {
     pub content: ::core::option::Option<Content>,
 }
 /// Metadata related to retrieval in the grounding flow.
+#[allow(clippy::all)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct RetrievalMetadata {
     /// Optional. Score indicating how likely information from google search could
@@ -2951,6 +3048,7 @@ pub struct RetrievalMetadata {
     pub google_search_dynamic_retrieval_score: f32,
 }
 /// Metadata returned to client when grounding is enabled.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct GroundingMetadata {
     /// Optional. Google search entry for the following-up web searches.
@@ -2970,6 +3068,7 @@ pub struct GroundingMetadata {
     pub web_search_queries: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
 }
 /// Google search entry point.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct SearchEntryPoint {
     /// Optional. Web content snippet that can be embedded in a web page or an app
@@ -2982,6 +3081,7 @@ pub struct SearchEntryPoint {
     pub sdk_blob: ::prost::alloc::vec::Vec<u8>,
 }
 /// Grounding chunk.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct GroundingChunk {
     /// Chunk type.
@@ -2991,6 +3091,7 @@ pub struct GroundingChunk {
 /// Nested message and enum types in `GroundingChunk`.
 pub mod grounding_chunk {
     /// Chunk from the web.
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
     pub struct Web {
         /// URI reference of the chunk.
@@ -3001,6 +3102,7 @@ pub mod grounding_chunk {
         pub title: ::core::option::Option<::prost::alloc::string::String>,
     }
     /// Chunk type.
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, Eq, Hash, ::prost::Oneof)]
     pub enum ChunkType {
         /// Grounding chunk from the web.
@@ -3009,6 +3111,7 @@ pub mod grounding_chunk {
     }
 }
 /// Segment of the content.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct Segment {
     /// Output only. The index of a Part object within its parent Content object.
@@ -3027,6 +3130,7 @@ pub struct Segment {
     pub text: ::prost::alloc::string::String,
 }
 /// Grounding support.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct GroundingSupport {
     /// Segment of the content this support belongs to.
@@ -3045,6 +3149,7 @@ pub struct GroundingSupport {
     pub confidence_scores: ::prost::alloc::vec::Vec<f32>,
 }
 /// Request to generate a grounded answer from the `Model`.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct GenerateAnswerRequest {
     /// Required. The name of the `Model` to use for generating the grounded
@@ -3102,6 +3207,7 @@ pub struct GenerateAnswerRequest {
 /// Nested message and enum types in `GenerateAnswerRequest`.
 pub mod generate_answer_request {
     /// Style for grounded answers.
+    #[allow(clippy::all)]
     #[derive(
         Clone,
         Copy,
@@ -3150,6 +3256,7 @@ pub mod generate_answer_request {
         }
     }
     /// The sources in which to ground the answer.
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum GroundingSource {
         /// Passages provided inline with the request.
@@ -3162,6 +3269,7 @@ pub mod generate_answer_request {
     }
 }
 /// Response from the model for a grounded answer.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct GenerateAnswerResponse {
     /// Candidate answer from the model.
@@ -3204,6 +3312,7 @@ pub struct GenerateAnswerResponse {
 pub mod generate_answer_response {
     /// Feedback related to the input data used to answer the question, as opposed
     /// to the model-generated response to the question.
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct InputFeedback {
         /// Optional. If set, the input was blocked and no candidates are returned.
@@ -3218,6 +3327,7 @@ pub mod generate_answer_response {
     /// Nested message and enum types in `InputFeedback`.
     pub mod input_feedback {
         /// Specifies what was the reason why input was blocked.
+        #[allow(clippy::all)]
         #[derive(
             Clone,
             Copy,
@@ -3264,6 +3374,7 @@ pub mod generate_answer_response {
     }
 }
 /// Request containing the `Content` for the model to embed.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct EmbedContentRequest {
     /// Required. The model's resource name. This serves as an ID for the Model to
@@ -3297,6 +3408,7 @@ pub struct EmbedContentRequest {
     pub output_dimensionality: ::core::option::Option<i32>,
 }
 /// A list of floats representing an embedding.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ContentEmbedding {
     /// The embedding values.
@@ -3304,6 +3416,7 @@ pub struct ContentEmbedding {
     pub values: ::prost::alloc::vec::Vec<f32>,
 }
 /// The response to an `EmbedContentRequest`.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct EmbedContentResponse {
     /// Output only. The embedding generated from the input content.
@@ -3311,6 +3424,7 @@ pub struct EmbedContentResponse {
     pub embedding: ::core::option::Option<ContentEmbedding>,
 }
 /// Batch request to get embeddings from the model for a list of prompts.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct BatchEmbedContentsRequest {
     /// Required. The model's resource name. This serves as an ID for the Model to
@@ -3327,6 +3441,7 @@ pub struct BatchEmbedContentsRequest {
     pub requests: ::prost::alloc::vec::Vec<EmbedContentRequest>,
 }
 /// The response to a `BatchEmbedContentsRequest`.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct BatchEmbedContentsResponse {
     /// Output only. The embeddings for each request, in the same order as provided
@@ -3338,6 +3453,7 @@ pub struct BatchEmbedContentsResponse {
 ///
 /// Models may tokenize text differently, so each model may return a different
 /// `token_count`.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CountTokensRequest {
     /// Required. The model's resource name. This serves as an ID for the Model to
@@ -3366,6 +3482,7 @@ pub struct CountTokensRequest {
 /// A response from `CountTokens`.
 ///
 /// It returns the model's `token_count` for the `prompt`.
+#[allow(clippy::all)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct CountTokensResponse {
     /// The number of tokens that the `Model` tokenizes the `prompt` into. Always
@@ -3382,6 +3499,7 @@ pub struct CountTokensResponse {
 ///
 /// Clients should wait for a `BidiGenerateContentSetupComplete` message before
 /// sending any additional messages.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct BidiGenerateContentSetup {
     /// Required. The model's resource name. This serves as an ID for the Model to
@@ -3423,6 +3541,7 @@ pub struct BidiGenerateContentSetup {
 /// history and used as part of the prompt to the model to generate content.
 ///
 /// A message here will interrupt any current model generation.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct BidiGenerateContentClientContent {
     /// Optional. The content appended to the current conversation with the model.
@@ -3460,6 +3579,7 @@ pub struct BidiGenerateContentClientContent {
 ///   beginning and the end of user speech and starts or terminates streaming
 ///   the response accordingly. Data is processed incrementally as it arrives,
 ///   minimizing latency.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct BidiGenerateContentRealtimeInput {
     /// Optional. Inlined bytes data for media input.
@@ -3474,6 +3594,7 @@ pub struct BidiGenerateContentRealtimeInput {
 /// calling happens by exchanging the `Content` parts, while in the bidi
 /// GenerateContent APIs function calling happens over these dedicated set of
 /// messages.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct BidiGenerateContentToolResponse {
     /// Optional. The response to the function calls.
@@ -3481,6 +3602,7 @@ pub struct BidiGenerateContentToolResponse {
     pub function_responses: ::prost::alloc::vec::Vec<FunctionResponse>,
 }
 /// Messages sent by the client in the BidiGenerateContent call.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct BidiGenerateContentClientMessage {
     /// The type of the message.
@@ -3495,6 +3617,7 @@ pub struct BidiGenerateContentClientMessage {
 /// Nested message and enum types in `BidiGenerateContentClientMessage`.
 pub mod bidi_generate_content_client_message {
     /// The type of the message.
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum MessageType {
         /// Optional. Session configuration sent in the first and only first client
@@ -3514,6 +3637,7 @@ pub mod bidi_generate_content_client_message {
     }
 }
 /// Sent in response to a `BidiGenerateContentSetup` message from the client.
+#[allow(clippy::all)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct BidiGenerateContentSetupComplete {}
 /// Incremental server update generated by the model in response to client
@@ -3521,6 +3645,7 @@ pub struct BidiGenerateContentSetupComplete {}
 ///
 /// Content is generated as quickly as possible, and not in real time. Clients
 /// may choose to buffer and play it out in real time.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct BidiGenerateContentServerContent {
     /// Output only. The content that the model has generated as part of the
@@ -3544,6 +3669,7 @@ pub struct BidiGenerateContentServerContent {
 }
 /// Request for the client to execute the `function_calls` and return the
 /// responses with the matching `id`s.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct BidiGenerateContentToolCall {
     /// Output only. The function call to be executed.
@@ -3555,6 +3681,7 @@ pub struct BidiGenerateContentToolCall {
 /// cancelled. If there were side-effects to those tool calls, clients may
 /// attempt to undo the tool calls. This message occurs only in cases where the
 /// clients interrupt server turns.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct BidiGenerateContentToolCallCancellation {
     /// Output only. The ids of the tool calls to be cancelled.
@@ -3562,6 +3689,7 @@ pub struct BidiGenerateContentToolCallCancellation {
     pub ids: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
 }
 /// Response message for the BidiGenerateContent call.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct BidiGenerateContentServerMessage {
     /// The type of the message.
@@ -3576,6 +3704,7 @@ pub struct BidiGenerateContentServerMessage {
 /// Nested message and enum types in `BidiGenerateContentServerMessage`.
 pub mod bidi_generate_content_server_message {
     /// The type of the message.
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum MessageType {
         /// Output only. Sent in response to a `BidiGenerateContentSetup` message
@@ -3597,6 +3726,7 @@ pub mod bidi_generate_content_server_message {
     }
 }
 /// Type of task for which the embedding will be used.
+#[allow(clippy::all)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
 #[repr(i32)]
 pub enum TaskType {
@@ -3975,6 +4105,7 @@ pub mod generative_service_client {
     }
 }
 /// Information about a Generative Language Model.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Model {
     /// Required. The resource name of the `Model`. Refer to [Model
@@ -4057,6 +4188,7 @@ pub struct Model {
     pub top_k: ::core::option::Option<i32>,
 }
 /// A fine-tuned model created using ModelService.CreateTunedModel.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct TunedModel {
     /// Output only. The tuned model name. A unique name will be generated on
@@ -4129,6 +4261,7 @@ pub struct TunedModel {
 /// Nested message and enum types in `TunedModel`.
 pub mod tuned_model {
     /// The state of the tuned model.
+    #[allow(clippy::all)]
     #[derive(
         Clone,
         Copy,
@@ -4176,6 +4309,7 @@ pub mod tuned_model {
         }
     }
     /// The model used as the starting point for tuning.
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, Eq, Hash, ::prost::Oneof)]
     pub enum SourceModel {
         /// Optional. TunedModel to use as the starting point for training the new
@@ -4189,6 +4323,7 @@ pub mod tuned_model {
     }
 }
 /// Tuned model as a source for training a new model.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct TunedModelSource {
     /// Immutable. The name of the `TunedModel` to use as the starting point for
@@ -4202,6 +4337,7 @@ pub struct TunedModelSource {
     pub base_model: ::prost::alloc::string::String,
 }
 /// Tuning tasks that create tuned models.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct TuningTask {
     /// Output only. The timestamp when tuning this model started.
@@ -4223,6 +4359,7 @@ pub struct TuningTask {
 }
 /// Hyperparameters controlling the tuning process. Read more at
 /// <https://ai.google.dev/docs/model_tuning_guidance>
+#[allow(clippy::all)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct Hyperparameters {
     /// Immutable. The number of training epochs. An epoch is one pass through the
@@ -4243,6 +4380,7 @@ pub struct Hyperparameters {
 /// Nested message and enum types in `Hyperparameters`.
 pub mod hyperparameters {
     /// Options for specifying learning rate during tuning.
+    #[allow(clippy::all)]
     #[derive(Clone, Copy, PartialEq, ::prost::Oneof)]
     pub enum LearningRateOption {
         /// Optional. Immutable. The learning rate hyperparameter for tuning.
@@ -4260,6 +4398,7 @@ pub mod hyperparameters {
     }
 }
 /// Dataset for training or validation.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Dataset {
     /// Inline data or a reference to the data.
@@ -4269,6 +4408,7 @@ pub struct Dataset {
 /// Nested message and enum types in `Dataset`.
 pub mod dataset {
     /// Inline data or a reference to the data.
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum Dataset {
         /// Optional. Inline examples with simple input/output text.
@@ -4277,6 +4417,7 @@ pub mod dataset {
     }
 }
 /// A set of tuning examples. Can be training or validation data.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct TuningExamples {
     /// The examples. Example input can be for text or discuss, but all examples
@@ -4295,6 +4436,7 @@ pub struct TuningExamples {
 ///
 /// A `Part` consists of data which has an associated datatype. A `Part` can
 /// only contain one of the accepted types in `Part.data`.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct TuningPart {
     /// Data for the part. Only text supported.
@@ -4304,6 +4446,7 @@ pub struct TuningPart {
 /// Nested message and enum types in `TuningPart`.
 pub mod tuning_part {
     /// Data for the part. Only text supported.
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, Eq, Hash, ::prost::Oneof)]
     pub enum Data {
         /// Inline text.
@@ -4317,6 +4460,7 @@ pub mod tuning_part {
 /// limited type support. A `Content` includes a `role` field designating the
 /// producer of the `Content` and a `parts` field containing multi-part data
 /// that contains the content of the message turn.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct TuningContent {
     /// Ordered `Parts` that constitute a single message. Parts may have different
@@ -4331,6 +4475,7 @@ pub struct TuningContent {
     pub role: ::prost::alloc::string::String,
 }
 /// A tuning example with multiturn input.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct TuningMultiturnExample {
     /// Optional. Developer set system instructions.
@@ -4342,6 +4487,7 @@ pub struct TuningMultiturnExample {
     pub contents: ::prost::alloc::vec::Vec<TuningContent>,
 }
 /// A single example for tuning.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct TuningExample {
     /// Required. The expected model output.
@@ -4354,6 +4500,7 @@ pub struct TuningExample {
 /// Nested message and enum types in `TuningExample`.
 pub mod tuning_example {
     /// The input to the model for this example.
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, Eq, Hash, ::prost::Oneof)]
     pub enum ModelInput {
         /// Optional. Text model input.
@@ -4362,6 +4509,7 @@ pub mod tuning_example {
     }
 }
 /// Record for a single tuning step.
+#[allow(clippy::all)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct TuningSnapshot {
     /// Output only. The tuning step.
@@ -4378,6 +4526,7 @@ pub struct TuningSnapshot {
     pub compute_time: ::core::option::Option<::prost_types::Timestamp>,
 }
 /// Request for getting information about a specific Model.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct GetModelRequest {
     /// Required. The resource name of the model.
@@ -4389,6 +4538,7 @@ pub struct GetModelRequest {
     pub name: ::prost::alloc::string::String,
 }
 /// Request for listing all Models.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct ListModelsRequest {
     /// The maximum number of `Models` to return (per page).
@@ -4409,6 +4559,7 @@ pub struct ListModelsRequest {
     pub page_token: ::prost::alloc::string::String,
 }
 /// Response from `ListModel` containing a paginated list of Models.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ListModelsResponse {
     /// The returned Models.
@@ -4421,6 +4572,7 @@ pub struct ListModelsResponse {
     pub next_page_token: ::prost::alloc::string::String,
 }
 /// Request for getting information about a specific Model.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct GetTunedModelRequest {
     /// Required. The resource name of the model.
@@ -4430,6 +4582,7 @@ pub struct GetTunedModelRequest {
     pub name: ::prost::alloc::string::String,
 }
 /// Request for listing TunedModels.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct ListTunedModelsRequest {
     /// Optional. The maximum number of `TunedModels` to return (per page).
@@ -4468,6 +4621,7 @@ pub struct ListTunedModelsRequest {
     pub filter: ::prost::alloc::string::String,
 }
 /// Response from `ListTunedModels` containing a paginated list of Models.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ListTunedModelsResponse {
     /// The returned Models.
@@ -4480,6 +4634,7 @@ pub struct ListTunedModelsResponse {
     pub next_page_token: ::prost::alloc::string::String,
 }
 /// Request to create a TunedModel.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CreateTunedModelRequest {
     /// Optional. The unique id for the tuned model if specified.
@@ -4494,6 +4649,7 @@ pub struct CreateTunedModelRequest {
 }
 /// Metadata about the state and progress of creating a tuned model returned from
 /// the long-running operation
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CreateTunedModelMetadata {
     /// Name of the tuned model associated with the tuning operation.
@@ -4513,6 +4669,7 @@ pub struct CreateTunedModelMetadata {
     pub snapshots: ::prost::alloc::vec::Vec<TuningSnapshot>,
 }
 /// Request to update a TunedModel.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct UpdateTunedModelRequest {
     /// Required. The tuned model to update.
@@ -4523,6 +4680,7 @@ pub struct UpdateTunedModelRequest {
     pub update_mask: ::core::option::Option<::prost_types::FieldMask>,
 }
 /// Request to delete a TunedModel.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct DeleteTunedModelRequest {
     /// Required. The resource name of the model.
@@ -4848,6 +5006,7 @@ pub mod model_service_client {
 /// * reader can use the resource (e.g. tuned model, corpus) for inference
 /// * writer has reader's permissions and additionally can edit and share
 /// * owner has writer's permissions and additionally can delete
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct Permission {
     /// Output only. Identifier. The permission name. A unique name will be
@@ -4872,6 +5031,7 @@ pub struct Permission {
 /// Nested message and enum types in `Permission`.
 pub mod permission {
     /// Defines types of the grantee of this permission.
+    #[allow(clippy::all)]
     #[derive(
         Clone,
         Copy,
@@ -4920,6 +5080,7 @@ pub mod permission {
         }
     }
     /// Defines the role granted by this permission.
+    #[allow(clippy::all)]
     #[derive(
         Clone,
         Copy,
@@ -4968,6 +5129,7 @@ pub mod permission {
     }
 }
 /// Request to create a `Permission`.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct CreatePermissionRequest {
     /// Required. The parent resource of the `Permission`.
@@ -4981,6 +5143,7 @@ pub struct CreatePermissionRequest {
     pub permission: ::core::option::Option<Permission>,
 }
 /// Request for getting information about a specific `Permission`.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct GetPermissionRequest {
     /// Required. The resource name of the permission.
@@ -4992,6 +5155,7 @@ pub struct GetPermissionRequest {
     pub name: ::prost::alloc::string::String,
 }
 /// Request for listing permissions.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct ListPermissionsRequest {
     /// Required. The parent resource of the permissions.
@@ -5020,6 +5184,7 @@ pub struct ListPermissionsRequest {
 }
 /// Response from `ListPermissions` containing a paginated list of
 /// permissions.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ListPermissionsResponse {
     /// Returned permissions.
@@ -5032,6 +5197,7 @@ pub struct ListPermissionsResponse {
     pub next_page_token: ::prost::alloc::string::String,
 }
 /// Request to update the `Permission`.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct UpdatePermissionRequest {
     /// Required. The permission to update.
@@ -5046,6 +5212,7 @@ pub struct UpdatePermissionRequest {
     pub update_mask: ::core::option::Option<::prost_types::FieldMask>,
 }
 /// Request to delete the `Permission`.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct DeletePermissionRequest {
     /// Required. The resource name of the permission.
@@ -5056,6 +5223,7 @@ pub struct DeletePermissionRequest {
     pub name: ::prost::alloc::string::String,
 }
 /// Request to transfer the ownership of the tuned model.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct TransferOwnershipRequest {
     /// Required. The resource name of the tuned model to transfer ownership.
@@ -5069,6 +5237,7 @@ pub struct TransferOwnershipRequest {
     pub email_address: ::prost::alloc::string::String,
 }
 /// Response from `TransferOwnership`.
+#[allow(clippy::all)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct TransferOwnershipResponse {}
 /// Generated client implementations.
@@ -5337,6 +5506,7 @@ pub mod permission_service_client {
 }
 /// Request message for
 /// \[PredictionService.Predict\]\[google.ai.generativelanguage.v1alpha.PredictionService.Predict\].
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct PredictRequest {
     /// Required. The name of the model for prediction.
@@ -5351,6 +5521,7 @@ pub struct PredictRequest {
     pub parameters: ::core::option::Option<::prost_types::Value>,
 }
 /// Response message for \[PredictionService.Predict\].
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct PredictResponse {
     /// The outputs of the prediction call.
@@ -5482,6 +5653,7 @@ pub mod prediction_service_client {
     }
 }
 /// Request to create a `Corpus`.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct CreateCorpusRequest {
     /// Required. The `Corpus` to create.
@@ -5489,6 +5661,7 @@ pub struct CreateCorpusRequest {
     pub corpus: ::core::option::Option<Corpus>,
 }
 /// Request for getting information about a specific `Corpus`.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct GetCorpusRequest {
     /// Required. The name of the `Corpus`.
@@ -5497,6 +5670,7 @@ pub struct GetCorpusRequest {
     pub name: ::prost::alloc::string::String,
 }
 /// Request to update a `Corpus`.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct UpdateCorpusRequest {
     /// Required. The `Corpus` to update.
@@ -5508,6 +5682,7 @@ pub struct UpdateCorpusRequest {
     pub update_mask: ::core::option::Option<::prost_types::FieldMask>,
 }
 /// Request to delete a `Corpus`.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct DeleteCorpusRequest {
     /// Required. The resource name of the `Corpus`.
@@ -5523,6 +5698,7 @@ pub struct DeleteCorpusRequest {
     pub force: bool,
 }
 /// Request for listing `Corpora`.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct ListCorporaRequest {
     /// Optional. The maximum number of `Corpora` to return (per page).
@@ -5544,6 +5720,7 @@ pub struct ListCorporaRequest {
 }
 /// Response from `ListCorpora` containing a paginated list of `Corpora`.
 /// The results are sorted by ascending `corpus.create_time`.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ListCorporaResponse {
     /// The returned corpora.
@@ -5555,6 +5732,7 @@ pub struct ListCorporaResponse {
     pub next_page_token: ::prost::alloc::string::String,
 }
 /// Request for querying a `Corpus`.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct QueryCorpusRequest {
     /// Required. The name of the `Corpus` to query.
@@ -5606,6 +5784,7 @@ pub struct QueryCorpusRequest {
     pub results_count: i32,
 }
 /// Response from `QueryCorpus` containing a list of relevant chunks.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct QueryCorpusResponse {
     /// The relevant chunks.
@@ -5613,6 +5792,7 @@ pub struct QueryCorpusResponse {
     pub relevant_chunks: ::prost::alloc::vec::Vec<RelevantChunk>,
 }
 /// The information for a chunk relevant to a query.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct RelevantChunk {
     /// `Chunk` relevance to the query.
@@ -5623,6 +5803,7 @@ pub struct RelevantChunk {
     pub chunk: ::core::option::Option<Chunk>,
 }
 /// Request to create a `Document`.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CreateDocumentRequest {
     /// Required. The name of the `Corpus` where this `Document` will be created.
@@ -5634,6 +5815,7 @@ pub struct CreateDocumentRequest {
     pub document: ::core::option::Option<Document>,
 }
 /// Request for getting information about a specific `Document`.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct GetDocumentRequest {
     /// Required. The name of the `Document` to retrieve.
@@ -5642,6 +5824,7 @@ pub struct GetDocumentRequest {
     pub name: ::prost::alloc::string::String,
 }
 /// Request to update a `Document`.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct UpdateDocumentRequest {
     /// Required. The `Document` to update.
@@ -5654,6 +5837,7 @@ pub struct UpdateDocumentRequest {
     pub update_mask: ::core::option::Option<::prost_types::FieldMask>,
 }
 /// Request to delete a `Document`.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct DeleteDocumentRequest {
     /// Required. The resource name of the `Document` to delete.
@@ -5669,6 +5853,7 @@ pub struct DeleteDocumentRequest {
     pub force: bool,
 }
 /// Request for listing `Document`s.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct ListDocumentsRequest {
     /// Required. The name of the `Corpus` containing `Document`s.
@@ -5694,6 +5879,7 @@ pub struct ListDocumentsRequest {
 }
 /// Response from `ListDocuments` containing a paginated list of `Document`s.
 /// The `Document`s are sorted by ascending `document.create_time`.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ListDocumentsResponse {
     /// The returned `Document`s.
@@ -5705,6 +5891,7 @@ pub struct ListDocumentsResponse {
     pub next_page_token: ::prost::alloc::string::String,
 }
 /// Request for querying a `Document`.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct QueryDocumentRequest {
     /// Required. The name of the `Document` to query.
@@ -5756,6 +5943,7 @@ pub struct QueryDocumentRequest {
     pub metadata_filters: ::prost::alloc::vec::Vec<MetadataFilter>,
 }
 /// Response from `QueryDocument` containing a list of relevant chunks.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct QueryDocumentResponse {
     /// The returned relevant chunks.
@@ -5763,6 +5951,7 @@ pub struct QueryDocumentResponse {
     pub relevant_chunks: ::prost::alloc::vec::Vec<RelevantChunk>,
 }
 /// Request to create a `Chunk`.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CreateChunkRequest {
     /// Required. The name of the `Document` where this `Chunk` will be created.
@@ -5774,6 +5963,7 @@ pub struct CreateChunkRequest {
     pub chunk: ::core::option::Option<Chunk>,
 }
 /// Request to batch create `Chunk`s.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct BatchCreateChunksRequest {
     /// Optional. The name of the `Document` where this batch of `Chunk`s will be
@@ -5787,6 +5977,7 @@ pub struct BatchCreateChunksRequest {
     pub requests: ::prost::alloc::vec::Vec<CreateChunkRequest>,
 }
 /// Response from `BatchCreateChunks` containing a list of created `Chunk`s.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct BatchCreateChunksResponse {
     /// `Chunk`s created.
@@ -5794,6 +5985,7 @@ pub struct BatchCreateChunksResponse {
     pub chunks: ::prost::alloc::vec::Vec<Chunk>,
 }
 /// Request for getting information about a specific `Chunk`.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct GetChunkRequest {
     /// Required. The name of the `Chunk` to retrieve.
@@ -5802,6 +5994,7 @@ pub struct GetChunkRequest {
     pub name: ::prost::alloc::string::String,
 }
 /// Request to update a `Chunk`.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct UpdateChunkRequest {
     /// Required. The `Chunk` to update.
@@ -5813,6 +6006,7 @@ pub struct UpdateChunkRequest {
     pub update_mask: ::core::option::Option<::prost_types::FieldMask>,
 }
 /// Request to batch update `Chunk`s.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct BatchUpdateChunksRequest {
     /// Optional. The name of the `Document` containing the `Chunk`s to update.
@@ -5826,6 +6020,7 @@ pub struct BatchUpdateChunksRequest {
     pub requests: ::prost::alloc::vec::Vec<UpdateChunkRequest>,
 }
 /// Response from `BatchUpdateChunks` containing a list of updated `Chunk`s.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct BatchUpdateChunksResponse {
     /// `Chunk`s updated.
@@ -5833,6 +6028,7 @@ pub struct BatchUpdateChunksResponse {
     pub chunks: ::prost::alloc::vec::Vec<Chunk>,
 }
 /// Request to delete a `Chunk`.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct DeleteChunkRequest {
     /// Required. The resource name of the `Chunk` to delete.
@@ -5841,6 +6037,7 @@ pub struct DeleteChunkRequest {
     pub name: ::prost::alloc::string::String,
 }
 /// Request to batch delete `Chunk`s.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct BatchDeleteChunksRequest {
     /// Optional. The name of the `Document` containing the `Chunk`s to delete.
@@ -5853,6 +6050,7 @@ pub struct BatchDeleteChunksRequest {
     pub requests: ::prost::alloc::vec::Vec<DeleteChunkRequest>,
 }
 /// Request for listing `Chunk`s.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct ListChunksRequest {
     /// Required. The name of the `Document` containing `Chunk`s.
@@ -5878,6 +6076,7 @@ pub struct ListChunksRequest {
 }
 /// Response from `ListChunks` containing a paginated list of `Chunk`s.
 /// The `Chunk`s are sorted by ascending `chunk.create_time`.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ListChunksResponse {
     /// The returned `Chunk`s.
@@ -6544,6 +6743,7 @@ pub mod retriever_service_client {
     }
 }
 /// Request to generate a text completion response from the model.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct GenerateTextRequest {
     /// Required. The name of the `Model` or `TunedModel` to use for generating the
@@ -6629,6 +6829,7 @@ pub struct GenerateTextRequest {
     pub stop_sequences: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
 }
 /// The response from the model, including candidate completions.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct GenerateTextResponse {
     /// Candidate responses from the model.
@@ -6654,6 +6855,7 @@ pub struct GenerateTextResponse {
 /// Text given to the model as a prompt.
 ///
 /// The Model will use this TextPrompt to Generate a text completion.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct TextPrompt {
     /// Required. The prompt text.
@@ -6661,6 +6863,7 @@ pub struct TextPrompt {
     pub text: ::prost::alloc::string::String,
 }
 /// Output text returned from a model.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct TextCompletion {
     /// Output only. The generated text returned from the model.
@@ -6680,6 +6883,7 @@ pub struct TextCompletion {
     pub citation_metadata: ::core::option::Option<CitationMetadata>,
 }
 /// Request to get a text embedding from the model.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct EmbedTextRequest {
     /// Required. The model name to use with the format model=models/{model}.
@@ -6691,6 +6895,7 @@ pub struct EmbedTextRequest {
     pub text: ::prost::alloc::string::String,
 }
 /// The response to a EmbedTextRequest.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct EmbedTextResponse {
     /// Output only. The embedding generated from the input text.
@@ -6698,6 +6903,7 @@ pub struct EmbedTextResponse {
     pub embedding: ::core::option::Option<Embedding>,
 }
 /// Batch request to get a text embedding from the model.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct BatchEmbedTextRequest {
     /// Required. The name of the `Model` to use for generating the embedding.
@@ -6716,6 +6922,7 @@ pub struct BatchEmbedTextRequest {
     pub requests: ::prost::alloc::vec::Vec<EmbedTextRequest>,
 }
 /// The response to a EmbedTextRequest.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct BatchEmbedTextResponse {
     /// Output only. The embeddings generated from the input text.
@@ -6723,6 +6930,7 @@ pub struct BatchEmbedTextResponse {
     pub embeddings: ::prost::alloc::vec::Vec<Embedding>,
 }
 /// A list of floats representing the embedding.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Embedding {
     /// The embedding values.
@@ -6733,6 +6941,7 @@ pub struct Embedding {
 ///
 /// Models may tokenize text differently, so each model may return a different
 /// `token_count`.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct CountTextTokensRequest {
     /// Required. The model's resource name. This serves as an ID for the Model to
@@ -6750,6 +6959,7 @@ pub struct CountTextTokensRequest {
 /// A response from `CountTextTokens`.
 ///
 /// It returns the model's `token_count` for the `prompt`.
+#[allow(clippy::all)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct CountTextTokensResponse {
     /// The number of tokens that the `model` tokenizes the `prompt` into.

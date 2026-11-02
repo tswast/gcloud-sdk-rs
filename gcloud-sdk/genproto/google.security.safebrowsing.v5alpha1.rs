@@ -8,6 +8,7 @@
 /// states of the hash lists in their local database. This is for improved
 /// privacy. Furthermore, clients don't need to send which threat types they are
 /// interested in.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct SearchHashesRequest {
     /// Required. The hash prefixes to be looked up. Clients MUST NOT send more
@@ -49,6 +50,7 @@ pub struct SearchHashesRequest {
 /// threats (e.g. both MALWARE and SOCIAL_ENGINEERING), the full hash does not
 /// need to be sent twice as in V4. Furthermore, the cache duration has been
 /// simplified into a single `cache_duration` field.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SearchHashesResponse {
     /// Unordered list. The unordered list of full hashes found.
@@ -73,6 +75,7 @@ pub struct SearchHashesResponse {
     pub cache_duration: ::core::option::Option<::prost_types::Duration>,
 }
 /// The full hash identified with one or more matches.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct FullHash {
     /// The matching full hash. This is the SHA256 hash. The length will be exactly
@@ -99,6 +102,7 @@ pub mod full_hash {
     /// responsibility to check for the validity of all `ThreatType` and
     /// `ThreatAttribute` enum values; if any value is considered invalid, the
     /// client MUST disregard the entire `FullHashDetail` message.
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
     pub struct FullHashDetail {
         /// The type of threat. This field will never be empty.
@@ -126,6 +130,7 @@ pub mod full_hash {
 /// many client implementations: all hashes in a list now have a single length,
 /// permitting much more efficient client implementations. Constraints have been
 /// simplified, and compression type is removed (compression is always applied).
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct GetHashListRequest {
     /// Required. The name of this particular hash list. It may be a threat list,
@@ -148,6 +153,7 @@ pub struct GetHashListRequest {
     pub size_constraints: ::core::option::Option<SizeConstraints>,
 }
 /// The constraints on the sizes of the hash lists.
+#[allow(clippy::all)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct SizeConstraints {
     /// The maximum size in number of entries. The update will not contain more
@@ -180,6 +186,7 @@ pub struct SizeConstraints {
 /// is now available with hash prefixes longer than 4 bytes; secondly, the
 /// encoded data are now treated as big-endian so as to avoid a costly sorting
 /// step.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct RiceDeltaEncoded32Bit {
     /// The first entry in the encoded data (hashes or indices), or, if only a
@@ -201,6 +208,7 @@ pub struct RiceDeltaEncoded32Bit {
     pub encoded_data: ::prost::alloc::vec::Vec<u8>,
 }
 /// Same as `RiceDeltaEncoded32Bit` except this encodes 64-bit numbers.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct RiceDeltaEncoded64Bit {
     /// The first entry in the encoded data (hashes), or, if only a single
@@ -222,6 +230,7 @@ pub struct RiceDeltaEncoded64Bit {
     pub encoded_data: ::prost::alloc::vec::Vec<u8>,
 }
 /// Same as `RiceDeltaEncoded32Bit` except this encodes 128-bit numbers.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct RiceDeltaEncoded128Bit {
     /// The upper 64 bits of the first entry in the encoded data (hashes). If the
@@ -246,6 +255,7 @@ pub struct RiceDeltaEncoded128Bit {
     pub encoded_data: ::prost::alloc::vec::Vec<u8>,
 }
 /// Same as `RiceDeltaEncoded32Bit` except this encodes 256-bit numbers.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct RiceDeltaEncoded256Bit {
     /// The first 64 bits of the first entry in the encoded data (hashes). If the
@@ -278,6 +288,7 @@ pub struct RiceDeltaEncoded256Bit {
     pub encoded_data: ::prost::alloc::vec::Vec<u8>,
 }
 /// Metadata about a particular hash list.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct HashListMetadata {
     /// Unordered list. If not empty, this specifies that the hash list is a kind
@@ -306,6 +317,7 @@ pub struct HashListMetadata {
 /// Nested message and enum types in `HashListMetadata`.
 pub mod hash_list_metadata {
     /// The length of hashes in a hash list.
+    #[allow(clippy::all)]
     #[derive(
         Clone,
         Copy,
@@ -358,6 +370,7 @@ pub mod hash_list_metadata {
     }
 }
 /// A list of hashes identified by its name.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct HashList {
     /// The name of the hash list. Note that the Global Cache is also just a hash
@@ -412,6 +425,7 @@ pub struct HashList {
 pub mod hash_list {
     /// The Rice-delta encoded version of additions. The hash prefix lengths of
     /// additions are uniform across all additions in the list.
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, Eq, Hash, ::prost::Oneof)]
     pub enum CompressedAdditions {
         /// The 4-byte additions.
@@ -429,6 +443,7 @@ pub mod hash_list {
     }
 }
 /// The request to get multiple hash lists at the same time.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct BatchGetHashListsRequest {
     /// Required. The names of the particular hash lists. The list MAY be a threat
@@ -458,6 +473,7 @@ pub struct BatchGetHashListsRequest {
     pub size_constraints: ::core::option::Option<SizeConstraints>,
 }
 /// The response containing multiple hash lists.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct BatchGetHashListsResponse {
     /// The hash lists in the same order given in the request.
@@ -465,6 +481,7 @@ pub struct BatchGetHashListsResponse {
     pub hash_lists: ::prost::alloc::vec::Vec<HashList>,
 }
 /// The request to list the available hash lists.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct ListHashListsRequest {
     /// The maximum number of hash lists to return. The service may return fewer
@@ -479,6 +496,7 @@ pub struct ListHashListsRequest {
     pub page_token: ::prost::alloc::string::String,
 }
 /// The response containing metadata about hash lists.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ListHashListsResponse {
     /// The hash lists in an arbitrary order. Only metadata about the
@@ -491,6 +509,7 @@ pub struct ListHashListsResponse {
     pub next_page_token: ::prost::alloc::string::String,
 }
 /// Types of threats.
+#[allow(clippy::all)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
 #[repr(i32)]
 pub enum ThreatType {
@@ -558,6 +577,7 @@ impl ThreatType {
 ///
 /// Note that the `SearchHashesResponse` intentionally does not contain
 /// `LikelySafeType`.
+#[allow(clippy::all)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
 #[repr(i32)]
 pub enum LikelySafeType {
@@ -601,6 +621,7 @@ impl LikelySafeType {
 /// particular threat but will not affect the threat type. For example, an
 /// attribute may specify a lower confidence while a different attribute may
 /// specify higher confidence. More attributes may be added in the future.
+#[allow(clippy::all)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
 #[repr(i32)]
 pub enum ThreatAttribute {

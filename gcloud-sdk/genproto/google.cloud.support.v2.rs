@@ -2,6 +2,7 @@
 /// An Actor represents an entity that performed an action. For example, an actor
 /// could be a user who posted a comment on a support case, a user who
 /// uploaded an attachment, or a service account that created a support case.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct Actor {
     /// The name to display for the actor. If not provided, it is inferred from
@@ -38,6 +39,7 @@ pub struct Actor {
 /// While attachments can be uploaded in the console at the
 /// same time as a comment, they're associated on a "case" level, not a
 /// "comment" level.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct Attachment {
     /// Output only. Identifier. The resource name of the attachment.
@@ -61,6 +63,7 @@ pub struct Attachment {
     pub size_bytes: i64,
 }
 /// The request message for the ListAttachments endpoint.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct ListAttachmentsRequest {
     /// Required. The name of the case for which attachments should be listed.
@@ -82,6 +85,7 @@ pub struct ListAttachmentsRequest {
     pub page_token: ::prost::alloc::string::String,
 }
 /// Request for getting an attachment.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct GetAttachmentRequest {
     /// Required. The name of the attachment to get.
@@ -89,6 +93,7 @@ pub struct GetAttachmentRequest {
     pub name: ::prost::alloc::string::String,
 }
 /// The response message for the ListAttachments endpoint.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ListAttachmentsResponse {
     /// The list of attachments associated with a case.
@@ -308,6 +313,7 @@ pub mod case_attachment_service_client {
 ///
 /// You can use either of them when calling the API. To learn more
 /// about project identifiers, see [AIP-2510](<https://google.aip.dev/cloud/2510>).
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct Case {
     /// Identifier. The resource name for the case.
@@ -376,6 +382,7 @@ pub struct Case {
 /// Nested message and enum types in `Case`.
 pub mod case {
     /// The status of a support case.
+    #[allow(clippy::all)]
     #[derive(
         Clone,
         Copy,
@@ -431,6 +438,7 @@ pub mod case {
         }
     }
     /// The case Priority. P0 is most urgent and P4 the least.
+    #[allow(clippy::all)]
     #[derive(
         Clone,
         Copy,
@@ -495,6 +503,7 @@ pub mod case {
 ///
 /// A classification always has an ID that is its unique identifier.
 /// A valid ID is required when creating a case.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct CaseClassification {
     /// The unique ID for a classification. Must be specified for case creation.
@@ -516,6 +525,7 @@ pub struct CaseClassification {
     pub display_name: ::prost::alloc::string::String,
 }
 /// An escalation of a support case.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct Escalation {
     /// Required. The reason why the Case is being escalated.
@@ -529,6 +539,7 @@ pub struct Escalation {
 /// Nested message and enum types in `Escalation`.
 pub mod escalation {
     /// An enum detailing the possible reasons a case may be escalated.
+    #[allow(clippy::all)]
     #[derive(
         Clone,
         Copy,
@@ -578,6 +589,7 @@ pub mod escalation {
     }
 }
 /// The request message for the GetCase endpoint.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct GetCaseRequest {
     /// Required. The full name of a case to be retrieved.
@@ -585,6 +597,7 @@ pub struct GetCaseRequest {
     pub name: ::prost::alloc::string::String,
 }
 /// The request message for the CreateCase endpoint.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct CreateCaseRequest {
     /// Required. The name of the parent under which the case should be created.
@@ -595,6 +608,7 @@ pub struct CreateCaseRequest {
     pub case: ::core::option::Option<Case>,
 }
 /// The request message for the ListCases endpoint.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct ListCasesRequest {
     /// Required. The name of a parent to list cases under.
@@ -630,6 +644,7 @@ pub struct ListCasesRequest {
     pub page_token: ::prost::alloc::string::String,
 }
 /// The response message for the ListCases endpoint.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ListCasesResponse {
     /// The list of cases associated with the parent after any
@@ -643,6 +658,7 @@ pub struct ListCasesResponse {
     pub next_page_token: ::prost::alloc::string::String,
 }
 /// The request message for the SearchCases endpoint.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct SearchCasesRequest {
     /// The name of the parent resource to search for cases under.
@@ -653,16 +669,11 @@ pub struct SearchCasesRequest {
     /// Expressions use the following fields separated by `AND` and specified with
     /// `=`:
     ///
-    /// * `organization`: An organization name in the form
-    ///   `organizations/<organization_id>`.
-    /// * `project`: A project name in the form `projects/<project_id>`.
     /// * `state`: Can be `OPEN` or `CLOSED`.
     /// * `priority`: Can be `P0`, `P1`, `P2`, `P3`, or `P4`. You
     ///   can specify multiple values for priority using the `OR` operator. For
     ///   example, `priority=P1 OR priority=P2`.
     /// * `creator.email`: The email address of the case creator.
-    ///
-    /// You must specify either `organization` or `project`.
     ///
     /// To search across `displayName`, `description`, and comments, use a global
     /// restriction with no keyword or operator. For example, `"my search"`.
@@ -672,7 +683,28 @@ pub struct SearchCasesRequest {
     /// format. For example, `update_time>"2020-01-01T00:00:00-05:00"`.
     /// `update_time` only supports the greater than operator (`>`).
     ///
+    /// If you are using the `v2` version of the API, you must specify the case
+    /// parent in the `parent` field. If you provide an empty `query`, all cases
+    /// under the parent resource will be returned.
+    ///
+    /// If you are using the `v2beta` version of the API, you must specify the case
+    /// parent in the `query` field using one of the two fields below, which are
+    /// only available for `v2beta`. The `parent` field will be ignored.
+    ///
+    /// * `organization`: An organization name in the form
+    ///   `organizations/<organization_id>`.
+    /// * `project`: A project name in the form `projects/<project_id>`.
+    ///
     /// Examples:
+    ///
+    /// For `v2`:
+    ///
+    /// * `state=CLOSED`
+    /// * `state=OPEN AND creator.email="tester@example.com"`
+    /// * `state=OPEN AND (priority=P0 OR priority=P1)`
+    /// * `update_time>"2020-01-01T00:00:00-05:00"`
+    ///
+    /// For `v2beta`:
     ///
     /// * `organization="organizations/123456789"`
     /// * `project="projects/my-project-id"`
@@ -692,6 +724,7 @@ pub struct SearchCasesRequest {
     pub page_token: ::prost::alloc::string::String,
 }
 /// The response message for the SearchCases endpoint.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SearchCasesResponse {
     /// The list of cases associated with the parent after any
@@ -705,6 +738,7 @@ pub struct SearchCasesResponse {
     pub next_page_token: ::prost::alloc::string::String,
 }
 /// The request message for the EscalateCase endpoint.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct EscalateCaseRequest {
     /// Required. The name of the case to be escalated.
@@ -715,6 +749,7 @@ pub struct EscalateCaseRequest {
     pub escalation: ::core::option::Option<Escalation>,
 }
 /// The request message for the UpdateCase endpoint
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct UpdateCaseRequest {
     /// Required. The case to update.
@@ -732,6 +767,7 @@ pub struct UpdateCaseRequest {
     pub update_mask: ::core::option::Option<::prost_types::FieldMask>,
 }
 /// The request message for the CloseCase endpoint.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct CloseCaseRequest {
     /// Required. The name of the case to close.
@@ -739,6 +775,7 @@ pub struct CloseCaseRequest {
     pub name: ::prost::alloc::string::String,
 }
 /// The request message for the SearchCaseClassifications endpoint.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct SearchCaseClassificationsRequest {
     /// An expression used to filter case classifications.
@@ -756,6 +793,7 @@ pub struct SearchCaseClassificationsRequest {
     pub page_token: ::prost::alloc::string::String,
 }
 /// The response message for SearchCaseClassifications endpoint.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SearchCaseClassificationsResponse {
     /// The classifications retrieved.
@@ -1096,6 +1134,7 @@ pub mod case_service_client {
 /// Case comments are the primary way for Google Support to communicate with a
 /// user who has opened a case. When a user responds to Google Support, the
 /// user's responses also appear as comments.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct Comment {
     /// Output only. Identifier. The resource name of the comment.
@@ -1122,6 +1161,7 @@ pub struct Comment {
     pub plain_text_body: ::prost::alloc::string::String,
 }
 /// The request message for the ListComments endpoint.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct ListCommentsRequest {
     /// Required. The name of the case for which to list comments.
@@ -1136,6 +1176,7 @@ pub struct ListCommentsRequest {
     pub page_token: ::prost::alloc::string::String,
 }
 /// The response message for the ListComments endpoint.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ListCommentsResponse {
     /// List of the comments associated with the case.
@@ -1148,6 +1189,7 @@ pub struct ListCommentsResponse {
     pub next_page_token: ::prost::alloc::string::String,
 }
 /// The request message for the CreateComment endpoint.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct CreateCommentRequest {
     /// Required. The name of the case to which the comment should be added.
@@ -1158,6 +1200,7 @@ pub struct CreateCommentRequest {
     pub comment: ::core::option::Option<Comment>,
 }
 /// The request message for the GetComment endpoint.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct GetCommentRequest {
     /// Required. The name of the comment to retrieve.
@@ -1367,6 +1410,609 @@ pub mod comment_service_client {
                     GrpcMethod::new(
                         "google.cloud.support.v2.CommentService",
                         "GetComment",
+                    ),
+                );
+            self.inner.unary(req, path, codec).await
+        }
+    }
+}
+/// A support event subscription.
+///
+/// You can also manage support event subscriptions using other tools:
+///
+/// * [`gcloud support  support-event-subscriptions`](/sdk/gcloud/reference/support/support-event-subscriptions)
+///   (or [`gcloud  beta`](/sdk/gcloud/reference/beta/support/support-event-subscriptions)
+///   for beta)
+/// * [Terraform
+///   `google_cloud_support_support_event_subscription`](<https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/cloud_support_support_event_subscription>)
+///   (or [google-beta
+///   provider](<https://registry.terraform.io/providers/hashicorp/google-beta/latest/docs/resources/cloud_support_support_event_subscription>)
+///   for beta)
+#[allow(clippy::all)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct SupportEventSubscription {
+    /// Identifier. The resource name of the support event subscription.
+    #[prost(string, tag = "1")]
+    pub name: ::prost::alloc::string::String,
+    /// Required. The name of the Pub/Sub topic to publish notifications to.
+    /// Format: projects/{project}/topics/{topic}
+    #[prost(string, tag = "2")]
+    pub pub_sub_topic: ::prost::alloc::string::String,
+    /// Output only. The state of the subscription.
+    #[prost(enumeration = "support_event_subscription::State", tag = "3")]
+    pub state: i32,
+    /// Output only. Reason why subscription is failing. State of subscription
+    /// must be FAILING in order for this to have a value.
+    #[prost(enumeration = "support_event_subscription::FailureReason", tag = "4")]
+    pub failure_reason: i32,
+    /// Output only. The time at which the subscription was created.
+    #[prost(message, optional, tag = "5")]
+    pub create_time: ::core::option::Option<::prost_types::Timestamp>,
+    /// Output only. The time at which the subscription was last updated.
+    #[prost(message, optional, tag = "6")]
+    pub update_time: ::core::option::Option<::prost_types::Timestamp>,
+    /// Output only. The time at which the subscription was deleted.
+    #[prost(message, optional, tag = "7")]
+    pub delete_time: ::core::option::Option<::prost_types::Timestamp>,
+    /// Output only. The time at which the subscription will be purged.
+    #[prost(message, optional, tag = "8")]
+    pub purge_time: ::core::option::Option<::prost_types::Timestamp>,
+}
+/// Nested message and enum types in `SupportEventSubscription`.
+pub mod support_event_subscription {
+    /// The state of the subscription.
+    #[allow(clippy::all)]
+    #[derive(
+        Clone,
+        Copy,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash,
+        PartialOrd,
+        Ord,
+        ::prost::Enumeration
+    )]
+    #[repr(i32)]
+    pub enum State {
+        /// Unspecified state.
+        Unspecified = 0,
+        /// Subscription is active and working.
+        Working = 1,
+        /// Subscription is failing. Notifications cannot be published for some
+        /// reason.
+        Failing = 2,
+        /// Subscription has been deleted and is pending purge. Notifications are not
+        /// sent for deleted subscriptions. Deleted subscriptions are purged after
+        /// their `purge_time` has passed.
+        Deleted = 3,
+    }
+    impl State {
+        /// String value of the enum field names used in the ProtoBuf definition.
+        ///
+        /// The values are not transformed in any way and thus are considered stable
+        /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+        pub fn as_str_name(&self) -> &'static str {
+            match self {
+                Self::Unspecified => "STATE_UNSPECIFIED",
+                Self::Working => "WORKING",
+                Self::Failing => "FAILING",
+                Self::Deleted => "DELETED",
+            }
+        }
+        /// Creates an enum from field names used in the ProtoBuf definition.
+        pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+            match value {
+                "STATE_UNSPECIFIED" => Some(Self::Unspecified),
+                "WORKING" => Some(Self::Working),
+                "FAILING" => Some(Self::Failing),
+                "DELETED" => Some(Self::Deleted),
+                _ => None,
+            }
+        }
+    }
+    /// The reason why the subscription is failing.
+    #[allow(clippy::all)]
+    #[derive(
+        Clone,
+        Copy,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash,
+        PartialOrd,
+        Ord,
+        ::prost::Enumeration
+    )]
+    #[repr(i32)]
+    pub enum FailureReason {
+        /// Unspecified failure reason.
+        Unspecified = 0,
+        /// The service account (i.e.
+        /// cloud-support-apievents@system.gserviceaccount.com) lacks the permission
+        /// to publish to the customer's Pub/Sub topic.
+        PermissionDenied = 1,
+        /// The specified Pub/Sub topic does not exist.
+        TopicNotFound = 2,
+        /// Message failed to publish due to a system-side error.
+        Other = 3,
+    }
+    impl FailureReason {
+        /// String value of the enum field names used in the ProtoBuf definition.
+        ///
+        /// The values are not transformed in any way and thus are considered stable
+        /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+        pub fn as_str_name(&self) -> &'static str {
+            match self {
+                Self::Unspecified => "FAILURE_REASON_UNSPECIFIED",
+                Self::PermissionDenied => "PERMISSION_DENIED",
+                Self::TopicNotFound => "TOPIC_NOT_FOUND",
+                Self::Other => "OTHER",
+            }
+        }
+        /// Creates an enum from field names used in the ProtoBuf definition.
+        pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+            match value {
+                "FAILURE_REASON_UNSPECIFIED" => Some(Self::Unspecified),
+                "PERMISSION_DENIED" => Some(Self::PermissionDenied),
+                "TOPIC_NOT_FOUND" => Some(Self::TopicNotFound),
+                "OTHER" => Some(Self::Other),
+                _ => None,
+            }
+        }
+    }
+}
+/// Request message for CreateSupportEventSubscription.
+#[allow(clippy::all)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct CreateSupportEventSubscriptionRequest {
+    /// Required. The parent resource name where the support event subscription
+    /// will be created. Format: organizations/{organization_id}
+    #[prost(string, tag = "1")]
+    pub parent: ::prost::alloc::string::String,
+    /// Required. The Pub/Sub configuration to create.
+    #[prost(message, optional, tag = "2")]
+    pub support_event_subscription: ::core::option::Option<SupportEventSubscription>,
+}
+/// Request message for GetSupportEventSubscription.
+#[allow(clippy::all)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct GetSupportEventSubscriptionRequest {
+    /// Required. The name of the support event subscription to retrieve.
+    /// Format:
+    /// organizations/{organization_id}/supportEventSubscriptions/{subscription_id}
+    #[prost(string, tag = "1")]
+    pub name: ::prost::alloc::string::String,
+}
+/// Request message for ListSupportEventSubscriptions.
+#[allow(clippy::all)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct ListSupportEventSubscriptionsRequest {
+    /// Required. The fully qualified name of the Cloud resource to list support
+    /// event subscriptions under. Format: organizations/{organization_id}
+    #[prost(string, tag = "1")]
+    pub parent: ::prost::alloc::string::String,
+    /// Optional. Filter expression based on AIP-160.
+    /// Supported fields:
+    ///
+    /// * pub_sub_topic
+    /// * state
+    ///
+    /// Examples:
+    ///
+    /// * `pub_sub_topic="projects/example-project/topics/example-topic"`
+    /// * `state=WORKING`
+    /// * `pub_sub_topic="projects/example-project/topics/example-topic" AND  state=WORKING`
+    #[prost(string, tag = "2")]
+    pub filter: ::prost::alloc::string::String,
+    /// Optional. Whether to show deleted subscriptions. By default, deleted
+    /// subscriptions are not returned.
+    #[prost(bool, tag = "3")]
+    pub show_deleted: bool,
+    /// Optional. The maximum number of support event subscriptions to return.
+    #[prost(int32, tag = "4")]
+    pub page_size: i32,
+    /// Optional. A token identifying the page of results to return. If
+    /// unspecified, the first page is retrieved.
+    ///
+    /// When paginating, all other parameters provided to
+    /// `ListSupportEventSubscriptions` must match the call that provided the page
+    /// token.
+    #[prost(string, tag = "5")]
+    pub page_token: ::prost::alloc::string::String,
+}
+/// Response message for ListSupportEventSubscriptions.
+#[allow(clippy::all)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct ListSupportEventSubscriptionsResponse {
+    /// The support event subscriptions.
+    #[prost(message, repeated, tag = "1")]
+    pub support_event_subscriptions: ::prost::alloc::vec::Vec<SupportEventSubscription>,
+    /// A token, which can be sent as `page_token` to retrieve the next page.
+    /// If this field is omitted, there are no subsequent pages.
+    #[prost(string, tag = "2")]
+    pub next_page_token: ::prost::alloc::string::String,
+}
+/// Request message for UpdateSupportEventSubscription.
+#[allow(clippy::all)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct UpdateSupportEventSubscriptionRequest {
+    /// Required. The support event subscription to update.
+    /// The `name` field is used to identify the configuration to update.
+    #[prost(message, optional, tag = "1")]
+    pub support_event_subscription: ::core::option::Option<SupportEventSubscription>,
+    /// Optional. The list of fields to update. The only supported value is
+    /// pub_sub_topic.
+    #[prost(message, optional, tag = "2")]
+    pub update_mask: ::core::option::Option<::prost_types::FieldMask>,
+}
+/// Request message for DeleteSupportEventSubscription.
+#[allow(clippy::all)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct DeleteSupportEventSubscriptionRequest {
+    /// Required. The name of the support event subscription to delete.
+    /// Format:
+    /// organizations/{organization_id}/supportEventSubscriptions/{subscription_id}
+    #[prost(string, tag = "1")]
+    pub name: ::prost::alloc::string::String,
+}
+/// Request message for UndeleteSupportEventSubscription.
+#[allow(clippy::all)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct UndeleteSupportEventSubscriptionRequest {
+    /// Required. The name of the support event subscription to undelete.
+    /// Format:
+    /// organizations/{organization_id}/supportEventSubscriptions/{subscription_id}
+    #[prost(string, tag = "1")]
+    pub name: ::prost::alloc::string::String,
+}
+/// Request message for ExpungeSupportEventSubscription.
+#[allow(clippy::all)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct ExpungeSupportEventSubscriptionRequest {
+    /// Required. The name of the support event subscription to expunge.
+    /// Format:
+    /// organizations/{organization_id}/supportEventSubscriptions/{subscription_id}
+    #[prost(string, tag = "1")]
+    pub name: ::prost::alloc::string::String,
+}
+/// Generated client implementations.
+pub mod support_event_subscription_service_client {
+    #![allow(
+        unused_variables,
+        dead_code,
+        missing_docs,
+        clippy::wildcard_imports,
+        clippy::let_unit_value,
+    )]
+    use tonic::codegen::*;
+    use tonic::codegen::http::Uri;
+    /// Service for managing customer support event subscriptions.
+    #[derive(Debug, Clone)]
+    pub struct SupportEventSubscriptionServiceClient<T> {
+        inner: tonic::client::Grpc<T>,
+    }
+    impl SupportEventSubscriptionServiceClient<tonic::transport::Channel> {
+        /// Attempt to create a new client by connecting to a given endpoint.
+        pub async fn connect<D>(dst: D) -> Result<Self, tonic::transport::Error>
+        where
+            D: TryInto<tonic::transport::Endpoint>,
+            D::Error: Into<StdError>,
+        {
+            let conn = tonic::transport::Endpoint::new(dst)?.connect().await?;
+            Ok(Self::new(conn))
+        }
+    }
+    impl<T> SupportEventSubscriptionServiceClient<T>
+    where
+        T: tonic::client::GrpcService<tonic::body::Body>,
+        T::Error: Into<StdError>,
+        T::ResponseBody: Body<Data = Bytes> + std::marker::Send + 'static,
+        <T::ResponseBody as Body>::Error: Into<StdError> + std::marker::Send,
+    {
+        pub fn new(inner: T) -> Self {
+            let inner = tonic::client::Grpc::new(inner);
+            Self { inner }
+        }
+        pub fn with_origin(inner: T, origin: Uri) -> Self {
+            let inner = tonic::client::Grpc::with_origin(inner, origin);
+            Self { inner }
+        }
+        pub fn with_interceptor<F>(
+            inner: T,
+            interceptor: F,
+        ) -> SupportEventSubscriptionServiceClient<InterceptedService<T, F>>
+        where
+            F: tonic::service::Interceptor,
+            T::ResponseBody: Default,
+            T: tonic::codegen::Service<
+                http::Request<tonic::body::Body>,
+                Response = http::Response<
+                    <T as tonic::client::GrpcService<tonic::body::Body>>::ResponseBody,
+                >,
+            >,
+            <T as tonic::codegen::Service<
+                http::Request<tonic::body::Body>,
+            >>::Error: Into<StdError> + std::marker::Send + std::marker::Sync,
+        {
+            SupportEventSubscriptionServiceClient::new(
+                InterceptedService::new(inner, interceptor),
+            )
+        }
+        /// Compress requests with the given encoding.
+        ///
+        /// This requires the server to support it otherwise it might respond with an
+        /// error.
+        #[must_use]
+        pub fn send_compressed(mut self, encoding: CompressionEncoding) -> Self {
+            self.inner = self.inner.send_compressed(encoding);
+            self
+        }
+        /// Enable decompressing responses.
+        #[must_use]
+        pub fn accept_compressed(mut self, encoding: CompressionEncoding) -> Self {
+            self.inner = self.inner.accept_compressed(encoding);
+            self
+        }
+        /// Limits the maximum size of a decoded message.
+        ///
+        /// Default: `4MB`
+        #[must_use]
+        pub fn max_decoding_message_size(mut self, limit: usize) -> Self {
+            self.inner = self.inner.max_decoding_message_size(limit);
+            self
+        }
+        /// Limits the maximum size of an encoded message.
+        ///
+        /// Default: `usize::MAX`
+        #[must_use]
+        pub fn max_encoding_message_size(mut self, limit: usize) -> Self {
+            self.inner = self.inner.max_encoding_message_size(limit);
+            self
+        }
+        /// Creates a support event subscription for an organization.
+        pub async fn create_support_event_subscription(
+            &mut self,
+            request: impl tonic::IntoRequest<
+                super::CreateSupportEventSubscriptionRequest,
+            >,
+        ) -> std::result::Result<
+            tonic::Response<super::SupportEventSubscription>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::unknown(
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic_prost::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/google.cloud.support.v2.SupportEventSubscriptionService/CreateSupportEventSubscription",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(
+                    GrpcMethod::new(
+                        "google.cloud.support.v2.SupportEventSubscriptionService",
+                        "CreateSupportEventSubscription",
+                    ),
+                );
+            self.inner.unary(req, path, codec).await
+        }
+        /// Gets a support event subscription.
+        pub async fn get_support_event_subscription(
+            &mut self,
+            request: impl tonic::IntoRequest<super::GetSupportEventSubscriptionRequest>,
+        ) -> std::result::Result<
+            tonic::Response<super::SupportEventSubscription>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::unknown(
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic_prost::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/google.cloud.support.v2.SupportEventSubscriptionService/GetSupportEventSubscription",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(
+                    GrpcMethod::new(
+                        "google.cloud.support.v2.SupportEventSubscriptionService",
+                        "GetSupportEventSubscription",
+                    ),
+                );
+            self.inner.unary(req, path, codec).await
+        }
+        /// Lists support event subscriptions for an organization.
+        pub async fn list_support_event_subscriptions(
+            &mut self,
+            request: impl tonic::IntoRequest<super::ListSupportEventSubscriptionsRequest>,
+        ) -> std::result::Result<
+            tonic::Response<super::ListSupportEventSubscriptionsResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::unknown(
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic_prost::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/google.cloud.support.v2.SupportEventSubscriptionService/ListSupportEventSubscriptions",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(
+                    GrpcMethod::new(
+                        "google.cloud.support.v2.SupportEventSubscriptionService",
+                        "ListSupportEventSubscriptions",
+                    ),
+                );
+            self.inner.unary(req, path, codec).await
+        }
+        /// Updates a support event subscription.
+        pub async fn update_support_event_subscription(
+            &mut self,
+            request: impl tonic::IntoRequest<
+                super::UpdateSupportEventSubscriptionRequest,
+            >,
+        ) -> std::result::Result<
+            tonic::Response<super::SupportEventSubscription>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::unknown(
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic_prost::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/google.cloud.support.v2.SupportEventSubscriptionService/UpdateSupportEventSubscription",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(
+                    GrpcMethod::new(
+                        "google.cloud.support.v2.SupportEventSubscriptionService",
+                        "UpdateSupportEventSubscription",
+                    ),
+                );
+            self.inner.unary(req, path, codec).await
+        }
+        /// Soft deletes a support event subscription.
+        pub async fn delete_support_event_subscription(
+            &mut self,
+            request: impl tonic::IntoRequest<
+                super::DeleteSupportEventSubscriptionRequest,
+            >,
+        ) -> std::result::Result<
+            tonic::Response<super::SupportEventSubscription>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::unknown(
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic_prost::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/google.cloud.support.v2.SupportEventSubscriptionService/DeleteSupportEventSubscription",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(
+                    GrpcMethod::new(
+                        "google.cloud.support.v2.SupportEventSubscriptionService",
+                        "DeleteSupportEventSubscription",
+                    ),
+                );
+            self.inner.unary(req, path, codec).await
+        }
+        /// Undeletes a support event subscription.
+        pub async fn undelete_support_event_subscription(
+            &mut self,
+            request: impl tonic::IntoRequest<
+                super::UndeleteSupportEventSubscriptionRequest,
+            >,
+        ) -> std::result::Result<
+            tonic::Response<super::SupportEventSubscription>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::unknown(
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic_prost::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/google.cloud.support.v2.SupportEventSubscriptionService/UndeleteSupportEventSubscription",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(
+                    GrpcMethod::new(
+                        "google.cloud.support.v2.SupportEventSubscriptionService",
+                        "UndeleteSupportEventSubscription",
+                    ),
+                );
+            self.inner.unary(req, path, codec).await
+        }
+        /// Expunges a support event subscription.
+        ///
+        /// EXAMPLES:
+        ///
+        /// cURL:
+        ///
+        /// ```text,shell
+        /// support_event_subscription="organizations/123456789/supportEventSubscriptions/abcdef123456"
+        /// curl \
+        ///  --request POST \
+        ///  --header "Authorization: Bearer $(gcloud auth print-access-token)" \
+        ///  "https://cloudsupport.googleapis.com/v2/$support_event_subscription:expunge"
+        /// ```
+        ///
+        /// Python:
+        ///
+        /// ```text,python
+        /// import googleapiclient.discovery
+        ///
+        /// api_version = "v2"
+        /// supportApiService = googleapiclient.discovery.build(
+        ///    serviceName="cloudsupport",
+        ///    version=api_version,
+        ///    discoveryServiceUrl=f"https://cloudsupport.googleapis.com/$discovery/rest?version={api_version}",
+        /// )
+        ///
+        /// request = supportApiService.supportEventSubscriptions().expunge(
+        ///    name="organizations/123456789/supportEventSubscriptions/abcdef123456"
+        /// )
+        /// print(request.execute())
+        /// ```
+        pub async fn expunge_support_event_subscription(
+            &mut self,
+            request: impl tonic::IntoRequest<
+                super::ExpungeSupportEventSubscriptionRequest,
+            >,
+        ) -> std::result::Result<tonic::Response<()>, tonic::Status> {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::unknown(
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic_prost::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/google.cloud.support.v2.SupportEventSubscriptionService/ExpungeSupportEventSubscription",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(
+                    GrpcMethod::new(
+                        "google.cloud.support.v2.SupportEventSubscriptionService",
+                        "ExpungeSupportEventSubscription",
                     ),
                 );
             self.inner.unary(req, path, codec).await

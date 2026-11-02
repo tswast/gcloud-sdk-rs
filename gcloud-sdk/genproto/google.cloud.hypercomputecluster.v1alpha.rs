@@ -5,6 +5,7 @@
 /// computations, storage resources that contain inputs and store outputs, an
 /// orchestrator that is responsible for assigning jobs to compute resources, and
 /// network resources that connect everything together.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Cluster {
     /// Identifier. [Relative resource name](<https://google.aip.dev/122>) of the
@@ -79,6 +80,7 @@ pub struct Cluster {
 }
 /// Request message for
 /// \[ListClusters\]\[google.cloud.hypercomputecluster.v1alpha.HypercomputeCluster.ListClusters\].
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct ListClustersRequest {
     /// Required. Parent location of the clusters to list, in the format
@@ -113,6 +115,7 @@ pub struct ListClustersRequest {
 }
 /// Response message for
 /// \[ListClusters\]\[google.cloud.hypercomputecluster.v1alpha.HypercomputeCluster.ListClusters\].
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ListClustersResponse {
     /// Clusters in the specified location.
@@ -128,6 +131,7 @@ pub struct ListClustersResponse {
 }
 /// Request message for
 /// \[GetCluster\]\[google.cloud.hypercomputecluster.v1alpha.HypercomputeCluster.GetCluster\].
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct GetClusterRequest {
     /// Required. Name of the cluster to retrieve, in the format
@@ -137,6 +141,7 @@ pub struct GetClusterRequest {
 }
 /// Request message for
 /// \[CreateCluster\]\[google.cloud.hypercomputecluster.v1alpha.HypercomputeCluster.CreateCluster\].
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CreateClusterRequest {
     /// Required. Parent location in which the cluster should be created, in the
@@ -159,6 +164,7 @@ pub struct CreateClusterRequest {
 }
 /// Request message for
 /// \[UpdateCluster\]\[google.cloud.hypercomputecluster.v1alpha.HypercomputeCluster.UpdateCluster\].
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct UpdateClusterRequest {
     /// Required. Cluster to update.
@@ -177,6 +183,7 @@ pub struct UpdateClusterRequest {
 }
 /// Request message for
 /// \[DeleteCluster\]\[google.cloud.hypercomputecluster.v1alpha.HypercomputeCluster.DeleteCluster\].
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct DeleteClusterRequest {
     /// Required. Name of the cluster to delete, in the format
@@ -191,6 +198,7 @@ pub struct DeleteClusterRequest {
 }
 /// Request message for
 /// \[GetNode\]\[google.cloud.hypercomputecluster.v1alpha.HypercomputeCluster.GetNode\].
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct GetNodeRequest {
     /// Required. Name of the node to retrieve, in the format
@@ -200,6 +208,7 @@ pub struct GetNodeRequest {
 }
 /// Request message for
 /// \[ListNodes\]\[google.cloud.hypercomputecluster.v1alpha.HypercomputeCluster.ListNodes\].
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct ListNodesRequest {
     /// Required. Parent cluster of the nodes to list, in the format
@@ -232,6 +241,7 @@ pub struct ListNodesRequest {
 }
 /// Response message for
 /// \[ListNodes\]\[google.cloud.hypercomputecluster.v1alpha.HypercomputeCluster.ListNodes\].
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ListNodesResponse {
     /// Nodes in the specified cluster.
@@ -244,6 +254,7 @@ pub struct ListNodesResponse {
 }
 /// A resource representing a network that connects the various components of a
 /// cluster together.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct NetworkResource {
     /// Immutable. Configuration for this network resource, which describes how it
@@ -262,6 +273,7 @@ pub struct NetworkResource {
 pub mod network_resource {
     /// Reference to the network resource in Google Cloud. Exactly one of these
     /// fields will be populated based on the configured type of network resource.
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, Eq, Hash, ::prost::Oneof)]
     pub enum Reference {
         /// Output only. Reference to a network in Google Compute Engine.
@@ -271,6 +283,7 @@ pub mod network_resource {
 }
 /// A reference to a [VPC network](<https://cloud.google.com/vpc/docs/vpc>) in
 /// Google Compute Engine.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct NetworkReference {
     /// Output only. Name of the network, in the format
@@ -286,6 +299,7 @@ pub struct NetworkReference {
 /// Describes how a network resource should be initialized. Each network resource
 /// can either be imported from an existing Google Cloud resource or initialized
 /// when the cluster is created.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct NetworkResourceConfig {
     /// Particular type of configuration for this network resource.
@@ -295,6 +309,7 @@ pub struct NetworkResourceConfig {
 /// Nested message and enum types in `NetworkResourceConfig`.
 pub mod network_resource_config {
     /// Particular type of configuration for this network resource.
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, Eq, Hash, ::prost::Oneof)]
     pub enum Config {
         /// Optional. Immutable. If set, indicates that a new network should be
@@ -310,6 +325,7 @@ pub mod network_resource_config {
 /// When set in a
 /// \[NetworkResourceConfig\]\[google.cloud.hypercomputecluster.v1alpha.NetworkResourceConfig\],
 /// indicates that a new network should be created.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct NewNetworkConfig {
     /// Required. Immutable. Name of the network to create, in the format
@@ -324,6 +340,7 @@ pub struct NewNetworkConfig {
 /// When set in a
 /// \[NetworkResourceConfig\]\[google.cloud.hypercomputecluster.v1alpha.NetworkResourceConfig\],
 /// indicates that an existing network should be imported.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct ExistingNetworkConfig {
     /// Required. Immutable. Name of the network to import, in the format
@@ -337,6 +354,7 @@ pub struct ExistingNetworkConfig {
 }
 /// A resource representing a form of persistent storage that is accessible to
 /// compute resources in the cluster.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct StorageResource {
     /// Required. Immutable. Configuration for this storage resource, which
@@ -355,6 +373,7 @@ pub struct StorageResource {
 pub mod storage_resource {
     /// Reference to the storage resource in Google Cloud. Exactly one of these
     /// fields will be populated based on the configured type of storage resource.
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, Eq, Hash, ::prost::Oneof)]
     pub enum Reference {
         /// Output only. Reference to a Filestore instance. Populated if and only if
@@ -372,6 +391,7 @@ pub mod storage_resource {
     }
 }
 /// A reference to a [Filestore](<https://cloud.google.com/filestore>) instance.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct FilestoreReference {
     /// Output only. Name of the Filestore instance, in the format
@@ -381,6 +401,7 @@ pub struct FilestoreReference {
 }
 /// A reference to a [Google Cloud Storage](<https://cloud.google.com/storage>)
 /// bucket.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct BucketReference {
     /// Output only. Name of the bucket.
@@ -389,6 +410,7 @@ pub struct BucketReference {
 }
 /// A reference to a [Managed
 /// Lustre](<https://cloud.google.com/products/managed-lustre>) instance.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct LustreReference {
     /// Output only. Name of the Managed Lustre instance, in the format
@@ -399,6 +421,7 @@ pub struct LustreReference {
 /// Describes how a storage resource should be initialized. Each storage resource
 /// can either be imported from an existing Google Cloud resource or initialized
 /// when the cluster is created.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct StorageResourceConfig {
     /// Particular type of configuration for this storage resource.
@@ -408,6 +431,7 @@ pub struct StorageResourceConfig {
 /// Nested message and enum types in `StorageResourceConfig`.
 pub mod storage_resource_config {
     /// Particular type of configuration for this storage resource.
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum Config {
         /// Optional. Immutable. If set, indicates that a new Filestore instance
@@ -440,6 +464,7 @@ pub mod storage_resource_config {
 /// \[StorageResourceConfig\]\[google.cloud.hypercomputecluster.v1alpha.StorageResourceConfig\],
 /// indicates that a new [Filestore](<https://cloud.google.com/filestore>) instance
 /// should be created.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct NewFilestoreConfig {
     /// Required. Immutable. Name of the Filestore instance to create, in the
@@ -467,6 +492,7 @@ pub mod new_filestore_config {
     /// Available [service
     /// tiers](<https://cloud.google.com/filestore/docs/service-tiers>) for Filestore
     /// instances.
+    #[allow(clippy::all)]
     #[derive(
         Clone,
         Copy,
@@ -512,6 +538,7 @@ pub mod new_filestore_config {
         }
     }
     /// File access protocol for Filestore instances.
+    #[allow(clippy::all)]
     #[derive(
         Clone,
         Copy,
@@ -556,6 +583,7 @@ pub mod new_filestore_config {
     }
 }
 /// Message describing filestore configuration
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct FileShareConfig {
     /// Required. Size of the filestore in GB. Must be between 1024 and 102400, and
@@ -571,6 +599,7 @@ pub struct FileShareConfig {
 /// \[StorageResourceConfig\]\[google.cloud.hypercomputecluster.v1alpha.StorageResourceConfig\],
 /// indicates that an existing [Filestore](<https://cloud.google.com/filestore>)
 /// instance should be imported.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct ExistingFilestoreConfig {
     /// Required. Immutable. Name of the Filestore instance to import, in the
@@ -582,6 +611,7 @@ pub struct ExistingFilestoreConfig {
 /// \[StorageResourceConfig\]\[google.cloud.hypercomputecluster.v1alpha.StorageResourceConfig\],
 /// indicates that a new [Google Cloud Storage](<https://cloud.google.com/storage>)
 /// bucket should be created.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct NewBucketConfig {
     /// Required. Immutable. Name of the Cloud Storage bucket to create.
@@ -600,6 +630,7 @@ pub struct NewBucketConfig {
 pub mod new_bucket_config {
     /// [Storage class](<https://cloud.google.com/storage/docs/storage-classes>) for
     /// a Cloud Storage bucket.
+    #[allow(clippy::all)]
     #[derive(
         Clone,
         Copy,
@@ -652,6 +683,7 @@ pub mod new_bucket_config {
         }
     }
     /// Storage class of the bucket, which can be set automatically or explicitly.
+    #[allow(clippy::all)]
     #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Oneof)]
     pub enum Option {
         /// Optional. Immutable. If set, indicates that the bucket should use
@@ -665,6 +697,7 @@ pub mod new_bucket_config {
     }
 }
 /// Message describing Google Cloud Storage autoclass configuration
+#[allow(clippy::all)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct GcsAutoclassConfig {
     /// Required. Enables Auto-class feature.
@@ -677,6 +710,7 @@ pub struct GcsAutoclassConfig {
 /// Nested message and enum types in `GcsAutoclassConfig`.
 pub mod gcs_autoclass_config {
     /// Terminal storage class types of the autoclass bucket
+    #[allow(clippy::all)]
     #[derive(
         Clone,
         Copy,
@@ -721,6 +755,7 @@ pub mod gcs_autoclass_config {
     }
 }
 /// Message describing Google Cloud Storage hierarchical namespace configuration
+#[allow(clippy::all)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct GcsHierarchicalNamespaceConfig {
     /// Required. Enables hierarchical namespace setup for the bucket.
@@ -731,6 +766,7 @@ pub struct GcsHierarchicalNamespaceConfig {
 /// \[StorageResourceConfig\]\[google.cloud.hypercomputecluster.v1alpha.StorageResourceConfig\],
 /// indicates that an existing [Google Cloud
 /// Storage](<https://cloud.google.com/storage>) bucket should be imported.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct ExistingBucketConfig {
     /// Required. Immutable. Name of the Cloud Storage bucket to import.
@@ -742,6 +778,7 @@ pub struct ExistingBucketConfig {
 /// indicates that a new [Managed
 /// Lustre](<https://cloud.google.com/products/managed-lustre>) instance should be
 /// created.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct NewLustreConfig {
     /// Required. Immutable. Name of the Managed Lustre instance to create, in the
@@ -773,6 +810,7 @@ pub struct NewLustreConfig {
 /// indicates that an existing [Managed
 /// Lustre](<https://cloud.google.com/products/managed-lustre>) instance should be
 /// imported.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct ExistingLustreConfig {
     /// Required. Immutable. Name of the Managed Lustre instance to import, in the
@@ -782,6 +820,7 @@ pub struct ExistingLustreConfig {
 }
 /// A resource defining how virtual machines and accelerators should be
 /// provisioned for the cluster.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ComputeResource {
     /// Required. Immutable. Configuration for this compute resource, which
@@ -790,6 +829,7 @@ pub struct ComputeResource {
     pub config: ::core::option::Option<ComputeResourceConfig>,
 }
 /// Describes how a compute resource should be created at runtime.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ComputeResourceConfig {
     /// Particular type of configuration for this compute resource.
@@ -799,6 +839,7 @@ pub struct ComputeResourceConfig {
 /// Nested message and enum types in `ComputeResourceConfig`.
 pub mod compute_resource_config {
     /// Particular type of configuration for this compute resource.
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum Config {
         /// Optional. Immutable. If set, indicates that this resource should use
@@ -823,6 +864,7 @@ pub mod compute_resource_config {
 /// \[ComputeResourceConfig\]\[google.cloud.hypercomputecluster.v1alpha.ComputeResourceConfig\],
 /// indicates that on-demand (i.e., using the standard provisioning model) VM
 /// instances should be created.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct NewOnDemandInstancesConfig {
     /// Required. Immutable. Name of the zone in which VM instances should run,
@@ -848,6 +890,7 @@ pub struct NewOnDemandInstancesConfig {
 /// indicates that [spot
 /// VM](<https://cloud.google.com/compute/docs/instances/spot>) instances should be
 /// created.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct NewSpotInstancesConfig {
     /// Required. Immutable. Name of the zone in which VM instances should run,
@@ -875,6 +918,7 @@ pub struct NewSpotInstancesConfig {
 /// Nested message and enum types in `NewSpotInstancesConfig`.
 pub mod new_spot_instances_config {
     /// Specifies the termination action of the instance
+    #[allow(clippy::all)]
     #[derive(
         Clone,
         Copy,
@@ -922,6 +966,7 @@ pub mod new_spot_instances_config {
 /// \[ComputeResourceConfig\]\[google.cloud.hypercomputecluster.v1alpha.ComputeResourceConfig\],
 /// indicates that VM instances should be created from a
 /// [reservation](<https://cloud.google.com/compute/docs/instances/reservations-overview>).
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct NewReservedInstancesConfig {
     /// Optional. Immutable. Unstable: Contact hypercompute-service-eng@ before
@@ -946,6 +991,7 @@ pub struct NewReservedInstancesConfig {
 /// Nested message and enum types in `NewReservedInstancesConfig`.
 pub mod new_reserved_instances_config {
     /// Source of the reservation
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, Eq, Hash, ::prost::Oneof)]
     pub enum Source {
         /// Optional. Immutable. Name of the reservation from which VM instances
@@ -969,6 +1015,7 @@ pub mod new_reserved_instances_config {
 /// \[ComputeResourceConfig\]\[google.cloud.hypercomputecluster.v1alpha.ComputeResourceConfig\],
 /// indicates that VM instances should be created using [Flex
 /// Start](<https://cloud.google.com/compute/docs/instances/provisioning-models>).
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct NewFlexStartInstancesConfig {
     /// Required. Immutable. Name of the zone in which VM instances should run,
@@ -995,6 +1042,7 @@ pub struct NewFlexStartInstancesConfig {
 }
 /// A [Persistent disk](<https://cloud.google.com/compute/docs/disks>) used as the
 /// boot disk for a Compute Engine VM instance.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct BootDisk {
     /// Required. Immutable. [Persistent disk
@@ -1022,6 +1070,7 @@ pub struct BootDisk {
     pub effective_image: ::prost::alloc::string::String,
 }
 /// Unstable: Contact hypercompute-service-eng@ before using.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct AtmTag {
     /// Required. Unstable: Contact hypercompute-service-eng@ before using.
@@ -1034,6 +1083,7 @@ pub struct AtmTag {
 /// The component responsible for scheduling and running workloads on the
 /// cluster as well as providing the user interface for interacting with the
 /// cluster at runtime.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Orchestrator {
     /// Particular type of orchestrator to use in this cluster.
@@ -1043,6 +1093,7 @@ pub struct Orchestrator {
 /// Nested message and enum types in `Orchestrator`.
 pub mod orchestrator {
     /// Particular type of orchestrator to use in this cluster.
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum Option {
         /// Optional. If set, indicates that the cluster should use Slurm as the
@@ -1055,6 +1106,7 @@ pub mod orchestrator {
 /// \[Orchestrator\]\[google.cloud.hypercomputecluster.v1alpha.Orchestrator\],
 /// indicates that the cluster should use [Slurm](<https://slurm.schedmd.com/>) as
 /// the orchestrator.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SlurmOrchestrator {
     /// Required. Configuration for login nodes, which allow users to access the
@@ -1111,6 +1163,7 @@ pub struct SlurmOrchestrator {
 pub mod slurm_orchestrator {
     /// Slurm orchestrator configuration. Values correspond to a subset of those
     /// found in <https://slurm.schedmd.com/slurm.conf.html.>
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
     pub struct SlurmConfig {
         /// Optional. Enables automatic requeue for batch jobs which exit with the
@@ -1214,6 +1267,7 @@ pub mod slurm_orchestrator {
     /// Nested message and enum types in `SlurmConfig`.
     pub mod slurm_config {
         /// Flags to control the Prolog behavior.
+        #[allow(clippy::all)]
         #[derive(
             Clone,
             Copy,
@@ -1291,6 +1345,7 @@ pub mod slurm_orchestrator {
             }
         }
         /// Flags to control the level of association to impose on job submissions.
+        #[allow(clippy::all)]
         #[derive(
             Clone,
             Copy,
@@ -1374,6 +1429,7 @@ pub mod slurm_orchestrator {
         }
         /// Specifies the plugin to be used in establishing a job's scheduling
         /// priority.
+        #[allow(clippy::all)]
         #[derive(
             Clone,
             Copy,
@@ -1418,6 +1474,7 @@ pub mod slurm_orchestrator {
             }
         }
         /// Specifies the mechanism used to preempt jobs or enable gang scheduling.
+        #[allow(clippy::all)]
         #[derive(
             Clone,
             Copy,
@@ -1485,6 +1542,7 @@ pub mod slurm_orchestrator {
         }
         /// Specifies the plugin used to identify which jobs can be preempted in
         /// order to start a pending job.
+        #[allow(clippy::all)]
         #[derive(
             Clone,
             Copy,
@@ -1537,6 +1595,7 @@ pub mod slurm_orchestrator {
 /// Configuration for Slurm nodesets in the cluster. Nodesets are groups of
 /// compute nodes used by Slurm that are responsible for running workloads
 /// submitted to the cluster.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SlurmNodeSet {
     /// Required. Identifier for the nodeset, which allows it to be referenced by
@@ -1605,6 +1664,7 @@ pub mod slurm_node_set {
     /// use
     /// \[ComputeInstanceSlurmNodeSet\]\[google.cloud.hypercomputecluster.v1alpha.ComputeInstanceSlurmNodeSet\]
     /// with default values.
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum Type {
         /// Optional. If set, indicates that the nodeset should be backed by Compute
@@ -1620,6 +1680,7 @@ pub mod slurm_node_set {
 /// When set in a
 /// \[SlurmNodeSet\]\[google.cloud.hypercomputecluster.v1alpha.SlurmNodeSet\],
 /// indicates that the nodeset should be backed by Compute Engine VM instances.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ComputeInstanceSlurmNodeSet {
     /// Optional. [Startup
@@ -1648,6 +1709,7 @@ pub struct ComputeInstanceSlurmNodeSet {
 /// When set in a
 /// \[SlurmNodeSet\]\[google.cloud.hypercomputecluster.v1alpha.SlurmNodeSet\],
 /// indicates that the nodeset should be backed by a Kubernetes Engine node pool.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ContainerNodePoolSlurmNodeSet {
     /// Optional. Resource labels that are applied to the underlying Google Compute
@@ -1664,6 +1726,7 @@ pub struct ContainerNodePoolSlurmNodeSet {
 }
 /// Configuration for Slurm partitions in the cluster. Partitions are groups of
 /// nodesets, and are how clients specify where their workloads should be run.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct SlurmPartition {
     /// Required. ID of the partition, which is how users will identify it. Must
@@ -1684,6 +1747,7 @@ pub struct SlurmPartition {
 /// nodes](<https://slurm.schedmd.com/quickstart_admin.html#login>) in the cluster.
 /// Login nodes are Compute Engine VM instances that allow users to access the
 /// cluster over SSH.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SlurmLoginNodes {
     /// Required. Number of login node instances to create.
@@ -1740,6 +1804,7 @@ pub struct SlurmLoginNodes {
     pub service_account: ::core::option::Option<ServiceAccount>,
 }
 /// Service account email and scopes
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct ServiceAccount {
     /// Optional. Service account email
@@ -1752,6 +1817,7 @@ pub struct ServiceAccount {
 /// Description of how a \[storage
 /// resource\]\[google.cloud.hypercomputecluster.v1alpha.StorageResource\] should be
 /// mounted on a VM instance.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct StorageConfig {
     /// Required. ID of the storage resource to mount, which must match a key in
@@ -1766,6 +1832,7 @@ pub struct StorageConfig {
 }
 /// Details about a Compute Engine
 /// [instance](<https://cloud.google.com/compute/docs/instances>).
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct ComputeInstance {
     /// Output only. Name of the VM instance, in the format
@@ -1775,6 +1842,7 @@ pub struct ComputeInstance {
 }
 /// Policy controlling how system-initiated maintenance should be conducted on
 /// the cluster.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct MaintenancePolicy {
     /// Optional. Periods during which the system may perform maintenance
@@ -1786,6 +1854,7 @@ pub struct MaintenancePolicy {
     pub windows: ::prost::alloc::vec::Vec<MaintenanceWindow>,
 }
 /// A window of time in which maintenance is allowed.
+#[allow(clippy::all)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct MaintenanceWindow {
     /// Required. Day of the week on which maintenance may be performed.
@@ -1802,6 +1871,7 @@ pub struct MaintenanceWindow {
     pub duration: ::core::option::Option<::prost_types::Duration>,
 }
 /// Message describing Compute object
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Compute {
     /// Optional. ATM Tags to attach to compute VM instances
@@ -1809,6 +1879,7 @@ pub struct Compute {
     pub atm_tags: ::prost::alloc::vec::Vec<AtmTag>,
 }
 /// A resource representing a compute node managed by Cluster Director.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct Node {
     /// Identifier. [Relative resource name](<https://google.aip.dev/122>) of the
@@ -1853,6 +1924,7 @@ pub struct Node {
 /// Nested message and enum types in `Node`.
 pub mod node {
     /// High-level lifecycle state of the node.
+    #[allow(clippy::all)]
     #[derive(
         Clone,
         Copy,
@@ -1918,6 +1990,7 @@ pub mod node {
     }
 }
 /// Slurm-specific details for a Node.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct SlurmNodeDetails {
     /// Output only. Raw state flags directly from Slurm.
@@ -1937,6 +2010,7 @@ pub struct SlurmNodeDetails {
     pub comment: ::prost::alloc::string::String,
 }
 /// Compute Engine-specific details for a Node.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct ComputeEngineNodeDetails {
     /// Output only. [Relative resource name](<https://google.aip.dev/122>) of the VM
@@ -1955,6 +2029,7 @@ pub struct ComputeEngineNodeDetails {
     pub state: ::prost::alloc::string::String,
 }
 /// Container Engine-specific details for a Node.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct ContainerEngineNodeDetails {
     /// Output only. [Relative resource name](<https://google.aip.dev/122>) of the
@@ -2266,6 +2341,7 @@ pub mod hypercompute_cluster_client {
     }
 }
 /// A Machine Learning run.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct MachineLearningRun {
     /// Identifier. The name of the Machine Learning run.
@@ -2345,6 +2421,7 @@ pub struct MachineLearningRun {
 pub mod machine_learning_run {
     /// Orchestrator for the ML run like Google Compute Engine, Google
     /// Kubernetes Engine, Slurm etc.
+    #[allow(clippy::all)]
     #[derive(
         Clone,
         Copy,
@@ -2392,6 +2469,7 @@ pub mod machine_learning_run {
         }
     }
     /// RunPhase defines the phase of the Machine Learning run.
+    #[allow(clippy::all)]
     #[derive(
         Clone,
         Copy,
@@ -2440,6 +2518,7 @@ pub mod machine_learning_run {
     }
 }
 /// A Profiler Target.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct ProfilerTarget {
     /// Identifier. The resource name of the ProfilerTarget.
@@ -2461,6 +2540,7 @@ pub struct ProfilerTarget {
     pub etag: ::prost::alloc::string::String,
 }
 /// Represents a single profiler session.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct ProfilerSession {
     /// Identifier. The name of the profiler session.
@@ -2514,6 +2594,7 @@ pub struct ProfilerSession {
 pub mod profiler_session {
     /// LINT.IfChange
     /// Host tracer levels. It can have new values in future.
+    #[allow(clippy::all)]
     #[derive(
         Clone,
         Copy,
@@ -2566,6 +2647,7 @@ pub mod profiler_session {
     }
     /// LINT.IfChange
     /// Device tracer levels. It can have new values in future.
+    #[allow(clippy::all)]
     #[derive(
         Clone,
         Copy,
@@ -2609,6 +2691,7 @@ pub mod profiler_session {
         }
     }
     /// Profiler session kind.
+    #[allow(clippy::all)]
     #[derive(
         Clone,
         Copy,
@@ -2659,6 +2742,7 @@ pub mod profiler_session {
     }
     /// LINT.IfChange
     /// Python tracer levels. It can have new values in future.
+    #[allow(clippy::all)]
     #[derive(
         Clone,
         Copy,
@@ -2703,6 +2787,7 @@ pub mod profiler_session {
     }
 }
 /// Represents a single Monitored Event (Incident) detected by the system.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct MonitoredEvent {
     /// Identifier. Resource name of the monitored event.
@@ -2736,6 +2821,7 @@ pub struct MonitoredEvent {
 /// Nested message and enum types in `MonitoredEvent`.
 pub mod monitored_event {
     /// Enum for sorting/filtering events by category.
+    #[allow(clippy::all)]
     #[derive(
         Clone,
         Copy,
@@ -2776,6 +2862,7 @@ pub mod monitored_event {
     }
 }
 /// Represents a single profiling session.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct ProfileSession {
     /// Identifier. The name of the profile session.
@@ -2799,6 +2886,7 @@ pub struct ProfileSession {
     pub dashboard_url: ::prost::alloc::string::String,
 }
 /// Request message for MachineLearningRuns.CreateMachineLearningRun.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CreateMachineLearningRunRequest {
     /// Required. Parent format: projects/{project}/locations/{location}
@@ -2812,6 +2900,7 @@ pub struct CreateMachineLearningRunRequest {
     pub machine_learning_run_id: ::prost::alloc::string::String,
 }
 /// Request message for MachineLearningRuns.GetMachineLearningRun.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct GetMachineLearningRunRequest {
     /// Required.
@@ -2820,6 +2909,7 @@ pub struct GetMachineLearningRunRequest {
     pub name: ::prost::alloc::string::String,
 }
 /// Request message for MachineLearningRuns.ListMachineLearningRuns.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct ListMachineLearningRunsRequest {
     /// Required. projects/{project}/locations/{location}
@@ -2891,6 +2981,7 @@ pub struct ListMachineLearningRunsRequest {
     pub order_by: ::prost::alloc::string::String,
 }
 /// Response message for MachineLearningRuns.ListMachineLearningRuns.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ListMachineLearningRunsResponse {
     /// The Machine Learning Runs.
@@ -2902,6 +2993,7 @@ pub struct ListMachineLearningRunsResponse {
     pub next_page_token: ::prost::alloc::string::String,
 }
 /// Request message for MachineLearningRuns.UpdateMachineLearningRun.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct UpdateMachineLearningRunRequest {
     /// Required. The Machine Learning Run to update.
@@ -2913,6 +3005,7 @@ pub struct UpdateMachineLearningRunRequest {
     pub update_mask: ::core::option::Option<::prost_types::FieldMask>,
 }
 /// Request message for MachineLearningRuns.DeleteMachineLearningRun.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct DeleteMachineLearningRunRequest {
     /// Required.
@@ -2927,6 +3020,7 @@ pub struct DeleteMachineLearningRunRequest {
     pub force: bool,
 }
 /// Create profiler target request
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct CreateProfilerTargetRequest {
     /// Required.
@@ -2942,6 +3036,7 @@ pub struct CreateProfilerTargetRequest {
     pub profiler_target_id: ::prost::alloc::string::String,
 }
 /// Get profiler target request
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct GetProfilerTargetRequest {
     /// Required.
@@ -2950,6 +3045,7 @@ pub struct GetProfilerTargetRequest {
     pub name: ::prost::alloc::string::String,
 }
 /// Request message for listing profiler targets.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct ListProfilerTargetsRequest {
     /// Required.
@@ -2970,6 +3066,7 @@ pub struct ListProfilerTargetsRequest {
     pub page_token: ::prost::alloc::string::String,
 }
 /// Response message for list profiler targets.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ListProfilerTargetsResponse {
     /// A list of profiler targets.
@@ -2981,6 +3078,7 @@ pub struct ListProfilerTargetsResponse {
     pub next_page_token: ::prost::alloc::string::String,
 }
 /// Request message for Deleting a ProfilerTarget.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct DeleteProfilerTargetRequest {
     /// Required. The name of the profiler target to delete.
@@ -2990,6 +3088,7 @@ pub struct DeleteProfilerTargetRequest {
     pub name: ::prost::alloc::string::String,
 }
 /// Request message for creating a profiler session.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct CreateProfilerSessionRequest {
     /// Required.
@@ -3004,6 +3103,7 @@ pub struct CreateProfilerSessionRequest {
     pub profiler_session: ::core::option::Option<ProfilerSession>,
 }
 /// Request message for MachineLearningRuns.GetProfilerSession.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct GetProfilerSessionRequest {
     /// Required.
@@ -3012,6 +3112,7 @@ pub struct GetProfilerSessionRequest {
     pub name: ::prost::alloc::string::String,
 }
 /// Request message for listing profiler sessions.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct ListProfilerSessionsRequest {
     /// Required.
@@ -3032,6 +3133,7 @@ pub struct ListProfilerSessionsRequest {
     pub page_token: ::prost::alloc::string::String,
 }
 /// Response message for list profiler sessions.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ListProfilerSessionsResponse {
     /// A list of profiler sessions.
@@ -3043,6 +3145,7 @@ pub struct ListProfilerSessionsResponse {
     pub next_page_token: ::prost::alloc::string::String,
 }
 /// Request message for Deleting a ProfilerSession.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct DeleteProfilerSessionRequest {
     /// Required. The name of the profiler session to delete.
@@ -3052,6 +3155,7 @@ pub struct DeleteProfilerSessionRequest {
     pub name: ::prost::alloc::string::String,
 }
 /// Request message for MachineLearningRuns.GetProfileSession.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct GetProfileSessionRequest {
     /// Required.
@@ -3060,6 +3164,7 @@ pub struct GetProfileSessionRequest {
     pub name: ::prost::alloc::string::String,
 }
 /// Request message for MachineLearningRuns.ListProfileSessions.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct ListProfileSessionsRequest {
     /// Required. Parent format:
@@ -3078,6 +3183,7 @@ pub struct ListProfileSessionsRequest {
     pub page_token: ::prost::alloc::string::String,
 }
 /// Response message for MachineLearningRuns.ListProfileSessions.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ListProfileSessionsResponse {
     /// A list of profile sessions.
@@ -3089,6 +3195,7 @@ pub struct ListProfileSessionsResponse {
     pub next_page_token: ::prost::alloc::string::String,
 }
 /// Request message for CreateMonitoredEvent.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CreateMonitoredEventRequest {
     /// Required. Parent resource where the event will be created.
@@ -3104,6 +3211,7 @@ pub struct CreateMonitoredEventRequest {
     pub monitored_event_id: ::prost::alloc::string::String,
 }
 /// Request message for GetMonitoredEvent.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct GetMonitoredEventRequest {
     /// Required. The name of the monitored event to retrieve.
@@ -3113,6 +3221,7 @@ pub struct GetMonitoredEventRequest {
     pub name: ::prost::alloc::string::String,
 }
 /// Request message for ListMonitoredEvents.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct ListMonitoredEventsRequest {
     /// Required. Parent resource to list events from.
@@ -3140,6 +3249,7 @@ pub struct ListMonitoredEventsRequest {
     pub order_by: ::prost::alloc::string::String,
 }
 /// Response message for ListMonitoredEvents.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ListMonitoredEventsResponse {
     /// The list of monitored events.
@@ -3150,6 +3260,7 @@ pub struct ListMonitoredEventsResponse {
     pub next_page_token: ::prost::alloc::string::String,
 }
 /// Request message for UpdateMonitoredEvent.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct UpdateMonitoredEventRequest {
     /// Required. The monitored event to update.
@@ -3162,6 +3273,7 @@ pub struct UpdateMonitoredEventRequest {
     pub update_mask: ::core::option::Option<::prost_types::FieldMask>,
 }
 /// Request message for DeleteMonitoredEvent.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct DeleteMonitoredEventRequest {
     /// Required. The name of the monitored event to delete.
@@ -3171,6 +3283,7 @@ pub struct DeleteMonitoredEventRequest {
     pub name: ::prost::alloc::string::String,
 }
 /// Configuration for a Machine Learning run.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Configs {
     /// Optional. Deprecated: userConfigs will be stored in Cloud Logging.
@@ -3195,6 +3308,7 @@ pub struct Configs {
 }
 /// Deprecated: Use Cloud Logging to retrieve metrics information.
 /// Metrics for a Machine Learning run.
+#[allow(clippy::all)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct Metrics {
     /// Output only. Average step time.
@@ -3218,6 +3332,7 @@ pub struct Metrics {
     pub avg_hbm_utilization: f32,
 }
 /// Represents information about the artifacts of the Machine Learning Run.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct Artifacts {
     /// Optional. The Cloud Storage path where the artifacts of the run are stored.
@@ -3226,6 +3341,7 @@ pub struct Artifacts {
     pub gcs_path: ::prost::alloc::string::String,
 }
 /// A tool for a Machine Learning run.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct Tool {
     /// tool - one of the diagnostic tool.
@@ -3235,6 +3351,7 @@ pub struct Tool {
 /// Nested message and enum types in `Tool`.
 pub mod tool {
     /// tool - one of the diagnostic tool.
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, Eq, Hash, ::prost::Oneof)]
     pub enum Tool {
         /// Optional. XProf related metadata
@@ -3249,6 +3366,7 @@ pub mod tool {
 /// Workload details associated for the Machine Learning Run.
 /// Workload have different metadata based on the orchestrator like
 /// GKE cluster, Slurm cluster, Google Compute Engine instance etc.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct WorkloadDetails {
     /// The metadata for the workload for different orchestrators.
@@ -3258,6 +3376,7 @@ pub struct WorkloadDetails {
 /// Nested message and enum types in `WorkloadDetails`.
 pub mod workload_details {
     /// The metadata for the workload for different orchestrators.
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum Metadata {
         /// GKE Workload metadata.
@@ -3266,6 +3385,7 @@ pub mod workload_details {
     }
 }
 /// Workload details for the GKE orchestrator.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct GkeWorkloadDetails {
     /// Required. The identifier of the workload. Example - jobset-abcd
@@ -3301,6 +3421,7 @@ pub struct GkeWorkloadDetails {
     pub create_time: ::core::option::Option<::prost_types::Timestamp>,
 }
 /// XProf related metadata
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct Xprof {
     /// Required. XProf session id
@@ -3308,6 +3429,7 @@ pub struct Xprof {
     pub session_id: ::prost::alloc::string::String,
 }
 /// Smon Tool Metadata
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct Smon {
     /// Output only. A summary of the monitoring findings.
@@ -3315,6 +3437,7 @@ pub struct Smon {
     pub monitoring_summary: ::prost::alloc::string::String,
 }
 /// A detailed report from a specific analyzer.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct AnalyzerReport {
     /// Optional. Recommended actions to take.
@@ -3334,6 +3457,7 @@ pub struct AnalyzerReport {
 /// Nested message and enum types in `AnalyzerReport`.
 pub mod analyzer_report {
     /// Represents the detection state of the analyzer.
+    #[allow(clippy::all)]
     #[derive(
         Clone,
         Copy,
@@ -3378,6 +3502,7 @@ pub mod analyzer_report {
     }
 }
 /// Represents a recommended action.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct RecommendedAction {
     /// Optional. Description of the recommended action.
@@ -3389,6 +3514,7 @@ pub struct RecommendedAction {
     pub documentation_url: ::prost::alloc::string::String,
 }
 /// State of the Machine Learning run.
+#[allow(clippy::all)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
 #[repr(i32)]
 pub enum State {
@@ -4109,6 +4235,7 @@ pub mod machine_learning_runs_client {
     }
 }
 /// Represents the metadata of the long-running operation.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct OperationMetadata {
     /// Output only. The time the operation was created.
@@ -4139,6 +4266,7 @@ pub struct OperationMetadata {
     pub progress: ::core::option::Option<OperationProgress>,
 }
 /// Message describing the progress of a cluster mutation long-running operation.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct OperationProgress {
     /// Output only. Steps and status of the operation.
@@ -4147,6 +4275,7 @@ pub struct OperationProgress {
 }
 /// Message describing the status of a single step in a cluster mutation
 /// long-running operation.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct OperationStep {
     /// Output only. State of the operation step.
@@ -4162,6 +4291,7 @@ pub struct OperationStep {
 /// Nested message and enum types in `OperationStep`.
 pub mod operation_step {
     /// State of the operation step.
+    #[allow(clippy::all)]
     #[derive(
         Clone,
         Copy,
@@ -4209,6 +4339,7 @@ pub mod operation_step {
         }
     }
     /// Step of the operation.
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, Eq, Hash, ::prost::Oneof)]
     pub enum Type {
         /// Output only. If set, indicates that new network creation is part of the
@@ -4314,6 +4445,7 @@ pub mod operation_step {
     }
 }
 /// When set in OperationStep, indicates that a new network should be created.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct CreateNetwork {
     /// Output only. Name of the network to create, in the format
@@ -4323,10 +4455,12 @@ pub struct CreateNetwork {
 }
 /// When set in OperationStep, indicates that a new private service access should
 /// be created.
+#[allow(clippy::all)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct CreatePrivateServiceAccess {}
 /// When set in OperationStep, indicates that a new filestore instance should be
 /// created.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct CreateFilestoreInstance {
     /// Output only. Name of the Filestore instance, in the format
@@ -4336,6 +4470,7 @@ pub struct CreateFilestoreInstance {
 }
 /// When set in OperationStep, indicates that a new storage bucket should be
 /// created.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct CreateStorageBucket {
     /// Output only. Name of the bucket.
@@ -4344,6 +4479,7 @@ pub struct CreateStorageBucket {
 }
 /// When set in OperationStep, indicates that a new lustre instance should be
 /// created.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct CreateLustreInstance {
     /// Output only. Name of the Managed Lustre instance, in the format
@@ -4353,6 +4489,7 @@ pub struct CreateLustreInstance {
 }
 /// When set in OperationStep, indicates that a new GKE cluster should be
 /// created.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct CreateGkeCluster {
     /// Output only. Name of the GKE cluster.
@@ -4360,9 +4497,11 @@ pub struct CreateGkeCluster {
     pub cluster: ::prost::alloc::string::String,
 }
 /// When set in OperationStep, indicates that an orchestrator should be created.
+#[allow(clippy::all)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct CreateOrchestrator {}
 /// When set in OperationStep, indicates that a nodeset should be created.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct CreateNodeset {
     /// Output only. Name of the nodeset to create
@@ -4370,6 +4509,7 @@ pub struct CreateNodeset {
     pub nodesets: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
 }
 /// When set in OperationStep, indicates that a partition should be created.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct CreatePartition {
     /// Output only. Name of the partition to create
@@ -4377,16 +4517,20 @@ pub struct CreatePartition {
     pub partitions: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
 }
 /// When set in OperationStep, indicates that a login node should be created.
+#[allow(clippy::all)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct CreateLoginNode {}
 /// When set in OperationStep, indicates that cluster health check should be
 /// performed.
+#[allow(clippy::all)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct CheckClusterHealth {}
 /// When set in OperationStep, indicates that an orchestrator should be updated.
+#[allow(clippy::all)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct UpdateOrchestrator {}
 /// When set in OperationStep, indicates that a nodeset should be updated.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct UpdateNodeset {
     /// Output only. Name of the nodeset to update
@@ -4394,6 +4538,7 @@ pub struct UpdateNodeset {
     pub nodesets: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
 }
 /// When set in OperationStep, indicates that a partition should be updated.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct UpdatePartition {
     /// Output only. Name of the partition to update
@@ -4401,10 +4546,12 @@ pub struct UpdatePartition {
     pub partitions: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
 }
 /// When set in OperationStep, indicates that a login node should be updated.
+#[allow(clippy::all)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct UpdateLoginNode {}
 /// When set in OperationStep, indicates that a GKE cluster should be
 /// deleted.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct DeleteGkeCluster {
     /// Output only. Name of the GKE cluster.
@@ -4412,9 +4559,11 @@ pub struct DeleteGkeCluster {
     pub cluster: ::prost::alloc::string::String,
 }
 /// When set in OperationStep, indicates that an orchestrator should be deleted.
+#[allow(clippy::all)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct DeleteOrchestrator {}
 /// When set in OperationStep, indicates that a nodeset should be deleted.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct DeleteNodeset {
     /// Output only. Name of the nodeset to delete
@@ -4422,6 +4571,7 @@ pub struct DeleteNodeset {
     pub nodesets: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
 }
 /// When set in OperationStep, indicates that a partition should be deleted.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct DeletePartition {
     /// Output only. Name of the partition to delete
@@ -4429,10 +4579,12 @@ pub struct DeletePartition {
     pub partitions: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
 }
 /// When set in OperationStep, indicates that a login node should be deleted.
+#[allow(clippy::all)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct DeleteLoginNode {}
 /// When set in OperationStep, indicates that a Filestore instance should be
 /// deleted.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct DeleteFilestoreInstance {
     /// Output only. Name of the Filestore instance, in the format
@@ -4442,6 +4594,7 @@ pub struct DeleteFilestoreInstance {
 }
 /// When set in OperationStep, indicates that Cloud Storage bucket should be
 /// deleted.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct DeleteStorageBucket {
     /// Output only. Name of the bucket.
@@ -4450,6 +4603,7 @@ pub struct DeleteStorageBucket {
 }
 /// When set in OperationStep, indicates that a Lustre instance should be
 /// deleted.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct DeleteLustreInstance {
     /// Output only. Name of the Managed Lustre instance, in the format
@@ -4459,10 +4613,12 @@ pub struct DeleteLustreInstance {
 }
 /// When set in OperationStep, indicates private service access deletion
 /// step.
+#[allow(clippy::all)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct DeletePrivateServiceAccess {}
 /// When set in OperationStep, indicates network deletion step with the
 /// resource name.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct DeleteNetwork {
     /// Output only. Name of the network to delete, in the format

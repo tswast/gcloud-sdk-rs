@@ -2,6 +2,7 @@
 /// A subscription to receive events about a Google Workspace resource. To learn
 /// more about subscriptions, see the [Google Workspace Events API
 /// overview](<https://developers.google.com/workspace/events>).
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct Subscription {
     /// Identifier. Resource name of the subscription.
@@ -117,6 +118,7 @@ pub struct Subscription {
 /// Nested message and enum types in `Subscription`.
 pub mod subscription {
     /// Additional supported options for serving Drive events.
+    #[allow(clippy::all)]
     #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
     pub struct DriveOptions {
         /// Optional. Immutable. Whether to include all the descendant Drive files in
@@ -135,6 +137,7 @@ pub mod subscription {
         pub include_descendants: bool,
     }
     /// Possible states for the subscription.
+    #[allow(clippy::all)]
     #[derive(
         Clone,
         Copy,
@@ -186,6 +189,7 @@ pub mod subscription {
         }
     }
     /// Possible errors for a subscription.
+    #[allow(clippy::all)]
     #[derive(
         Clone,
         Copy,
@@ -257,6 +261,7 @@ pub mod subscription {
         }
     }
     /// Additional subscription options available to certain Workspace Resources.
+    #[allow(clippy::all)]
     #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Oneof)]
     pub enum SubscriptionOptions {
         /// Optional. Features that are supported only for subscriptions on Drive
@@ -288,6 +293,7 @@ pub mod subscription {
     /// \[`UpdateSubscription`\]\[google.apps.events.subscriptions.v1beta.SubscriptionsService.UpdateSubscription\]
     /// method to extend its expiration date. For details, see [Update or renew a
     /// subscription](<https://developers.google.com/workspace/events/guides/update-subscription>).
+    #[allow(clippy::all)]
     #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Oneof)]
     pub enum Expiration {
         /// Non-empty default. The timestamp in UTC when the subscription expires.
@@ -302,6 +308,7 @@ pub mod subscription {
 }
 /// Options about what data to include in the event payload. Only supported for
 /// Google Chat events.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct PayloadOptions {
     /// Optional. Whether the event payload includes data about the resource that
@@ -324,6 +331,7 @@ pub struct PayloadOptions {
     pub field_mask: ::core::option::Option<::prost_types::FieldMask>,
 }
 /// The endpoint where the subscription delivers events.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct NotificationEndpoint {
     #[prost(oneof = "notification_endpoint::Endpoint", tags = "1")]
@@ -331,6 +339,7 @@ pub struct NotificationEndpoint {
 }
 /// Nested message and enum types in `NotificationEndpoint`.
 pub mod notification_endpoint {
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, Eq, Hash, ::prost::Oneof)]
     pub enum Endpoint {
         /// Immutable. The Pub/Sub topic that receives events for the subscription.
@@ -356,6 +365,7 @@ pub mod notification_endpoint {
 }
 /// The request message for
 /// \[SubscriptionsService.CreateSubscription\]\[google.apps.events.subscriptions.v1beta.SubscriptionsService.CreateSubscription\].
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct CreateSubscriptionRequest {
     /// Required. The subscription resource to create.
@@ -368,6 +378,7 @@ pub struct CreateSubscriptionRequest {
 }
 /// The request message for
 /// \[SubscriptionsService.DeleteSubscription\]\[google.apps.events.subscriptions.v1beta.SubscriptionsService.DeleteSubscription\].
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct DeleteSubscriptionRequest {
     /// Required. Resource name of the subscription to delete.
@@ -392,6 +403,7 @@ pub struct DeleteSubscriptionRequest {
 }
 /// The request message for
 /// \[SubscriptionsService.GetSubscription\]\[google.apps.events.subscriptions.v1beta.SubscriptionsService.GetSubscription\].
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct GetSubscriptionRequest {
     /// Required. Resource name of the subscription.
@@ -402,6 +414,7 @@ pub struct GetSubscriptionRequest {
 }
 /// The request message for
 /// \[SubscriptionsService.UpdateSubscription\]\[google.apps.events.subscriptions.v1beta.SubscriptionsService.UpdateSubscription\].
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct UpdateSubscriptionRequest {
     /// Required. The subscription to update.
@@ -434,6 +447,7 @@ pub struct UpdateSubscriptionRequest {
 }
 /// The request message for
 /// \[SubscriptionsService.ReactivateSubscription\]\[google.apps.events.subscriptions.v1beta.SubscriptionsService.ReactivateSubscription\].
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct ReactivateSubscriptionRequest {
     /// Required. Resource name of the subscription.
@@ -444,6 +458,7 @@ pub struct ReactivateSubscriptionRequest {
 }
 /// The request message for
 /// \[SubscriptionsService.ListSubscriptions\]\[google.apps.events.subscriptions.v1beta.SubscriptionsService.ListSubscriptions\].
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct ListSubscriptionsRequest {
     /// Optional. The maximum number of subscriptions to return. The service might
@@ -495,6 +510,7 @@ pub struct ListSubscriptionsRequest {
 }
 /// The response message for
 /// \[SubscriptionsService.ListSubscriptions\]\[google.apps.events.subscriptions.v1beta.SubscriptionsService.ListSubscriptions\].
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ListSubscriptionsResponse {
     /// List of subscriptions.
@@ -506,15 +522,19 @@ pub struct ListSubscriptionsResponse {
     pub next_page_token: ::prost::alloc::string::String,
 }
 /// Metadata for UpdateSubscription LRO.
+#[allow(clippy::all)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct UpdateSubscriptionMetadata {}
 /// Metadata for CreateSubscription LRO.
+#[allow(clippy::all)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct CreateSubscriptionMetadata {}
 /// Metadata for DeleteSubscription LRO.
+#[allow(clippy::all)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct DeleteSubscriptionMetadata {}
 /// Metadata for ReactivateSubscription LRO.
+#[allow(clippy::all)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct ReactivateSubscriptionMetadata {}
 /// Generated client implementations.
