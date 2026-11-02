@@ -2,6 +2,7 @@
 /// A Firestore document.
 ///
 /// Must not exceed 1 MiB - 4 bytes.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Document {
     /// The resource name of the document, for example
@@ -49,6 +50,7 @@ pub struct Document {
     pub update_time: ::core::option::Option<::prost_types::Timestamp>,
 }
 /// A message that can hold any of the supported value types.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Value {
     /// Must have a value set.
@@ -61,6 +63,7 @@ pub struct Value {
 /// Nested message and enum types in `Value`.
 pub mod value {
     /// Must have a value set.
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum ValueType {
         /// A null value.
@@ -146,6 +149,7 @@ pub mod value {
     }
 }
 /// An array value.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ArrayValue {
     /// Values in the array.
@@ -153,6 +157,7 @@ pub struct ArrayValue {
     pub values: ::prost::alloc::vec::Vec<Value>,
 }
 /// A map value.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct MapValue {
     /// The map's fields.
@@ -173,6 +178,7 @@ pub struct MapValue {
 /// args { field_reference: "user_name" }
 /// args { string_value: "%alice%" }
 /// ```
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Function {
     /// Required. The name of the function to evaluate.
@@ -190,6 +196,7 @@ pub struct Function {
     pub options: ::std::collections::HashMap<::prost::alloc::string::String, Value>,
 }
 /// A Firestore query represented as an ordered list of operations / stages.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Pipeline {
     /// Required. Ordered list of stages to evaluate.
@@ -217,6 +224,7 @@ pub mod pipeline {
     /// ```
     ///
     /// See public documentation for the full list.
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct Stage {
         /// Required. The name of the stage to evaluate.
@@ -248,6 +256,7 @@ pub mod pipeline {
 /// 1. offset
 /// 1. limit
 /// 1. find_nearest
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct StructuredQuery {
     /// Optional sub-set of the fields to return.
@@ -265,9 +274,12 @@ pub struct StructuredQuery {
     pub r#where: ::core::option::Option<structured_query::Filter>,
     /// The order to apply to the query results.
     ///
-    /// Firestore allows callers to provide a full ordering, a partial ordering, or
-    /// no ordering at all. In all cases, Firestore guarantees a stable ordering
-    /// through the following rules:
+    /// Callers can provide a full ordering, a partial ordering, or no ordering at
+    /// all. While Firestore will always respect the provided order, the behavior
+    /// for queries without a full ordering is different per database edition:
+    ///
+    /// In Standard edition, Firestore guarantees a stable ordering through the
+    /// following rules:
     ///
     /// * The `order_by` is required to reference all fields used with an
     ///   inequality filter.
@@ -283,6 +295,13 @@ pub struct StructuredQuery {
     /// * `WHERE a > 1` becomes `WHERE a > 1 ORDER BY a ASC, __name__ ASC`
     /// * `WHERE __name__ > ... AND a > 1` becomes
     ///   `WHERE __name__ > ... AND a > 1 ORDER BY a ASC, __name__ ASC`
+    ///
+    /// In Enterprise edition, Firestore does not guarantee a stable ordering.
+    /// Instead it will pick the most efficient ordering based on the indexes
+    /// available at the time of query execution. This will result in a different
+    /// ordering for queries that are otherwise identical. To ensure a stable
+    /// ordering, always include a unique field in the `order_by` clause, such as
+    /// `__name__`.
     #[prost(message, repeated, tag = "4")]
     pub order_by: ::prost::alloc::vec::Vec<structured_query::Order>,
     /// A potential prefix of a position in the result set to start the query at.
@@ -358,6 +377,7 @@ pub struct StructuredQuery {
 /// Nested message and enum types in `StructuredQuery`.
 pub mod structured_query {
     /// A selection of a collection, such as `messages as m1`.
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
     pub struct CollectionSelector {
         /// The collection ID.
@@ -371,6 +391,7 @@ pub mod structured_query {
         pub all_descendants: bool,
     }
     /// A filter.
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct Filter {
         /// The type of filter.
@@ -380,6 +401,7 @@ pub mod structured_query {
     /// Nested message and enum types in `Filter`.
     pub mod filter {
         /// The type of filter.
+        #[allow(clippy::all)]
         #[derive(Clone, PartialEq, ::prost::Oneof)]
         pub enum FilterType {
             /// A composite filter.
@@ -394,6 +416,7 @@ pub mod structured_query {
         }
     }
     /// A filter that merges multiple other filters using the given operator.
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct CompositeFilter {
         /// The operator for combining multiple filters.
@@ -410,6 +433,7 @@ pub mod structured_query {
     /// Nested message and enum types in `CompositeFilter`.
     pub mod composite_filter {
         /// A composite filter operator.
+        #[allow(clippy::all)]
         #[derive(
             Clone,
             Copy,
@@ -454,6 +478,7 @@ pub mod structured_query {
         }
     }
     /// A filter on a specific field.
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct FieldFilter {
         /// The field to filter by.
@@ -469,6 +494,7 @@ pub mod structured_query {
     /// Nested message and enum types in `FieldFilter`.
     pub mod field_filter {
         /// A field filter operator.
+        #[allow(clippy::all)]
         #[derive(
             Clone,
             Copy,
@@ -587,6 +613,7 @@ pub mod structured_query {
         }
     }
     /// A filter with a single operand.
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
     pub struct UnaryFilter {
         /// The unary operator to apply.
@@ -599,6 +626,7 @@ pub mod structured_query {
     /// Nested message and enum types in `UnaryFilter`.
     pub mod unary_filter {
         /// A unary operator.
+        #[allow(clippy::all)]
         #[derive(
             Clone,
             Copy,
@@ -660,6 +688,7 @@ pub mod structured_query {
             }
         }
         /// The argument to the filter.
+        #[allow(clippy::all)]
         #[derive(Clone, PartialEq, Eq, Hash, ::prost::Oneof)]
         pub enum OperandType {
             /// The field to which to apply the operator.
@@ -668,6 +697,7 @@ pub mod structured_query {
         }
     }
     /// An order on a field.
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
     pub struct Order {
         /// The field to order by.
@@ -678,6 +708,7 @@ pub mod structured_query {
         pub direction: i32,
     }
     /// A reference to a field in a document, ex: `stats.operations`.
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
     pub struct FieldReference {
         /// A reference to a field in a document.
@@ -691,6 +722,7 @@ pub mod structured_query {
         pub field_path: ::prost::alloc::string::String,
     }
     /// The projection of document's fields to return.
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct Projection {
         /// The fields to return.
@@ -704,6 +736,7 @@ pub mod structured_query {
     /// supersedes the order_by stage. If multiple documents have the same vector
     /// distance, the returned document order is not guaranteed to be stable
     /// between queries.
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct FindNearest {
         /// Required. An indexed vector field to search upon. Only documents which
@@ -741,6 +774,7 @@ pub mod structured_query {
     /// Nested message and enum types in `FindNearest`.
     pub mod find_nearest {
         /// The distance measure to use when comparing vectors.
+        #[allow(clippy::all)]
         #[derive(
             Clone,
             Copy,
@@ -801,6 +835,7 @@ pub mod structured_query {
         }
     }
     /// A sort direction.
+    #[allow(clippy::all)]
     #[derive(
         Clone,
         Copy,
@@ -846,6 +881,7 @@ pub mod structured_query {
 }
 /// Firestore query for running an aggregation over a
 /// \[StructuredQuery\]\[google.firestore.v1.StructuredQuery\].
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct StructuredAggregationQuery {
     /// Optional. Series of aggregations to apply over the results of the
@@ -865,6 +901,7 @@ pub struct StructuredAggregationQuery {
 /// Nested message and enum types in `StructuredAggregationQuery`.
 pub mod structured_aggregation_query {
     /// Defines an aggregation that produces a single result.
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
     pub struct Aggregation {
         /// Optional. Optional name of the field to store the result of the
@@ -914,6 +951,7 @@ pub mod structured_aggregation_query {
         ///
         /// The `COUNT(*)` aggregation function operates on the entire document
         /// so it does not require a field reference.
+        #[allow(clippy::all)]
         #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
         pub struct Count {
             /// Optional. Optional constraint on the maximum number of documents to
@@ -957,6 +995,7 @@ pub mod structured_aggregation_query {
         ///   the underlying values could produce slightly different results each
         ///   time. In those cases, values should be stored as integers over
         ///   floating-point numbers.
+        #[allow(clippy::all)]
         #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
         pub struct Sum {
             /// The field to aggregate on.
@@ -976,6 +1015,7 @@ pub mod structured_aggregation_query {
         /// * If the aggregated value set is empty, returns `NULL`.
         ///
         /// * Always returns the result as a double.
+        #[allow(clippy::all)]
         #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
         pub struct Avg {
             /// The field to aggregate on.
@@ -985,6 +1025,7 @@ pub mod structured_aggregation_query {
             >,
         }
         /// The type of aggregation to perform, required.
+        #[allow(clippy::all)]
         #[derive(Clone, PartialEq, Eq, Hash, ::prost::Oneof)]
         pub enum Operator {
             /// Count aggregator.
@@ -999,6 +1040,7 @@ pub mod structured_aggregation_query {
         }
     }
     /// The base query to aggregate over.
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum QueryType {
         /// Nested structured query.
@@ -1007,6 +1049,7 @@ pub mod structured_aggregation_query {
     }
 }
 /// A position in a query result set.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Cursor {
     /// The values that represent a position, in the order they appear in
@@ -1025,6 +1068,7 @@ pub struct Cursor {
 /// The keys of `aggregate_fields` are the same for all results in an aggregation
 /// query, unlike document queries which can have different fields present for
 /// each result.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct AggregationResult {
     /// The result of the aggregation functions, ex: `COUNT(*) AS total_docs`.
@@ -1054,6 +1098,7 @@ pub struct AggregationResult {
 ///
 /// The "size" of a `BitSequence` (the number of bits it contains) is calculated
 /// by this formula: `(bitmap.length * 8) - padding`.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct BitSequence {
     /// The bytes that encode the bit sequence.
@@ -1081,6 +1126,7 @@ pub struct BitSequence {
 ///
 /// These resulting values are then taken modulo the number of bits in the bloom
 /// filter to get the bits of the bloom filter to test for the given entry.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct BloomFilter {
     /// The bloom filter data.
@@ -1096,6 +1142,7 @@ pub struct BloomFilter {
 /// This is different from standard field masks, as this is always scoped to a
 /// \[Document\]\[google.firestore.v1.Document\], and takes in account the dynamic
 /// nature of \[Value\]\[google.firestore.v1.Value\].
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct DocumentMask {
     /// The list of field paths in the mask. See
@@ -1105,6 +1152,7 @@ pub struct DocumentMask {
     pub field_paths: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
 }
 /// A precondition on a document, used for conditional operations.
+#[allow(clippy::all)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct Precondition {
     /// The type of precondition.
@@ -1114,6 +1162,7 @@ pub struct Precondition {
 /// Nested message and enum types in `Precondition`.
 pub mod precondition {
     /// The type of precondition.
+    #[allow(clippy::all)]
     #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Oneof)]
     pub enum ConditionType {
         /// When set to `true`, the target document must exist.
@@ -1127,6 +1176,7 @@ pub mod precondition {
     }
 }
 /// Options for creating a new transaction.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct TransactionOptions {
     /// The mode of the transaction.
@@ -1136,16 +1186,25 @@ pub struct TransactionOptions {
 /// Nested message and enum types in `TransactionOptions`.
 pub mod transaction_options {
     /// Options for a transaction that can be used to read and write documents.
-    ///
-    /// Firestore does not allow 3rd party auth requests to create read-write.
-    /// transactions.
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
     pub struct ReadWrite {
         /// An optional transaction to retry.
         #[prost(bytes = "vec", tag = "1")]
         pub retry_transaction: ::prost::alloc::vec::Vec<u8>,
+        /// Optional. The concurrency control mode to use for this transaction.
+        ///
+        /// A database is able to use different concurrency modes for different
+        /// transactions simultaneously.
+        ///
+        /// 3rd party auth requests are only allowed to create optimistic
+        /// read-write transactions and must specify that here even if the
+        /// database-level setting is already configured to optimistic.
+        #[prost(enumeration = "ConcurrencyMode", tag = "2")]
+        pub concurrency_mode: i32,
     }
     /// Options for a transaction that can only be used to read documents.
+    #[allow(clippy::all)]
     #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
     pub struct ReadOnly {
         /// The consistency mode for this transaction. If not set, defaults to strong
@@ -1157,6 +1216,7 @@ pub mod transaction_options {
     pub mod read_only {
         /// The consistency mode for this transaction. If not set, defaults to strong
         /// consistency.
+        #[allow(clippy::all)]
         #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Oneof)]
         pub enum ConsistencySelector {
             /// Reads documents at the given time.
@@ -1168,7 +1228,52 @@ pub mod transaction_options {
             ReadTime(::prost_types::Timestamp),
         }
     }
+    /// The type of concurrency control mode for transactions.
+    #[allow(clippy::all)]
+    #[derive(
+        Clone,
+        Copy,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash,
+        PartialOrd,
+        Ord,
+        ::prost::Enumeration
+    )]
+    #[repr(i32)]
+    pub enum ConcurrencyMode {
+        /// Start the transaction with the database-level default concurrency mode.
+        Unspecified = 0,
+        /// Use optimistic concurrency control for the new transaction.
+        Optimistic = 1,
+        /// Use pessimistic concurrency control for the new transaction.
+        Pessimistic = 2,
+    }
+    impl ConcurrencyMode {
+        /// String value of the enum field names used in the ProtoBuf definition.
+        ///
+        /// The values are not transformed in any way and thus are considered stable
+        /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+        pub fn as_str_name(&self) -> &'static str {
+            match self {
+                Self::Unspecified => "CONCURRENCY_MODE_UNSPECIFIED",
+                Self::Optimistic => "OPTIMISTIC",
+                Self::Pessimistic => "PESSIMISTIC",
+            }
+        }
+        /// Creates an enum from field names used in the ProtoBuf definition.
+        pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+            match value {
+                "CONCURRENCY_MODE_UNSPECIFIED" => Some(Self::Unspecified),
+                "OPTIMISTIC" => Some(Self::Optimistic),
+                "PESSIMISTIC" => Some(Self::Pessimistic),
+                _ => None,
+            }
+        }
+    }
     /// The mode of the transaction.
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, Eq, Hash, ::prost::Oneof)]
     pub enum Mode {
         /// The transaction can only be used for read operations.
@@ -1179,10 +1284,19 @@ pub mod transaction_options {
         ReadWrite(ReadWrite),
     }
 }
+/// Options for a server request.
+#[allow(clippy::all)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct RequestOptions {
+    /// The request tags for the request.
+    #[prost(string, repeated, tag = "1")]
+    pub request_tags: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
+}
 /// Pipeline explain stats.
 ///
 /// Depending on the explain options in the original request, this can contain
 /// the optimized plan and / or execution stats.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct ExplainStats {
     /// The format depends on the `output_format` options in the request.
@@ -1197,6 +1311,7 @@ pub struct ExplainStats {
 /// This is considered the top-level function which plans and executes a query.
 /// It is logically equivalent to `query(stages, options)`, but prevents the
 /// client from having to build a function wrapper.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct StructuredPipeline {
     /// Required. The pipeline query to execute.
@@ -1207,6 +1322,7 @@ pub struct StructuredPipeline {
     pub options: ::std::collections::HashMap<::prost::alloc::string::String, Value>,
 }
 /// Explain options for the query.
+#[allow(clippy::all)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct ExplainOptions {
     /// Optional. Whether to execute this query.
@@ -1220,6 +1336,7 @@ pub struct ExplainOptions {
     pub analyze: bool,
 }
 /// Explain metrics for the query.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ExplainMetrics {
     /// Planning phase information for the query.
@@ -1232,6 +1349,7 @@ pub struct ExplainMetrics {
     pub execution_stats: ::core::option::Option<ExecutionStats>,
 }
 /// Planning phase information for the query.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct PlanSummary {
     /// The indexes selected for the query. For example:
@@ -1243,6 +1361,7 @@ pub struct PlanSummary {
     pub indexes_used: ::prost::alloc::vec::Vec<::prost_types::Struct>,
 }
 /// Execution statistics for the query.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ExecutionStats {
     /// Total number of results returned, including documents, projections,
@@ -1271,6 +1390,7 @@ pub struct ExecutionStats {
     pub debug_stats: ::core::option::Option<::prost_types::Struct>,
 }
 /// A write on a document.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Write {
     /// The fields to update in this write.
@@ -1304,6 +1424,7 @@ pub struct Write {
 /// Nested message and enum types in `Write`.
 pub mod write {
     /// The operation to execute.
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum Operation {
         /// A document to write.
@@ -1319,6 +1440,7 @@ pub mod write {
     }
 }
 /// A transformation of a document.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct DocumentTransform {
     /// The name of the document to transform.
@@ -1333,6 +1455,7 @@ pub struct DocumentTransform {
 /// Nested message and enum types in `DocumentTransform`.
 pub mod document_transform {
     /// A transformation of a field of the document.
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct FieldTransform {
         /// The path of the field. See
@@ -1347,6 +1470,7 @@ pub mod document_transform {
     /// Nested message and enum types in `FieldTransform`.
     pub mod field_transform {
         /// A value that is calculated by the server.
+        #[allow(clippy::all)]
         #[derive(
             Clone,
             Copy,
@@ -1388,6 +1512,7 @@ pub mod document_transform {
             }
         }
         /// The transformation to apply on the field.
+        #[allow(clippy::all)]
         #[derive(Clone, PartialEq, ::prost::Oneof)]
         pub enum TransformType {
             /// Sets the field to the given server value.
@@ -1463,6 +1588,7 @@ pub mod document_transform {
     }
 }
 /// The result of applying a write.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct WriteResult {
     /// The last update time of the document after applying the write. Not set
@@ -1486,6 +1612,7 @@ pub struct WriteResult {
 ///
 /// Multiple \[DocumentChange\]\[google.firestore.v1.DocumentChange\] messages may be
 /// returned for the same logical change, if multiple targets are affected.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct DocumentChange {
     /// The new state of the \[Document\]\[google.firestore.v1.Document\].
@@ -1508,6 +1635,7 @@ pub struct DocumentChange {
 ///
 /// Multiple \[DocumentDelete\]\[google.firestore.v1.DocumentDelete\] messages may be
 /// returned for the same logical delete, if multiple targets are affected.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct DocumentDelete {
     /// The resource name of the \[Document\]\[google.firestore.v1.Document\] that was
@@ -1533,6 +1661,7 @@ pub struct DocumentDelete {
 /// Multiple \[DocumentRemove\]\[google.firestore.v1.DocumentRemove\] messages may be
 /// returned for the same logical write or delete, if multiple targets are
 /// affected.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct DocumentRemove {
     /// The resource name of the \[Document\]\[google.firestore.v1.Document\] that has
@@ -1549,6 +1678,7 @@ pub struct DocumentRemove {
     pub read_time: ::core::option::Option<::prost_types::Timestamp>,
 }
 /// A digest of all the documents that match a given target.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct ExistenceFilter {
     /// The target ID to which this filter applies.
@@ -1582,6 +1712,7 @@ pub struct ExistenceFilter {
 }
 /// The request for
 /// \[Firestore.GetDocument\]\[google.firestore.v1.Firestore.GetDocument\].
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct GetDocumentRequest {
     /// Required. The resource name of the Document to get. In the format:
@@ -1594,6 +1725,9 @@ pub struct GetDocumentRequest {
     /// will not be returned in the response.
     #[prost(message, optional, tag = "2")]
     pub mask: ::core::option::Option<DocumentMask>,
+    /// Optional. Any additional options for the request.
+    #[prost(message, optional, tag = "10")]
+    pub request_options: ::core::option::Option<RequestOptions>,
     /// The consistency mode for this transaction.
     /// If not set, defaults to strong consistency.
     #[prost(oneof = "get_document_request::ConsistencySelector", tags = "3, 5")]
@@ -1605,6 +1739,7 @@ pub struct GetDocumentRequest {
 pub mod get_document_request {
     /// The consistency mode for this transaction.
     /// If not set, defaults to strong consistency.
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, Eq, Hash, ::prost::Oneof)]
     pub enum ConsistencySelector {
         /// Reads the document in a transaction.
@@ -1621,6 +1756,7 @@ pub mod get_document_request {
 }
 /// The request for
 /// \[Firestore.ListDocuments\]\[google.firestore.v1.Firestore.ListDocuments\].
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct ListDocumentsRequest {
     /// Required. The parent resource name. In the format:
@@ -1678,6 +1814,9 @@ pub struct ListDocumentsRequest {
     /// Requests with `show_missing` may not specify `where` or `order_by`.
     #[prost(bool, tag = "12")]
     pub show_missing: bool,
+    /// Optional. Any additional options for the request.
+    #[prost(message, optional, tag = "13")]
+    pub request_options: ::core::option::Option<RequestOptions>,
     /// The consistency mode for this transaction.
     /// If not set, defaults to strong consistency.
     #[prost(oneof = "list_documents_request::ConsistencySelector", tags = "8, 10")]
@@ -1689,6 +1828,7 @@ pub struct ListDocumentsRequest {
 pub mod list_documents_request {
     /// The consistency mode for this transaction.
     /// If not set, defaults to strong consistency.
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, Eq, Hash, ::prost::Oneof)]
     pub enum ConsistencySelector {
         /// Perform the read as part of an already active transaction.
@@ -1705,6 +1845,7 @@ pub mod list_documents_request {
 }
 /// The response for
 /// \[Firestore.ListDocuments\]\[google.firestore.v1.Firestore.ListDocuments\].
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ListDocumentsResponse {
     /// The Documents found.
@@ -1718,6 +1859,7 @@ pub struct ListDocumentsResponse {
 }
 /// The request for
 /// \[Firestore.CreateDocument\]\[google.firestore.v1.Firestore.CreateDocument\].
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CreateDocumentRequest {
     /// Required. The parent resource. For example:
@@ -1743,9 +1885,13 @@ pub struct CreateDocumentRequest {
     /// will not be returned in the response.
     #[prost(message, optional, tag = "5")]
     pub mask: ::core::option::Option<DocumentMask>,
+    /// Optional. Any additional options for the request.
+    #[prost(message, optional, tag = "6")]
+    pub request_options: ::core::option::Option<RequestOptions>,
 }
 /// The request for
 /// \[Firestore.UpdateDocument\]\[google.firestore.v1.Firestore.UpdateDocument\].
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct UpdateDocumentRequest {
     /// Required. The updated document.
@@ -1771,9 +1917,13 @@ pub struct UpdateDocumentRequest {
     /// The request will fail if this is set and not met by the target document.
     #[prost(message, optional, tag = "4")]
     pub current_document: ::core::option::Option<Precondition>,
+    /// Optional. Any additional options for the request.
+    #[prost(message, optional, tag = "5")]
+    pub request_options: ::core::option::Option<RequestOptions>,
 }
 /// The request for
 /// \[Firestore.DeleteDocument\]\[google.firestore.v1.Firestore.DeleteDocument\].
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct DeleteDocumentRequest {
     /// Required. The resource name of the Document to delete. In the format:
@@ -1784,9 +1934,13 @@ pub struct DeleteDocumentRequest {
     /// The request will fail if this is set and not met by the target document.
     #[prost(message, optional, tag = "2")]
     pub current_document: ::core::option::Option<Precondition>,
+    /// Optional. Any additional options for the request.
+    #[prost(message, optional, tag = "3")]
+    pub request_options: ::core::option::Option<RequestOptions>,
 }
 /// The request for
 /// \[Firestore.BatchGetDocuments\]\[google.firestore.v1.Firestore.BatchGetDocuments\].
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct BatchGetDocumentsRequest {
     /// Required. The database name. In the format:
@@ -1805,6 +1959,9 @@ pub struct BatchGetDocumentsRequest {
     /// not be returned in the response.
     #[prost(message, optional, tag = "3")]
     pub mask: ::core::option::Option<DocumentMask>,
+    /// Optional. Any additional options for the request.
+    #[prost(message, optional, tag = "8")]
+    pub request_options: ::core::option::Option<RequestOptions>,
     /// The consistency mode for this transaction.
     /// If not set, defaults to strong consistency.
     #[prost(
@@ -1819,6 +1976,7 @@ pub struct BatchGetDocumentsRequest {
 pub mod batch_get_documents_request {
     /// The consistency mode for this transaction.
     /// If not set, defaults to strong consistency.
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, Eq, Hash, ::prost::Oneof)]
     pub enum ConsistencySelector {
         /// Reads documents in a transaction.
@@ -1841,6 +1999,7 @@ pub mod batch_get_documents_request {
 }
 /// The streamed response for
 /// \[Firestore.BatchGetDocuments\]\[google.firestore.v1.Firestore.BatchGetDocuments\].
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct BatchGetDocumentsResponse {
     /// The transaction that was started as part of this request.
@@ -1864,6 +2023,7 @@ pub struct BatchGetDocumentsResponse {
 pub mod batch_get_documents_response {
     /// A single result.
     /// This can be empty if the server is just returning a transaction.
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum Result {
         /// A document that was requested.
@@ -1877,6 +2037,7 @@ pub mod batch_get_documents_response {
 }
 /// The request for
 /// \[Firestore.BeginTransaction\]\[google.firestore.v1.Firestore.BeginTransaction\].
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct BeginTransactionRequest {
     /// Required. The database name. In the format:
@@ -1887,9 +2048,13 @@ pub struct BeginTransactionRequest {
     /// Defaults to a read-write transaction.
     #[prost(message, optional, tag = "2")]
     pub options: ::core::option::Option<TransactionOptions>,
+    /// Optional. Any additional options for the request.
+    #[prost(message, optional, tag = "3")]
+    pub request_options: ::core::option::Option<RequestOptions>,
 }
 /// The response for
 /// \[Firestore.BeginTransaction\]\[google.firestore.v1.Firestore.BeginTransaction\].
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct BeginTransactionResponse {
     /// The transaction that was started.
@@ -1897,6 +2062,7 @@ pub struct BeginTransactionResponse {
     pub transaction: ::prost::alloc::vec::Vec<u8>,
 }
 /// The request for \[Firestore.Commit\]\[google.firestore.v1.Firestore.Commit\].
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CommitRequest {
     /// Required. The database name. In the format:
@@ -1911,8 +2077,12 @@ pub struct CommitRequest {
     /// If set, applies all writes in this transaction, and commits it.
     #[prost(bytes = "vec", tag = "3")]
     pub transaction: ::prost::alloc::vec::Vec<u8>,
+    /// Optional. Any additional options for the request.
+    #[prost(message, optional, tag = "4")]
+    pub request_options: ::core::option::Option<RequestOptions>,
 }
 /// The response for \[Firestore.Commit\]\[google.firestore.v1.Firestore.Commit\].
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CommitResponse {
     /// The result of applying the writes.
@@ -1927,6 +2097,7 @@ pub struct CommitResponse {
     pub commit_time: ::core::option::Option<::prost_types::Timestamp>,
 }
 /// The request for \[Firestore.Rollback\]\[google.firestore.v1.Firestore.Rollback\].
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct RollbackRequest {
     /// Required. The database name. In the format:
@@ -1936,8 +2107,12 @@ pub struct RollbackRequest {
     /// Required. The transaction to roll back.
     #[prost(bytes = "vec", tag = "2")]
     pub transaction: ::prost::alloc::vec::Vec<u8>,
+    /// Optional. Any additional options for the request.
+    #[prost(message, optional, tag = "3")]
+    pub request_options: ::core::option::Option<RequestOptions>,
 }
 /// The request for \[Firestore.RunQuery\]\[google.firestore.v1.Firestore.RunQuery\].
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct RunQueryRequest {
     /// Required. The parent resource name. In the format:
@@ -1952,6 +2127,9 @@ pub struct RunQueryRequest {
     /// statistics will be returned. If not, only query results will be returned.
     #[prost(message, optional, tag = "10")]
     pub explain_options: ::core::option::Option<ExplainOptions>,
+    /// Optional. Any additional options for the request.
+    #[prost(message, optional, tag = "11")]
+    pub request_options: ::core::option::Option<RequestOptions>,
     /// The query to run.
     #[prost(oneof = "run_query_request::QueryType", tags = "2")]
     pub query_type: ::core::option::Option<run_query_request::QueryType>,
@@ -1965,6 +2143,7 @@ pub struct RunQueryRequest {
 /// Nested message and enum types in `RunQueryRequest`.
 pub mod run_query_request {
     /// The query to run.
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum QueryType {
         /// A structured query.
@@ -1973,6 +2152,7 @@ pub mod run_query_request {
     }
     /// The consistency mode for this transaction.
     /// If not set, defaults to strong consistency.
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, Eq, Hash, ::prost::Oneof)]
     pub enum ConsistencySelector {
         /// Run the query within an already active transaction.
@@ -1997,6 +2177,7 @@ pub mod run_query_request {
 }
 /// The response for
 /// \[Firestore.RunQuery\]\[google.firestore.v1.Firestore.RunQuery\].
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct RunQueryResponse {
     /// The transaction that was started as part of this request.
@@ -2040,6 +2221,7 @@ pub mod run_query_response {
     /// The continuation mode for the query. If present, it indicates the current
     /// query response stream has finished. This can be set with or without a
     /// `document` present, but when set, no more results are returned.
+    #[allow(clippy::all)]
     #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Oneof)]
     pub enum ContinuationSelector {
         /// If present, Firestore has completely finished the request and no more
@@ -2050,12 +2232,21 @@ pub mod run_query_response {
 }
 /// The request for
 /// \[Firestore.ExecutePipeline\]\[google.firestore.v1.Firestore.ExecutePipeline\].
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ExecutePipelineRequest {
     /// Required. Database identifier, in the form
     /// `projects/{project}/databases/{database}`.
     #[prost(string, tag = "1")]
     pub database: ::prost::alloc::string::String,
+    /// Optional. Automatically commits the transaction after the pipeline has been
+    /// executed. Only permitted in combination with `transaction` or
+    /// `new_transaction`.
+    #[prost(bool, tag = "9")]
+    pub auto_commit_transaction: bool,
+    /// Optional. Any additional options for the request.
+    #[prost(message, optional, tag = "10")]
+    pub request_options: ::core::option::Option<RequestOptions>,
     #[prost(oneof = "execute_pipeline_request::PipelineType", tags = "2")]
     pub pipeline_type: ::core::option::Option<execute_pipeline_request::PipelineType>,
     /// Optional consistency arguments, defaults to strong consistency.
@@ -2066,6 +2257,7 @@ pub struct ExecutePipelineRequest {
 }
 /// Nested message and enum types in `ExecutePipelineRequest`.
 pub mod execute_pipeline_request {
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum PipelineType {
         /// A pipelined operation.
@@ -2073,6 +2265,7 @@ pub mod execute_pipeline_request {
         StructuredPipeline(super::StructuredPipeline),
     }
     /// Optional consistency arguments, defaults to strong consistency.
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, Eq, Hash, ::prost::Oneof)]
     pub enum ConsistencySelector {
         /// Run the query within an already active transaction.
@@ -2096,6 +2289,7 @@ pub mod execute_pipeline_request {
     }
 }
 /// The response for \[Firestore.Execute\]\[\].
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ExecutePipelineResponse {
     /// Newly created transaction identifier.
@@ -2143,6 +2337,7 @@ pub struct ExecutePipelineResponse {
 }
 /// The request for
 /// \[Firestore.RunAggregationQuery\]\[google.firestore.v1.Firestore.RunAggregationQuery\].
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct RunAggregationQueryRequest {
     /// Required. The parent resource name. In the format:
@@ -2157,6 +2352,9 @@ pub struct RunAggregationQueryRequest {
     /// statistics will be returned. If not, only query results will be returned.
     #[prost(message, optional, tag = "8")]
     pub explain_options: ::core::option::Option<ExplainOptions>,
+    /// Optional. Any additional options for the request.
+    #[prost(message, optional, tag = "9")]
+    pub request_options: ::core::option::Option<RequestOptions>,
     /// The query to run.
     #[prost(oneof = "run_aggregation_query_request::QueryType", tags = "2")]
     pub query_type: ::core::option::Option<run_aggregation_query_request::QueryType>,
@@ -2172,6 +2370,7 @@ pub struct RunAggregationQueryRequest {
 /// Nested message and enum types in `RunAggregationQueryRequest`.
 pub mod run_aggregation_query_request {
     /// The query to run.
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum QueryType {
         /// An aggregation query.
@@ -2179,6 +2378,7 @@ pub mod run_aggregation_query_request {
         StructuredAggregationQuery(super::StructuredAggregationQuery),
     }
     /// The consistency mode for the query, defaults to strong consistency.
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, Eq, Hash, ::prost::Oneof)]
     pub enum ConsistencySelector {
         /// Run the aggregation within an already active transaction.
@@ -2203,6 +2403,7 @@ pub mod run_aggregation_query_request {
 }
 /// The response for
 /// \[Firestore.RunAggregationQuery\]\[google.firestore.v1.Firestore.RunAggregationQuery\].
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct RunAggregationQueryResponse {
     /// A single aggregation result.
@@ -2234,6 +2435,7 @@ pub struct RunAggregationQueryResponse {
 }
 /// The request for
 /// \[Firestore.PartitionQuery\]\[google.firestore.v1.Firestore.PartitionQuery\].
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct PartitionQueryRequest {
     /// Required. The parent resource name. In the format:
@@ -2276,6 +2478,9 @@ pub struct PartitionQueryRequest {
     /// 2 partitions, to complete the total of 10 specified in `partition_count`.
     #[prost(int32, tag = "5")]
     pub page_size: i32,
+    /// Optional. Any additional options for the request.
+    #[prost(message, optional, tag = "7")]
+    pub request_options: ::core::option::Option<RequestOptions>,
     /// The query to partition.
     #[prost(oneof = "partition_query_request::QueryType", tags = "2")]
     pub query_type: ::core::option::Option<partition_query_request::QueryType>,
@@ -2289,6 +2494,7 @@ pub struct PartitionQueryRequest {
 /// Nested message and enum types in `PartitionQueryRequest`.
 pub mod partition_query_request {
     /// The query to partition.
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum QueryType {
         /// A structured query.
@@ -2300,6 +2506,7 @@ pub mod partition_query_request {
     }
     /// The consistency mode for this request.
     /// If not set, defaults to strong consistency.
+    #[allow(clippy::all)]
     #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Oneof)]
     pub enum ConsistencySelector {
         /// Reads documents as they were at the given time.
@@ -2313,6 +2520,7 @@ pub mod partition_query_request {
 }
 /// The response for
 /// \[Firestore.PartitionQuery\]\[google.firestore.v1.Firestore.PartitionQuery\].
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct PartitionQueryResponse {
     /// Partition results.
@@ -2350,6 +2558,7 @@ pub struct PartitionQueryResponse {
 /// When resuming a stream, the server first streams any responses later than the
 /// given token, then a response containing only an up-to-date token, to use in
 /// the next request.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct WriteRequest {
     /// Required. The database name. In the format:
@@ -2392,8 +2601,12 @@ pub struct WriteRequest {
         ::prost::alloc::string::String,
         ::prost::alloc::string::String,
     >,
+    /// Optional. Any additional options for the request.
+    #[prost(message, optional, tag = "6")]
+    pub request_options: ::core::option::Option<RequestOptions>,
 }
 /// The response for \[Firestore.Write\]\[google.firestore.v1.Firestore.Write\].
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct WriteResponse {
     /// The ID of the stream.
@@ -2418,6 +2631,7 @@ pub struct WriteResponse {
     pub commit_time: ::core::option::Option<::prost_types::Timestamp>,
 }
 /// A request for \[Firestore.Listen\]\[google.firestore.v1.Firestore.Listen\]
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ListenRequest {
     /// Required. The database name. In the format:
@@ -2430,6 +2644,9 @@ pub struct ListenRequest {
         ::prost::alloc::string::String,
         ::prost::alloc::string::String,
     >,
+    /// Optional. Any additional options for the request.
+    #[prost(message, optional, tag = "5")]
+    pub request_options: ::core::option::Option<RequestOptions>,
     /// The supported target changes.
     #[prost(oneof = "listen_request::TargetChange", tags = "2, 3")]
     pub target_change: ::core::option::Option<listen_request::TargetChange>,
@@ -2437,6 +2654,7 @@ pub struct ListenRequest {
 /// Nested message and enum types in `ListenRequest`.
 pub mod listen_request {
     /// The supported target changes.
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum TargetChange {
         /// A target to add to this stream.
@@ -2448,6 +2666,7 @@ pub mod listen_request {
     }
 }
 /// The response for \[Firestore.Listen\]\[google.firestore.v1.Firestore.Listen\].
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ListenResponse {
     /// The supported responses.
@@ -2457,6 +2676,7 @@ pub struct ListenResponse {
 /// Nested message and enum types in `ListenResponse`.
 pub mod listen_response {
     /// The supported responses.
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum ResponseType {
         /// Targets have changed.
@@ -2482,6 +2702,7 @@ pub mod listen_response {
     }
 }
 /// A specification of a set of documents to listen to.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Target {
     /// The target ID that identifies the target on the stream. Must be a positive
@@ -2528,6 +2749,7 @@ pub struct Target {
 /// Nested message and enum types in `Target`.
 pub mod target {
     /// A target specified by a set of documents names.
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
     pub struct DocumentsTarget {
         /// The names of the documents to retrieve. In the format:
@@ -2538,6 +2760,7 @@ pub mod target {
         pub documents: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
     }
     /// A target specified by a query.
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct QueryTarget {
         /// The parent resource name. In the format:
@@ -2555,6 +2778,7 @@ pub mod target {
     /// Nested message and enum types in `QueryTarget`.
     pub mod query_target {
         /// The query to run.
+        #[allow(clippy::all)]
         #[derive(Clone, PartialEq, ::prost::Oneof)]
         pub enum QueryType {
             /// A structured query.
@@ -2563,6 +2787,7 @@ pub mod target {
         }
     }
     /// The type of target to listen to.
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum TargetType {
         /// A target specified by a query.
@@ -2577,6 +2802,7 @@ pub mod target {
     /// If specified, only the matching Documents that have been updated AFTER the
     /// `resume_token` or `read_time` will be returned. Otherwise, all matching
     /// Documents are returned before any subsequent changes.
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, Eq, Hash, ::prost::Oneof)]
     pub enum ResumeType {
         /// A resume token from a prior
@@ -2593,6 +2819,7 @@ pub mod target {
     }
 }
 /// Targets being watched have changed.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct TargetChange {
     /// The type of change that occurred.
@@ -2630,6 +2857,7 @@ pub struct TargetChange {
 /// Nested message and enum types in `TargetChange`.
 pub mod target_change {
     /// The type of change.
+    #[allow(clippy::all)]
     #[derive(
         Clone,
         Copy,
@@ -2694,12 +2922,16 @@ pub mod target_change {
 }
 /// The request for
 /// \[Firestore.ListCollectionIds\]\[google.firestore.v1.Firestore.ListCollectionIds\].
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct ListCollectionIdsRequest {
     /// Required. The parent document. In the format:
     /// `projects/{project_id}/databases/{database_id}/documents/{document_path}`.
     /// For example:
     /// `projects/my-project/databases/my-database/documents/chatrooms/my-chatroom`
+    ///
+    /// Use `projects/{project_id}/databases/{database_id}/documents` to list
+    /// top-level collections.
     #[prost(string, tag = "1")]
     pub parent: ::prost::alloc::string::String,
     /// The maximum number of results to return.
@@ -2709,6 +2941,9 @@ pub struct ListCollectionIdsRequest {
     /// \[ListCollectionIdsResponse\]\[google.firestore.v1.ListCollectionIdsResponse\].
     #[prost(string, tag = "3")]
     pub page_token: ::prost::alloc::string::String,
+    /// Optional. Any additional options for the request.
+    #[prost(message, optional, tag = "5")]
+    pub request_options: ::core::option::Option<RequestOptions>,
     /// The consistency mode for this request.
     /// If not set, defaults to strong consistency.
     #[prost(oneof = "list_collection_ids_request::ConsistencySelector", tags = "4")]
@@ -2720,6 +2955,7 @@ pub struct ListCollectionIdsRequest {
 pub mod list_collection_ids_request {
     /// The consistency mode for this request.
     /// If not set, defaults to strong consistency.
+    #[allow(clippy::all)]
     #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Oneof)]
     pub enum ConsistencySelector {
         /// Reads documents as they were at the given time.
@@ -2733,6 +2969,7 @@ pub mod list_collection_ids_request {
 }
 /// The response from
 /// \[Firestore.ListCollectionIds\]\[google.firestore.v1.Firestore.ListCollectionIds\].
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct ListCollectionIdsResponse {
     /// The collection ids.
@@ -2744,6 +2981,7 @@ pub struct ListCollectionIdsResponse {
 }
 /// The request for
 /// \[Firestore.BatchWrite\]\[google.firestore.v1.Firestore.BatchWrite\].
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct BatchWriteRequest {
     /// Required. The database name. In the format:
@@ -2763,9 +3001,13 @@ pub struct BatchWriteRequest {
         ::prost::alloc::string::String,
         ::prost::alloc::string::String,
     >,
+    /// Optional. Any additional options for the request.
+    #[prost(message, optional, tag = "4")]
+    pub request_options: ::core::option::Option<RequestOptions>,
 }
 /// The response from
 /// \[Firestore.BatchWrite\]\[google.firestore.v1.Firestore.BatchWrite\].
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct BatchWriteResponse {
     /// The result of applying the writes.

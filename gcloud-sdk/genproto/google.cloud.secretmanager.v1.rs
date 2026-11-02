@@ -5,6 +5,7 @@
 /// A \[Secret\]\[google.cloud.secretmanager.v1.Secret\] is made up of zero or more
 /// \[SecretVersions\]\[google.cloud.secretmanager.v1.SecretVersion\] that represent
 /// the secret data.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Secret {
     /// Output only. The resource name of the
@@ -116,6 +117,19 @@ pub struct Secret {
         ::prost::alloc::string::String,
         ::prost::alloc::string::String,
     >,
+    /// Optional. Immutable. This defines the type of the secret.
+    /// Enforces certain structural requirements on the
+    /// \[SecretVersions\]\[google.cloud.secretmanager.v1.SecretVersion\].
+    /// For secret of type UNSPECIFIED, the SecretVersions can be of any type.
+    #[prost(enumeration = "secret::SecretType", tag = "17")]
+    pub secret_type: i32,
+    /// Output only. Defines the policy member for the secret.
+    /// This will be used to check if the caller has the permission to perform
+    /// certain operations on the typed secret.
+    #[prost(message, optional, tag = "18")]
+    pub policy_member: ::core::option::Option<
+        super::super::super::iam::v1::ResourcePolicyMember,
+    >,
     /// Expiration policy attached to the
     /// \[Secret\]\[google.cloud.secretmanager.v1.Secret\]. If specified the
     /// \[Secret\]\[google.cloud.secretmanager.v1.Secret\] and all
@@ -132,6 +146,65 @@ pub struct Secret {
 }
 /// Nested message and enum types in `Secret`.
 pub mod secret {
+    /// This defines the various values of the type of secret can be.
+    #[allow(clippy::all)]
+    #[derive(
+        Clone,
+        Copy,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash,
+        PartialOrd,
+        Ord,
+        ::prost::Enumeration
+    )]
+    #[repr(i32)]
+    pub enum SecretType {
+        /// Applicable to all secrets which do not have any restriction on the
+        /// SecretVersions.
+        Unspecified = 0,
+        /// Applicable to secrets which are used for the managed rotation feature
+        /// for Cloud SQL Single User.
+        CloudSqlDbCredentials = 1,
+        /// Applicable to secrets where the payload contains an access key.
+        AccessKey = 2,
+        /// Applicable to secrets where the payload contains a certificate.
+        Certificate = 3,
+        /// Applicable to secrets where the payload contains database credentials.
+        OtherDbCredentials = 4,
+        /// Applicable to secrets whose type doesn't belong to any of the above
+        /// defined types.
+        Other = 50,
+    }
+    impl SecretType {
+        /// String value of the enum field names used in the ProtoBuf definition.
+        ///
+        /// The values are not transformed in any way and thus are considered stable
+        /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+        pub fn as_str_name(&self) -> &'static str {
+            match self {
+                Self::Unspecified => "SECRET_TYPE_UNSPECIFIED",
+                Self::CloudSqlDbCredentials => "CLOUD_SQL_DB_CREDENTIALS",
+                Self::AccessKey => "ACCESS_KEY",
+                Self::Certificate => "CERTIFICATE",
+                Self::OtherDbCredentials => "OTHER_DB_CREDENTIALS",
+                Self::Other => "OTHER",
+            }
+        }
+        /// Creates an enum from field names used in the ProtoBuf definition.
+        pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+            match value {
+                "SECRET_TYPE_UNSPECIFIED" => Some(Self::Unspecified),
+                "CLOUD_SQL_DB_CREDENTIALS" => Some(Self::CloudSqlDbCredentials),
+                "ACCESS_KEY" => Some(Self::AccessKey),
+                "CERTIFICATE" => Some(Self::Certificate),
+                "OTHER_DB_CREDENTIALS" => Some(Self::OtherDbCredentials),
+                "OTHER" => Some(Self::Other),
+                _ => None,
+            }
+        }
+    }
     /// Expiration policy attached to the
     /// \[Secret\]\[google.cloud.secretmanager.v1.Secret\]. If specified the
     /// \[Secret\]\[google.cloud.secretmanager.v1.Secret\] and all
@@ -143,6 +216,7 @@ pub mod secret {
     /// Conditions](<https://cloud.google.com/secret-manager/docs/access-control#conditions>)
     /// is recommended for granting time-based permissions because the operation
     /// can be reversed.
+    #[allow(clippy::all)]
     #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Oneof)]
     pub enum Expiration {
         /// Optional. Timestamp in UTC when the
@@ -157,6 +231,7 @@ pub mod secret {
     }
 }
 /// A secret version resource in the Secret Manager API.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SecretVersion {
     /// Output only. The resource name of the
@@ -220,6 +295,7 @@ pub mod secret_version {
     /// The state of a
     /// \[SecretVersion\]\[google.cloud.secretmanager.v1.SecretVersion\], indicating if
     /// it can be accessed.
+    #[allow(clippy::all)]
     #[derive(
         Clone,
         Copy,
@@ -275,6 +351,7 @@ pub mod secret_version {
     }
 }
 /// A policy that defines the replication and encryption configuration of data.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Replication {
     /// The replication policy for this secret.
@@ -286,6 +363,7 @@ pub mod replication {
     /// A replication policy that replicates the
     /// \[Secret\]\[google.cloud.secretmanager.v1.Secret\] payload without any
     /// restrictions.
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
     pub struct Automatic {
         /// Optional. The customer-managed encryption configuration of the
@@ -306,6 +384,7 @@ pub mod replication {
     /// \[Secret\]\[google.cloud.secretmanager.v1.Secret\] payload into the locations
     /// specified in
     /// \[Replication.UserManaged.replicas\]\[google.cloud.secretmanager.v1.Replication.UserManaged.replicas\]
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct UserManaged {
         /// Required. The list of Replicas for this
@@ -319,6 +398,7 @@ pub mod replication {
     pub mod user_managed {
         /// Represents a Replica for this
         /// \[Secret\]\[google.cloud.secretmanager.v1.Secret\].
+        #[allow(clippy::all)]
         #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
         pub struct Replica {
             /// The canonical IDs of the location to replicate data.
@@ -341,6 +421,7 @@ pub mod replication {
         }
     }
     /// The replication policy for this secret.
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum Replication {
         /// The \[Secret\]\[google.cloud.secretmanager.v1.Secret\] will automatically be
@@ -355,6 +436,7 @@ pub mod replication {
 }
 /// Configuration for encrypting secret payloads using customer-managed
 /// encryption keys (CMEK).
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct CustomerManagedEncryption {
     /// Required. The resource name of the Cloud KMS CryptoKey used to encrypt
@@ -375,6 +457,7 @@ pub struct CustomerManagedEncryption {
 }
 /// The replication status of a
 /// \[SecretVersion\]\[google.cloud.secretmanager.v1.SecretVersion\].
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ReplicationStatus {
     /// The replication status of the
@@ -392,6 +475,7 @@ pub mod replication_status {
     ///
     /// Only populated if the parent \[Secret\]\[google.cloud.secretmanager.v1.Secret\]
     /// has an automatic replication policy.
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
     pub struct AutomaticStatus {
         /// Output only. The customer-managed encryption status of the
@@ -408,6 +492,7 @@ pub mod replication_status {
     ///
     /// Only populated if the parent \[Secret\]\[google.cloud.secretmanager.v1.Secret\]
     /// has a user-managed replication policy.
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct UserManagedStatus {
         /// Output only. The list of replica statuses for the
@@ -419,6 +504,7 @@ pub mod replication_status {
     pub mod user_managed_status {
         /// Describes the status of a user-managed replica for the
         /// \[SecretVersion\]\[google.cloud.secretmanager.v1.SecretVersion\].
+        #[allow(clippy::all)]
         #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
         pub struct ReplicaStatus {
             /// Output only. The canonical ID of the replica location.
@@ -436,6 +522,7 @@ pub mod replication_status {
     }
     /// The replication status of the
     /// \[SecretVersion\]\[google.cloud.secretmanager.v1.SecretVersion\].
+    #[allow(clippy::all)]
     #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum ReplicationStatus {
         /// Describes the replication status of a
@@ -459,6 +546,7 @@ pub mod replication_status {
     }
 }
 /// Describes the status of customer-managed encryption.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct CustomerManagedEncryptionStatus {
     /// Required. The resource name of the Cloud KMS CryptoKeyVersion used to
@@ -469,6 +557,7 @@ pub struct CustomerManagedEncryptionStatus {
 }
 /// A Pub/Sub topic which Secret Manager will publish to when control plane
 /// events occur on this secret.
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct Topic {
     /// Identifier. The resource name of the Pub/Sub topic that will be published
@@ -484,7 +573,8 @@ pub struct Topic {
 /// Manager will send a Pub/Sub notification to the topics configured on the
 /// Secret. \[Secret.topics\]\[google.cloud.secretmanager.v1.Secret.topics\] must be
 /// set to configure rotation.
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+#[allow(clippy::all)]
+#[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Rotation {
     /// Optional. Timestamp in UTC at which the
     /// \[Secret\]\[google.cloud.secretmanager.v1.Secret\] is scheduled to rotate.
@@ -510,9 +600,98 @@ pub struct Rotation {
     /// rotation notifications.
     #[prost(message, optional, tag = "2")]
     pub rotation_period: ::core::option::Option<::prost_types::Duration>,
+    /// Output only. The current status of the managed rotation.
+    /// This field is only applicable to Typed Secrets.
+    /// This field is set by the service and cannot be set by the user.
+    #[prost(message, optional, tag = "3")]
+    pub managed_rotation_status: ::core::option::Option<rotation::ManagedRotationStatus>,
+}
+/// Nested message and enum types in `Rotation`.
+pub mod rotation {
+    /// Represents the status of a managed rotation.
+    ///
+    /// This is applicable only to Typed Secrets. It indicates whether the
+    /// rotation is active and any errors that may have occurred during the
+    /// asynchronous managed rotation.
+    #[allow(clippy::all)]
+    #[derive(Clone, PartialEq, ::prost::Message)]
+    pub struct ManagedRotationStatus {
+        /// Output only. Indicates whether the Managed Rotation is active or not.
+        #[prost(enumeration = "managed_rotation_status::State", tag = "1")]
+        pub state: i32,
+        /// Output only. Displays customer-facing issues that occurred during an
+        /// asynchronous managed rotation. For example, if there are some permission
+        /// errors.
+        #[prost(message, optional, tag = "2")]
+        pub error: ::core::option::Option<super::super::super::super::rpc::Status>,
+    }
+    /// Nested message and enum types in `ManagedRotationStatus`.
+    pub mod managed_rotation_status {
+        /// This defines the various states in which the managed rotation can be.
+        #[allow(clippy::all)]
+        #[derive(
+            Clone,
+            Copy,
+            Debug,
+            PartialEq,
+            Eq,
+            Hash,
+            PartialOrd,
+            Ord,
+            ::prost::Enumeration
+        )]
+        #[repr(i32)]
+        pub enum State {
+            /// Not specified. This value is unused and invalid.
+            Unspecified = 0,
+            /// Indicates that the Managed rotation is ACTIVE.
+            Active = 1,
+            /// Indicates that the Managed rotation is INACTIVE.
+            Inactive = 2,
+        }
+        impl State {
+            /// String value of the enum field names used in the ProtoBuf definition.
+            ///
+            /// The values are not transformed in any way and thus are considered stable
+            /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+            pub fn as_str_name(&self) -> &'static str {
+                match self {
+                    Self::Unspecified => "STATE_UNSPECIFIED",
+                    Self::Active => "ACTIVE",
+                    Self::Inactive => "INACTIVE",
+                }
+            }
+            /// Creates an enum from field names used in the ProtoBuf definition.
+            pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+                match value {
+                    "STATE_UNSPECIFIED" => Some(Self::Unspecified),
+                    "ACTIVE" => Some(Self::Active),
+                    "INACTIVE" => Some(Self::Inactive),
+                    _ => None,
+                }
+            }
+        }
+    }
+}
+/// These are the credentials required for Cloud SQL DB for Single user
+/// Managed Rotation.
+#[allow(clippy::all)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct CloudSqlSingleUserCredentials {
+    /// Required. Instance ID of the Cloud SQL instance.
+    #[prost(string, tag = "1")]
+    pub instance_id: ::prost::alloc::string::String,
+    /// Required. Username of the Cloud SQL instance.
+    #[prost(string, tag = "2")]
+    pub username: ::prost::alloc::string::String,
+    /// Optional. Password of the Cloud SQL instance. If this is not provided,
+    /// a random password will be generated.
+    #[prost(string, tag = "3")]
+    pub password: ::prost::alloc::string::String,
 }
 /// Request message for
 /// \[SecretManagerService.ListSecrets\]\[google.cloud.secretmanager.v1.SecretManagerService.ListSecrets\].
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct ListSecretsRequest {
     /// Required. The resource name of the project associated with the
@@ -539,6 +718,7 @@ pub struct ListSecretsRequest {
 }
 /// Response message for
 /// \[SecretManagerService.ListSecrets\]\[google.cloud.secretmanager.v1.SecretManagerService.ListSecrets\].
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ListSecretsResponse {
     /// The list of \[Secrets\]\[google.cloud.secretmanager.v1.Secret\] sorted in
@@ -559,6 +739,7 @@ pub struct ListSecretsResponse {
 }
 /// Request message for
 /// \[SecretManagerService.CreateSecret\]\[google.cloud.secretmanager.v1.SecretManagerService.CreateSecret\].
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CreateSecretRequest {
     /// Required. The resource name of the project to associate with the
@@ -580,6 +761,7 @@ pub struct CreateSecretRequest {
 }
 /// Request message for
 /// \[SecretManagerService.AddSecretVersion\]\[google.cloud.secretmanager.v1.SecretManagerService.AddSecretVersion\].
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct AddSecretVersionRequest {
     /// Required. The resource name of the
@@ -594,7 +776,48 @@ pub struct AddSecretVersionRequest {
     pub payload: ::core::option::Option<crate::proto_ext::secretmanager::SecretPayload>,
 }
 /// Request message for
+/// \[SecretManagerService.EnableManagedRotation\]\[google.cloud.secretmanager.v1.SecretManagerService.EnableManagedRotation\].
+#[allow(clippy::all)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct EnableManagedRotationRequest {
+    /// Required. The resource name of the
+    /// \[Secret\]\[google.cloud.secretmanager.v1.Secret\] to associate with the
+    /// \[SecretVersion\]\[google.cloud.secretmanager.v1.SecretVersion\] in the format
+    /// `projects/*/secrets/*` or `projects/*/locations/*/secrets/*`.
+    #[prost(string, tag = "1")]
+    pub parent: ::prost::alloc::string::String,
+    /// The credential required for Managed Rotation.
+    /// Right now, only Cloud SQL Single User credentials are supported.
+    #[prost(oneof = "enable_managed_rotation_request::Credential", tags = "2")]
+    pub credential: ::core::option::Option<enable_managed_rotation_request::Credential>,
+}
+/// Nested message and enum types in `EnableManagedRotationRequest`.
+pub mod enable_managed_rotation_request {
+    /// The credential required for Managed Rotation.
+    /// Right now, only Cloud SQL Single User credentials are supported.
+    #[allow(clippy::all)]
+    #[derive(Clone, PartialEq, Eq, Hash, ::prost::Oneof)]
+    pub enum Credential {
+        /// Credentials required for Cloud SQL DB for Single user Managed Rotation.
+        #[prost(message, tag = "2")]
+        CloudSqlSingleUserCredentials(super::CloudSqlSingleUserCredentials),
+    }
+}
+/// Request message for
+/// \[SecretManagerService.RotateSecret\]\[google.cloud.secretmanager.v1.SecretManagerService.RotateSecret\].
+#[allow(clippy::all)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct RotateSecretRequest {
+    /// Required. The resource name of the
+    /// \[Secret\]\[google.cloud.secretmanager.v1.Secret\] to associate with the
+    /// \[SecretVersion\]\[google.cloud.secretmanager.v1.SecretVersion\] in the format
+    /// `projects/*/secrets/*` or `projects/*/locations/*/secrets/*`.
+    #[prost(string, tag = "1")]
+    pub parent: ::prost::alloc::string::String,
+}
+/// Request message for
 /// \[SecretManagerService.GetSecret\]\[google.cloud.secretmanager.v1.SecretManagerService.GetSecret\].
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct GetSecretRequest {
     /// Required. The resource name of the
@@ -605,6 +828,7 @@ pub struct GetSecretRequest {
 }
 /// Request message for
 /// \[SecretManagerService.ListSecretVersions\]\[google.cloud.secretmanager.v1.SecretManagerService.ListSecretVersions\].
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct ListSecretVersionsRequest {
     /// Required. The resource name of the
@@ -632,6 +856,7 @@ pub struct ListSecretVersionsRequest {
 }
 /// Response message for
 /// \[SecretManagerService.ListSecretVersions\]\[google.cloud.secretmanager.v1.SecretManagerService.ListSecretVersions\].
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ListSecretVersionsResponse {
     /// The list of \[SecretVersions\]\[google.cloud.secretmanager.v1.SecretVersion\]
@@ -653,6 +878,7 @@ pub struct ListSecretVersionsResponse {
 }
 /// Request message for
 /// \[SecretManagerService.GetSecretVersion\]\[google.cloud.secretmanager.v1.SecretManagerService.GetSecretVersion\].
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct GetSecretVersionRequest {
     /// Required. The resource name of the
@@ -669,6 +895,7 @@ pub struct GetSecretVersionRequest {
 }
 /// Request message for
 /// \[SecretManagerService.UpdateSecret\]\[google.cloud.secretmanager.v1.SecretManagerService.UpdateSecret\].
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct UpdateSecretRequest {
     /// Required. \[Secret\]\[google.cloud.secretmanager.v1.Secret\] with updated field
@@ -681,6 +908,7 @@ pub struct UpdateSecretRequest {
 }
 /// Request message for
 /// \[SecretManagerService.AccessSecretVersion\]\[google.cloud.secretmanager.v1.SecretManagerService.AccessSecretVersion\].
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct AccessSecretVersionRequest {
     /// Required. The resource name of the
@@ -697,6 +925,7 @@ pub struct AccessSecretVersionRequest {
 }
 /// Response message for
 /// \[SecretManagerService.AccessSecretVersion\]\[google.cloud.secretmanager.v1.SecretManagerService.AccessSecretVersion\].
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct AccessSecretVersionResponse {
     /// The resource name of the
@@ -711,6 +940,7 @@ pub struct AccessSecretVersionResponse {
 }
 /// Request message for
 /// \[SecretManagerService.DeleteSecret\]\[google.cloud.secretmanager.v1.SecretManagerService.DeleteSecret\].
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct DeleteSecretRequest {
     /// Required. The resource name of the
@@ -726,6 +956,7 @@ pub struct DeleteSecretRequest {
 }
 /// Request message for
 /// \[SecretManagerService.DisableSecretVersion\]\[google.cloud.secretmanager.v1.SecretManagerService.DisableSecretVersion\].
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct DisableSecretVersionRequest {
     /// Required. The resource name of the
@@ -743,6 +974,7 @@ pub struct DisableSecretVersionRequest {
 }
 /// Request message for
 /// \[SecretManagerService.EnableSecretVersion\]\[google.cloud.secretmanager.v1.SecretManagerService.EnableSecretVersion\].
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct EnableSecretVersionRequest {
     /// Required. The resource name of the
@@ -760,6 +992,7 @@ pub struct EnableSecretVersionRequest {
 }
 /// Request message for
 /// \[SecretManagerService.DestroySecretVersion\]\[google.cloud.secretmanager.v1.SecretManagerService.DestroySecretVersion\].
+#[allow(clippy::all)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct DestroySecretVersionRequest {
     /// Required. The resource name of the
@@ -1339,6 +1572,66 @@ pub mod secret_manager_service_client {
                     GrpcMethod::new(
                         "google.cloud.secretmanager.v1.SecretManagerService",
                         "TestIamPermissions",
+                    ),
+                );
+            self.inner.unary(req, path, codec).await
+        }
+        /// Enables the managed rotation feature for a
+        /// \[Secret\]\[google.cloud.secretmanager.v1.Secret\]. This method can only be
+        /// triggered once for a secret. In order to do further rotations, RotateSecret
+        /// should be used. This method will add a secret version and update the
+        /// password in Cloud SQL.
+        pub async fn enable_managed_rotation(
+            &mut self,
+            request: impl tonic::IntoRequest<super::EnableManagedRotationRequest>,
+        ) -> std::result::Result<tonic::Response<super::SecretVersion>, tonic::Status> {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::unknown(
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic_prost::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/google.cloud.secretmanager.v1.SecretManagerService/EnableManagedRotation",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(
+                    GrpcMethod::new(
+                        "google.cloud.secretmanager.v1.SecretManagerService",
+                        "EnableManagedRotation",
+                    ),
+                );
+            self.inner.unary(req, path, codec).await
+        }
+        /// Do a managed rotation for a \[Secret\]\[google.cloud.secretmanager.v1.Secret\].
+        /// This can only be triggered after Managed rotation has been enabled.
+        /// This method will add a secret version and update the password in Cloud SQL.
+        pub async fn rotate_secret(
+            &mut self,
+            request: impl tonic::IntoRequest<super::RotateSecretRequest>,
+        ) -> std::result::Result<tonic::Response<super::SecretVersion>, tonic::Status> {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::unknown(
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic_prost::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/google.cloud.secretmanager.v1.SecretManagerService/RotateSecret",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(
+                    GrpcMethod::new(
+                        "google.cloud.secretmanager.v1.SecretManagerService",
+                        "RotateSecret",
                     ),
                 );
             self.inner.unary(req, path, codec).await
